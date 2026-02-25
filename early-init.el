@@ -18,16 +18,14 @@
 
   (setq package-enable-at-startup nil
         frame-inhibit-implied-resize t)
-  (with-eval-after-load "moom"
-    (setq frame-inhibit-implied-resize nil))
 
   (set-scroll-bar-mode nil)
   (menu-bar-mode -1)
   (tab-bar-mode -1)
   (tool-bar-mode -1))
 
-;; setenv "SYNCROOT"
-(setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" ))
+(defvar my-home-dir (getenv "HOME"))
+(defvar my-sync-dir (concat my-home-dir "/Dropbox"))
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 
@@ -81,7 +79,7 @@
 ;; you may want to use exec-path-from-shell.el.
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(setenv "GOPATH" (concat (getenv "HOME") "/.go"))
+(setenv "GOPATH" (concat my-home-dir "/.go"))
 
 (unless noninteractive
   (defvar my-early-end (current-time))

@@ -164,16 +164,14 @@ Then load the following at startup
 
   (setq package-enable-at-startup nil
         frame-inhibit-implied-resize t)
-  (with-eval-after-load "moom"
-    (setq frame-inhibit-implied-resize nil))
 
   (set-scroll-bar-mode nil)
   (menu-bar-mode -1)
   (tab-bar-mode -1)
   (tool-bar-mode -1))
 
-;; setenv "SYNCROOT"
-(setenv "SYNCROOT" (concat (getenv "HOME") "/Dropbox" ))
+(defvar my-home-dir (getenv "HOME"))
+(defvar my-sync-dir (concat my-home-dir "/Dropbox"))
 #+end_src
 
 ** 起動時間の計測
@@ -608,7 +606,7 @@ This function is called directly from the C code."
 ;; you may want to use exec-path-from-shell.el.
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(setenv "GOPATH" (concat (getenv "HOME") "/.go"))
+(setenv "GOPATH" (concat my-home-dir "/.go"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -1821,14 +1819,14 @@ echo "--- done."
 #+begin_src emacs-lisp :tangle no
 ;; 28以前
 (update-file-autoloads
- (concat (getenv "HOME") "/.emacs.d/lisp/late-init.el")
+ (concat my-home-dir "/.emacs.d/lisp/late-init.el")
  t
- (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
+ (concat my-home-dir "/.emacs.d/lisp/init-autoloads.el"))
 
 ;; 29以降
 (loaddefs-generate
- (concat (getenv "HOME") "/.emacs.d/lisp/")
- (concat (getenv "HOME") "/.emacs.d/lisp/init-autoloads.el"))
+ (concat my-home-dir "/.emacs.d/lisp/")
+ (concat my-home-dir "/.emacs.d/lisp/init-autoloads.el"))
 #+end_src
 
 *** [paradox.el] パッケージ選択画面の改善
@@ -2879,7 +2877,7 @@ org-mode との連携には， [[https://github.com/alphapapa/org-bookmark-headi
     (setq bm-persistent-face 'bm-face)
     (setq bm-repository-file
           (expand-file-name
-           (concat (getenv "SYNCROOT") "/usr/emacs.d/.bm-repository")))
+           (concat my-sync-dir "/usr/emacs.d/.bm-repository")))
 
     (unless noninteractive
       (bm-repository-load)
@@ -3899,7 +3897,7 @@ lang en_US
       ;; (setenv "LC_ALL" "en_US") ;; Don't use this line.
       ;; (setq ispell-extra-args '("--lang=en_US"))
       ;; (setenv "DICPATH" "/Applications/LibreOffice.app/Contents/Resources/extensions/dict-en")
-      (setenv "DICPATH" (concat (getenv "SYNCROOT") "/usr/emacs.d/hunspell/dict-en"))
+      (setenv "DICPATH" (concat my-sync-dir "/usr/emacs.d/hunspell/dict-en"))
       (setq ispell-local-dictionary-alist
             '(("ja_JP" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil
                ("-d" "en_US") nil utf-8)
@@ -3915,7 +3913,7 @@ lang en_US
       ;; Not regal way, but it's OK (usually ispell-local-dictionary-alist)
 
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/usr/emacs.d/hunspell.en.dic")))
+            (concat my-sync-dir "/usr/emacs.d/hunspell.en.dic")))
 
      ((executable-find "aspell")
       ;; (message "--- aspell loaded.")
@@ -3930,7 +3928,7 @@ lang en_US
             '((nil "[a-zA-Z]" "[^a-zA-Z]" "'" t
                    ("-d" "en" "--encoding=utf-8") nil utf-8)))
       (setq ispell-personal-dictionary
-            (concat (getenv "SYNCROOT") "/usr/emacs.d/config/aspell.en.pws")))
+            (concat my-sync-dir "/usr/emacs.d/config/aspell.en.pws")))
      (t
       nil))))
 #+end_src
@@ -4227,7 +4225,7 @@ This works also for other defined begin/end tokens to define the structure."
     (add-hook hook #'yas-minor-mode))
   (with-eval-after-load "yasnippet"
     (setq yas-verbosity 2)
-    (setq yas-snippet-dirs `(,(concat (getenv "SYNCROOT") "/usr/emacs.d/yas-dict")))
+    (setq yas-snippet-dirs `(,(concat my-sync-dir "/usr/emacs.d/yas-dict")))
     (unless noninteractive
       (yas-global-mode 1))))
 #+end_src
@@ -4772,8 +4770,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ;; Search Agents
 ;; ndeb option requries "eblook" command
 ;; Use expand-file-name!
-;;(setq lookup-search-agents `((ndeb ,(concat homedir "/Dropbox/Dic/COBUILD5"))
-;;                            (ndeb ,(concat homedir "/Dropbox/Dic/LDOCE4"))))
+;;(setq lookup-search-agents `((ndeb ,(concat my-home-dir "/Dic/COBUILD5"))
+;;                            (ndeb ,(concat my-home-dir "/Dic/LDOCE4"))))
 ;;(setq lookup-use-bitmap nil)
 ;;(setq ndeb-program-name "/usr/bin/eblook")
 ;;(when (eq window-system 'ns)
@@ -8484,7 +8482,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
   (defvar my-session-save-file
-    (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.session")))
+    (expand-file-name (concat my-sync-dir "/usr/emacs.d/.session")))
   (if my-secure-boot
       (message "--- session.el is not loaded for secure booting")
     (unless noninteractive
@@ -8499,7 +8497,7 @@ Org Mode と併用する場合は， my-org-reveal-session-jump の設定が必�
           "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     ;; (setq session-save-file
-    ;;       (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+    ;;       (expand-file-name (concat my-sync-dir "/emacs.d/.session")))
     (setq session-initialize '(de-saveplace session keys menus places)
           ;; session-locals-include nil
           session-globals-include '(ivy-dired-history-variable
@@ -8672,7 +8670,7 @@ http://www.emacswiki.org/emacs/EmacsSession
     ;;       (when (string= (buffer-name) keyfreq-buffer)
     ;;         (kill-buffer-and-window))))
     (setq keyfreq-file
-          (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.keyfreq")))
+          (expand-file-name (concat my-sync-dir "/usr/emacs.d/.keyfreq")))
     (keyfreq-autosave-mode 1))
   (unless noninteractive
     (keyfreq-mode 1)))
@@ -10200,14 +10198,14 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 (add-hook 'org-mode-hook #'org-eldoc-load)
 
 ;; org ファイルの集中管理
-(setq org-directory (concat (getenv "SYNCROOT") "/org/"))
+(setq org-directory (concat my-sync-dir "/org/"))
 
 ;; org-store-link で heading に自動的に挿入される id を使う
 (setq org-id-link-to-org-use-id t)
 
 ;; ..org-id-locations の格納先
 (setq org-id-locations-file
-      (concat (getenv "SYNCROOT") "/usr/emacs.d/.org-id-locations"))
+      (concat my-sync-dir "/usr/emacs.d/.org-id-locations"))
 
 ;; アーカイブファイルの名称を指定
 (setq org-archive-location "%s_archive::")
@@ -10229,7 +10227,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 
 ;; Set checksum program path for windows
 (when (eq window-system 'w32)
-  (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
+  (setq org-mobile-checksum-binary (concat my-sync-dir "/do/cksum.exe")))
 
 ;; Set default table export format
 (setq org-table-export-default-format "orgtbl-to-csv")
@@ -11022,7 +11020,7 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
 (defvar ns-default-notification-sound "Pop")
 
-(defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
+(defvar ns-alerter-command (concat my-sync-dir "/bin/alerter")
   "Path to alerter command. see https://github.com/vjeantet/alerter")
 (setq ns-alerter-command 'script) ;; the alerter is not work for now(2024-02-18).
 (unless ns-alerter-command
@@ -11473,6 +11471,54 @@ org バッファのソースブロックにカーソルがある時には， =el
     (org-move-to-column col)))
 #+end_src
 
+** サブツリー内のステータスの一括リセットする
+:PROPERTIES:
+:CUSTOM_ID: org4d962452
+:ID:       75DD8037-B36B-474A-9494-0C75290FDD3A
+:END:
+
+適用範囲がサブツリーの関数と，バッファ全体で関数を分けています．
+
+下記の項目を一括リセットします．
+
+1. チェックボックス（➔空にする）
+2. ステータス（➔TODOに戻す）
+3. id（➔新しいidを割り当てる．処理対象がバッファ全体の場合のみ）
+
+#+begin_src emacs-lisp :tangle utility.el
+;;;###autoload
+(defun my-org-reset-state-subturee ()
+    (interactive)
+    (if (org-before-first-heading-p)
+	(my-org-reset-state-buffer)
+      (org-map-entries
+       (lambda () (when (org-entry-is-done-p) (org-todo "TODO")))
+       nil 'tree 'archive 'comment)
+      (org-reset-checkbox-state-subtree)
+      (org-update-statistics-cookies nil)
+      (org-fold-hide-subtree)
+      (org-fold-show-children)
+      (message "--- status is reset.")))
+
+;;;###autoload
+(defun my-org-reset-state-buffer ()
+    (interactive)
+    (if (not (y-or-n-p (message "[!] All org-id in this buffer will be changed. Sure?[y/n]")))
+	(message "--- terminated")
+      (beginning-of-buffer)
+      (org-map-entries
+       (lambda ()
+	 (when (org-entry-is-done-p) (org-todo "TODO"))
+	 (org-id-get-create t)
+	 (org-reset-checkbox-state-subtree))
+       nil nil 'archive 'comment)
+      (org-update-statistics-cookies 'all)
+      (org-cycle-content 2)
+      (message "--- status is reset.")))
+
+
+#+end_src
+
 ** [org-capture] 高速にメモを取る
    :PROPERTIES:
    :CUSTOM_ID: org30aecedf
@@ -11700,7 +11746,7 @@ This user property stores the creation date of the entry")
 ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
 (dolist (file (mapcar
                (lambda (arg)
-                 (concat (getenv "SYNCROOT") "/org/" arg))
+                 (concat my-sync-dir "/org/" arg))
                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
                  "org2ja.org" "itr.org" "db/books.org")))
@@ -11751,6 +11797,14 @@ This user property stores the creation date of the entry")
   (setq org-agenda-remove-tags t)
   (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
   (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
+
+  ;; org-agenda	に表示される deadline の配色
+  ;; org-deadline-warning-days =8 の時で，第一変数が {1.0, 0.75, 0.0}ならば，
+  ;; In 1-2 day が紫で，In 3-8 day が白
+  (setq org-agenda-deadline-faces
+	'((1.0 . org-imminent-deadline) ;; '((t :inherit org-warning))
+	  (0.75 . org-upcoming-deadline) ;; (:foreground "red")
+	  (0.0 . org-upcoming-distant-deadline))) ;; '((t :inherit org-default))
 
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)
@@ -12683,11 +12737,11 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
                          "ox-odt" nil t)
   (with-eval-after-load "ox-odt"
     ;; (add-to-list 'org-odt-data-dir
-    ;;              (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/"))
+    ;;              (concat my-sync-dir "/usr/emacs.d/config/"))
     (setq org-odt-styles-file
-          (concat (getenv "SYNCROOT") "/usr/emacs.d/config/style.odt"))
+          (concat my-sync-dir "/usr/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
-    ;;       (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/style.ott"))
+    ;;       (concat my-sync-dir "/usr/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
     ;; ;; ox-odt.el の 自作パッチの変数（DOCSTRINGが記述されていない）
     ;; (setq org-odt-apply-custom-punctuation t)
@@ -13540,7 +13594,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (setq org-attach-git-annex-cutoff nil)
 
     (defvar org-attach-directory-absolute
-      (concat (getenv "SYNCROOT")
+      (concat my-sync-dir
               "/org/"
               (when (boundp 'org-attach-directory)
                 "data/")))))
@@ -14140,10 +14194,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 ** [moom.el] キーボードでフレームの場所を移す
-   :PROPERTIES:
-   :CUSTOM_ID: org5f12ba92
-   :ID:       52845E4B-AFDB-43CC-B06E-67E9377BC7FA
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org5f12ba92
+:ID:       52845E4B-AFDB-43CC-B06E-67E9377BC7FA
+:END:
 
 (2017-07-30) frame-ctr から moom.el にリネームしました．Moom は，Many Tricks がリリースするソフトウェアで，今後はこのソフトウェアのポーティングを目指します．
 
@@ -14197,6 +14251,7 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
+    (setq frame-inhibit-implied-resize nil)
     (setopt moom-command-with-centering nil
             moom-lighter "M"
             moom-verbose t)
@@ -15689,9 +15744,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (async-start ;; do not call this from byte compiled code directory
      `(lambda ()
         (sleep-for (or ',defer 5))
-        (setq load-path ',load-path)
-        (when (and (load (concat (getenv "HOME") "/.emacs") t)
-                   (require 'init nil t)) ;; loading init.el explicitly
+        (when (and (load (concat ',my-home-dir "/.emacs.d/early-init.el") t)
+                   (load (concat ',my-home-dir "/.emacs") t))
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
@@ -15705,9 +15759,9 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 #+end_src
 
 * ユーティリティ関数
-  :PROPERTIES:
-  :CUSTOM_ID: orgb8e84b9a
-  :END:
+:PROPERTIES:
+:CUSTOM_ID: orgb8e84b9a
+:END:
 
 #+begin_src emacs-lisp :tangle yes :exports none
 (my-tick-init-time "font")
@@ -16773,7 +16827,7 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
   (interactive)
   (let ((tbuffer (get-buffer file))
         (cbuffer (current-buffer))
-        (orgfile (concat (getenv "SYNCROOT") "/org/" file))
+        (orgfile (concat my-sync-dir "/org/" file))
         (afile (expand-file-name file))
         ;; (message-log-max nil)
         )
@@ -17054,7 +17108,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((dir (concat (expand-file-name
-                      (or dropbox (concat (getenv "SYNCROOT") "/usr")))
+                      (or dropbox (concat my-sync-dir "/usr")))
                      "/backup/" (system-name))))
     (if (file-directory-p dir)
         (mapc
@@ -17770,11 +17824,11 @@ http://www.fan.gr.jp/~ring/doc/elisp_20/elisp_38.html#SEC608
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-print-message (&optional message)
+(defun my-print-message (&optional msg)
   (let ((inhibit-message nil)
         (message-log-max 5000))
     (message "[%s] %s" (format-time-string "%H:%M:%S" (current-time))
-             (or message "..."))))
+             (or msg "..."))))
 #+end_src
 
 ** TODO emacs-lisp のコードをフォーマットする
@@ -17936,6 +17990,11 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 (keymap-global-set "C-x r C-w" 'rm-kill-region)
 (keymap-global-set "C-x r M-w" 'rm-kill-ring-save)
 #+end_src
+* 有用なデフォルト関数
+1. M-x find-alternate-file (C-x C-v ENT)
+   - ファイルを一度閉じて，再度開く．
+   - ファイル名を指定しない場合は，表示中のファイルを処理対象とする
+
 * おわりに
 :PROPERTIES:
 :CUSTOM_ID: org362fb2dc

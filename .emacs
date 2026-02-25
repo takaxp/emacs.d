@@ -4,69 +4,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                             TODO/DONE/FIXME
 
-(with-eval-after-load "org"
-  ;; (keymap-set org-mode-map "C-c c" 'ignore)
-
-  (defun my-org-reset-state-buffer ()
-    (interactive)
-    (if (not (y-or-n-p (message "[!] All org-id in this buffer will be changed. Sure?[y/n]")))
-	(message "--- terminated")
-      (beginning-of-buffer)
-      (org-map-entries
-       (lambda ()
-	 (when (org-entry-is-done-p) (org-todo "TODO"))
-	 (org-id-get-create t)
-	 (org-reset-checkbox-state-subtree))
-       nil nil 'archive 'comment)
-      (org-update-statistics-cookies 'all)
-      (org-cycle-content 2)
-      (message "--- status is reset.")))
-
-  (defun my-org-reset-state-subturee ()
-    (interactive)
-    (if (org-before-first-heading-p)
-	(my-org-reset-state-buffer)
-      (org-map-entries
-       (lambda () (when (org-entry-is-done-p) (org-todo "TODO")))
-       nil 'tree 'archive 'comment)
-      (org-reset-checkbox-state-subtree)
-      (org-update-statistics-cookies nil)
-      (org-fold-hide-subtree)
-      (org-fold-show-children)
-      (message "--- status is reset.")))
 
 
-  ;; org-agenda	に表示される deadline の配色
-  ;; org-deadline-warning-days =8 の時で，第一変数が {1.0, 0.75, 0.0}ならば，
-  ;; In 1-2 day が紫で，In 3-8 day が白
-  ;;
-  (setq org-agenda-deadline-faces
-	'((1.0 . org-imminent-deadline) ;; '((t :inherit org-warning))
-	  (0.75 . org-upcoming-deadline) ;; (:foreground "red")
-	  (0.0 . org-upcoming-distant-deadline))) ;; '((t :inherit org-default))
 
 
-  ;; (advice-add 'org-assert-version :override #'ignore)
-  ;; (require 'org-phscroll nil t)
 
-  ;; M-x my-toggle-org-pin-subtree
-  (defun my-revisit-current-file ()
-    ;; プロパティにフラグ設定がある場合に常にコンテンツ表示する
-    (interactive)
-    (let ((cb buffer-file-name))
-      (kill-buffer (current-buffer))
-      ;; (sleep-for 1)
-      (find-file cb)))
 
-  )
 
-(with-eval-after-load "recentf"
-  (defun my-recentf-cleanup-silence ()
-    (interactive)
-    (my-print-message `("<recentf> i/m" ,(length recentf-list)
-			"/" ,recentf-max-saved-items))
-    (let ((message-log-max nil))
-      (recentf-cleanup))))
+
+
+
+
+
+
+
+
+
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
@@ -80,9 +36,10 @@
   "If non-nil, show ticks while booting.")
 (defvar my-secure-boot nil
   "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
+
 ;; Enable Native Compile (t: enable, nil: disable)
 ;; run batch-compile.sh -d to delete cached eln files.
-(unless nil
+(unless t
   (setq native-comp-jit-compilation nil
 	native-comp-enable-subr-trampolines nil))
 
@@ -131,7 +88,7 @@
 	my-toggle-modeline-global t ;; 'doom ;; {nil, t, 'doom}
 	my-frame-appearance nil     ;; {nil, 'dark, 'light}
 	my-skip-check-autoload-file t)
-  (setq measure-exec-time-list '(
+  (setq measure-exec-time-list '( ;; Logging buffer
 				 my-private-conf-activate
 				 my-org-babel-load-activate
 				 my-org-modules-activate

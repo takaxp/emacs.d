@@ -2140,6 +2140,36 @@ Otherwise, use `counsel-ag'."
     (org-move-to-column col)))
 
 ;;;###autoload
+(defun my-org-reset-state-subturee ()
+    (interactive)
+    (if (org-before-first-heading-p)
+	(my-org-reset-state-buffer)
+      (org-map-entries
+       (lambda () (when (org-entry-is-done-p) (org-todo "TODO")))
+       nil 'tree 'archive 'comment)
+      (org-reset-checkbox-state-subtree)
+      (org-update-statistics-cookies nil)
+      (org-fold-hide-subtree)
+      (org-fold-show-children)
+      (message "--- status is reset.")))
+
+;;;###autoload
+(defun my-org-reset-state-buffer ()
+    (interactive)
+    (if (not (y-or-n-p (message "[!] All org-id in this buffer will be changed. Sure?[y/n]")))
+	(message "--- terminated")
+      (beginning-of-buffer)
+      (org-map-entries
+       (lambda ()
+	 (when (org-entry-is-done-p) (org-todo "TODO"))
+	 (org-id-get-create t)
+	 (org-reset-checkbox-state-subtree))
+       nil nil 'archive 'comment)
+      (org-update-statistics-cookies 'all)
+      (org-cycle-content 2)
+      (message "--- status is reset.")))
+
+;;;###autoload
 (defun my-toggle-org-block-visibility ()
   "Testing..."
   (interactive)
@@ -3504,9 +3534,8 @@ Uses `all-the-icons-material' to fetch the icon."
     (async-start ;; do not call this from byte compiled code directory
      `(lambda ()
         (sleep-for (or ',defer 5))
-        (setq load-path ',load-path)
-        (when (and (load (concat (getenv "HOME") "/.emacs") t)
-                   (require 'init nil t)) ;; loading init.el explicitly
+        (when (and (load (concat ',my-home-dir "/.emacs.d/early-init.el") t)
+                   (load (concat ',my-home-dir "/.emacs") t))
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
@@ -3780,7 +3809,7 @@ Uses `all-the-icons-material' to fetch the icon."
   (interactive)
   (let ((tbuffer (get-buffer file))
         (cbuffer (current-buffer))
-        (orgfile (concat (getenv "SYNCROOT") "/org/" file))
+        (orgfile (concat my-sync-dir "/org/" file))
         (afile (expand-file-name file))
         ;; (message-log-max nil)
         )
@@ -3922,7 +3951,7 @@ Uses `all-the-icons-material' to fetch the icon."
 If `dropbox' option is provided then the value is uased as a root directory."
   (interactive "P")
   (let ((dir (concat (expand-file-name
-                      (or dropbox (concat (getenv "SYNCROOT") "/usr")))
+                      (or dropbox (concat my-sync-dir "/usr")))
                      "/backup/" (system-name))))
     (if (file-directory-p dir)
         (mapc
@@ -4282,11 +4311,11 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
     (save-buffers-kill-emacs)))
 
 ;;;###autoload
-(defun my-print-message (&optional message)
+(defun my-print-message (&optional msg)
   (let ((inhibit-message nil)
         (message-log-max 5000))
     (message "[%s] %s" (format-time-string "%H:%M:%S" (current-time))
-             (or message "..."))))
+             (or msg "..."))))
 
 ;;;###autoload
 (defun my--format-emacs-lisp-buffer ()

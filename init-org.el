@@ -35,14 +35,14 @@
 (add-hook 'org-mode-hook #'org-eldoc-load)
 
 ;; org ファイルの集中管理
-(setq org-directory (concat (getenv "SYNCROOT") "/org/"))
+(setq org-directory (concat my-sync-dir "/org/"))
 
 ;; org-store-link で heading に自動的に挿入される id を使う
 (setq org-id-link-to-org-use-id t)
 
 ;; ..org-id-locations の格納先
 (setq org-id-locations-file
-      (concat (getenv "SYNCROOT") "/usr/emacs.d/.org-id-locations"))
+      (concat my-sync-dir "/usr/emacs.d/.org-id-locations"))
 
 ;; アーカイブファイルの名称を指定
 (setq org-archive-location "%s_archive::")
@@ -64,7 +64,7 @@
 
 ;; Set checksum program path for windows
 (when (eq window-system 'w32)
-  (setq org-mobile-checksum-binary (concat (getenv "SYNCROOT") "/do/cksum.exe")))
+  (setq org-mobile-checksum-binary (concat my-sync-dir "/do/cksum.exe")))
 
 ;; Set default table export format
 (setq org-table-export-default-format "orgtbl-to-csv")
@@ -402,7 +402,7 @@
 ;; Select from Preferences: { Funk | Glass | ... | Purr | Pop ... }
 (defvar ns-default-notification-sound "Pop")
 
-(defvar ns-alerter-command (concat (getenv "HOME") "/Dropbox/bin/alerter")
+(defvar ns-alerter-command (concat my-sync-dir "/bin/alerter")
   "Path to alerter command. see https://github.com/vjeantet/alerter")
 (setq ns-alerter-command 'script) ;; the alerter is not work for now(2024-02-18).
 (unless ns-alerter-command
@@ -572,7 +572,7 @@ This user property stores the creation date of the entry")
 ;; ここを間違うと，MobileOrg, iCal export もうまくいかない
 (dolist (file (mapcar
                (lambda (arg)
-                 (concat (getenv "SYNCROOT") "/org/" arg))
+                 (concat my-sync-dir "/org/" arg))
                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
                  "org2ja.org" "itr.org" "db/books.org")))
@@ -623,6 +623,14 @@ This user property stores the creation date of the entry")
   (setq org-agenda-remove-tags t)
   (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
   (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
+
+  ;; org-agenda	に表示される deadline の配色
+  ;; org-deadline-warning-days =8 の時で，第一変数が {1.0, 0.75, 0.0}ならば，
+  ;; In 1-2 day が紫で，In 3-8 day が白
+  (setq org-agenda-deadline-faces
+	'((1.0 . org-imminent-deadline) ;; '((t :inherit org-warning))
+	  (0.75 . org-upcoming-deadline) ;; (:foreground "red")
+	  (0.0 . org-upcoming-distant-deadline))) ;; '((t :inherit org-default))
 
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)
@@ -903,11 +911,11 @@ This user property stores the creation date of the entry")
                          "ox-odt" nil t)
   (with-eval-after-load "ox-odt"
     ;; (add-to-list 'org-odt-data-dir
-    ;;              (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/"))
+    ;;              (concat my-sync-dir "/usr/emacs.d/config/"))
     (setq org-odt-styles-file
-          (concat (getenv "SYNCROOT") "/usr/emacs.d/config/style.odt"))
+          (concat my-sync-dir "/usr/emacs.d/config/style.odt"))
     ;; (setq org-odt-content-template-file
-    ;;       (concat (getenv "HOME") "/Dropbox/usr/emacs.d/config/style.ott"))
+    ;;       (concat my-sync-dir "/usr/emacs.d/config/style.ott"))
     (setq org-odt-preferred-output-format "pdf") ;; docx
     ;; ;; ox-odt.el の 自作パッチの変数（DOCSTRINGが記述されていない）
     ;; (setq org-odt-apply-custom-punctuation t)
@@ -1086,7 +1094,7 @@ This user property stores the creation date of the entry")
     (setq org-attach-git-annex-cutoff nil)
 
     (defvar org-attach-directory-absolute
-      (concat (getenv "SYNCROOT")
+      (concat my-sync-dir
               "/org/"
               (when (boundp 'org-attach-directory)
                 "data/")))))

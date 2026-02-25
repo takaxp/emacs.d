@@ -348,7 +348,7 @@
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)
   (defvar my-session-save-file
-    (expand-file-name (concat (getenv "SYNCROOT") "/usr/emacs.d/.session")))
+    (expand-file-name (concat my-sync-dir "/usr/emacs.d/.session")))
   (if my-secure-boot
       (message "--- session.el is not loaded for secure booting")
     (unless noninteractive
@@ -363,7 +363,7 @@
           "[/\\]\\.overview\\|[/\\]\\.session\\|News[/\\]\\|[/\\]COMMIT_EDITMSG")
     ;; Change save point of session.el
     ;; (setq session-save-file
-    ;;       (expand-file-name (concat (getenv "SYNCROOT") "/emacs.d/.session")))
+    ;;       (expand-file-name (concat my-sync-dir "/emacs.d/.session")))
     (setq session-initialize '(de-saveplace session keys menus places)
           ;; session-locals-include nil
           session-globals-include '(ivy-dired-history-variable
@@ -496,6 +496,7 @@
     (add-hook 'moom-delete-window-hook #'dimmer-on)
     (add-hook 'moom-after-select-monitor-hook #'moom-move-frame-to-center)
 
+    (setq frame-inhibit-implied-resize nil)
     (setopt moom-command-with-centering nil
             moom-lighter "M"
             moom-verbose t)
