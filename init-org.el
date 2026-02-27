@@ -501,7 +501,6 @@ This user property stores the creation date of the entry")
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     ;; 2010-06-13 の形式では，タグとして認識されない
-    (defun get-current-date-tags () (format-time-string "%Y%m%d"))
     (setq org-default-notes-file (concat org-directory "next.org"))
     (defvar org-capture-academic-file (concat org-directory "academic.org"))
     (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
@@ -1033,9 +1032,7 @@ This user property stores the creation date of the entry")
   (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
 
-(autoload 'skewer-html-mode "skewer-html" nil t)
 (unless noninteractive
-  (add-hook 'org-mode-hook 'skewer-html-mode)
   (autoload-if-found '(org-extra-emphasis-mode) "org-extra-emphasis" nil t))
 
 (when (autoload-if-found '(org-appear-mode)
@@ -1134,4 +1131,5 @@ This user property stores the creation date of the entry")
                 (float-time (time-subtract
                              my-init-org-end
                              my-init-org-start))))))
+;; (my-emacs-init-org-time)
 (provide 'init-org)

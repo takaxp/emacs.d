@@ -1005,7 +1005,6 @@ This function returns a timer object which you can use in
      (smartparens-mode nil "smartparens")
      (projectile-mode nil "projectile")
      (selected-minor-mode nil "selected")
-     (skewer-html-mode nil "skewer-html")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
      (gcmh-mode nil "gcmh")
      (super-save-mode nil "super-save")
@@ -1142,16 +1141,6 @@ This function returns a timer object which you can use in
   (with-eval-after-load "highlight-symbol"
     (custom-set-variables
      '(highlight-symbol-idle-delay 0.5))))
-
-(autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
-
-(with-eval-after-load "dired"
-  (cond ((require 'nerd-icons-dired nil t)
-         (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
-        ((require 'icons-in-terminal nil t)
-         (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
-        ((require 'all-the-icons nil t)
-         (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))))
 
 (when (autoload-if-found '(turn-on-eldoc-mode)
                          "eldoc" nil t)
@@ -1464,27 +1453,6 @@ This function returns a timer object which you can use in
   (when (eq window-system 'w32)
     (advice-add 'backup-each-save-compute-location :override
                 #'my--backup-each-save-compute-location)))
-
-;; late-init.el
-(add-hook 'dired-mode-hook #'my-dired-activate)
-(with-eval-after-load "dired"
-  (setq dired-listing-switches "-lha"))
-
-(with-eval-after-load "dired"
-  (require 'dired-recent nil t))
-
-(when (autoload-if-found '(dired-recent-open dired-recent-mode)
-                         "dired-recent" nil t)
-  (keymap-global-set "C-x C-d" 'dired-recent-open)
-  (with-eval-after-load "dired-recent"
-    ;; (require 'helm-config nil t)
-    (dired-recent-mode 1)))
-
-(with-eval-after-load "dired"
-  (setq dired-use-ls-dired nil)
-  (when (require 'osx-trash nil t)
-    (setq delete-by-moving-to-trash t)
-    (osx-trash-setup)))
 
 (when (autoload-if-found '(undo-fu-only-undo undo-fu-only-redo)
                          "undo-fu" nil t)
@@ -2333,4 +2301,5 @@ This function returns a timer object which you can use in
                 (float-time (time-subtract
                              my-late-init-end
                              my-late-init-start))))))
+;; (my-emacs-late-init-time)
 (provide 'late-init)

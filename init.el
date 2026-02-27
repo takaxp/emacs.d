@@ -16,7 +16,7 @@
 (when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
 (when (bound-and-true-p my-ad-require-p)
-  (my--safe-load "~/Dropbox/usr/emacs.d/config/init-ad.el"))
+  (my--safe-load (concat my-sync-dir "/usr/emacs.d/config/init-ad.el")))
 
 (with-eval-after-load "postpone"
   ;; only top-level setting will be loaded. This will not actually load `org' so settings in `with-eval-after-load' will not be loaded.
@@ -287,6 +287,8 @@
 
 (autoload 'org-eval-in-calendar "org" nil t)
 
+(autoload 'nerd-icons-dired-mode "nerd-icons-dired" nil t)
+
 (my-tick-init-time "presentation")
 
 (my-tick-init-time "media")
@@ -344,6 +346,16 @@
 (setq auto-save-default nil)
 ;; auto-save-list
 (setq auto-save-list-file-prefix nil)
+
+;;;###autoload
+(defun my-dired-activate ()
+  (if (require 'init-dired nil t)
+      (message "Loading init-dired.el...done")
+    (user-error "init-dired.el doesn't exist"))
+  (remove-hook 'dired-mode-hook #'my-dired-activate))
+
+(unless noninteractive
+  (add-hook 'dired-mode-hook #'my-dired-activate))
 
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)

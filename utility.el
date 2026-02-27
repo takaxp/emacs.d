@@ -1319,9 +1319,10 @@ With a prefix ARG always prompt for command to use."
             (format-time-string backup-each-save-time-format))))
 
 ;;;###autoload
-(defun my-dired-activate ()
-  (unless (require 'init-dired nil t)
-    (user-error "init-dired.el doesn't exist")))
+(defun my-reveal-in-finder ()
+  "Reveal the current buffer in Finder."
+  (interactive)
+  (shell-command-to-string "open ."))
 
 ;;;###autoload
 (defun my-super-save-predicates-p ()
@@ -2204,6 +2205,9 @@ will not be modified."
     (unless (or field (equal "" field))
       (org-set-property created now)
       (org-cycle-hide-drawers 'children))))
+
+;;;###autoload
+(defun get-current-date-tags () (format-time-string "%Y%m%d"))
 
 ;;;###autoload
 (defun my-org-agenda-prepare-buffers ()
@@ -3534,8 +3538,8 @@ Uses `all-the-icons-material' to fetch the icon."
     (async-start ;; do not call this from byte compiled code directory
      `(lambda ()
         (sleep-for (or ',defer 5))
-        (when (and (load (concat ',my-home-dir "/.emacs.d/early-init.el") t)
-                   (load (concat ',my-home-dir "/.emacs") t))
+        (when (and (load (expand-file-name "~/.emacs.d/early-init.el") t)
+                   (load (expand-file-name "~/.emacs") t))
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
@@ -4391,4 +4395,5 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (when (bound-and-true-p my-profiler-p)
   (profiler-report))
 
+;; (my-print-utility-time)
 (provide 'utility)

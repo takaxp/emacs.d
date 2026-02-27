@@ -24,29 +24,29 @@
 #+caption: 設定ファイル名と役割
 | ファイル名        | 役割                                              | 行数 |
 |-------------------+---------------------------------------------------+------|
-|                   | <45>                                              |      |
-| init.el           | 起動時に読み込む設定群                            |  491 |
-| init-autoloads.el | 起動時に読み込む定義群                            |  880 |
-| early-init.el     | init.elより前に読み込む設定群                     |  105 |
-| late-init.el      | 最初のユーザアクションで読み込む設定群            | 2325 |
-| init-org.el       | 最初のユーザアクションで読み込むorg-modeの設定群  | 2146 |
-| init-dired.el     | 最初のユーザアクションで読み込むdired関連の設定群 |   56 |
-| utility.el        | 独自実装の関数群を集約                            | 3279 |
+| init.el           | 起動時に読み込む設定群                            |  542 |
+| init-autoloads.el | 起動時に読み込む定義群                            | 2403 |
+| early-init.el     | init.elより前に読み込む設定群                     |   83 |
+| late-init.el      | 最初のユーザアクションで読み込む設定群            | 2305 |
+| init-org.el       | 最初のユーザアクションで読み込むorg-modeの設定群  | 1135 |
+| init-dired.el     | 最初のユーザアクションで読み込むdired関連の設定群 |   70 |
+| utility.el        | 独自実装の関数群を集約                            | 4399 |
 | init-ad.el        | 起動時に特殊な advice を適用する設定群            |   19 |
 
 * 起動設定
-  :PROPERTIES:
-  :CUSTOM_ID: org2a411a2e
-  :ID:       B0B78070-30CB-4BE7-B2DB-B04446D1C3B3
-  :END:
+:PROPERTIES:
+:CUSTOM_ID: org2a411a2e
+:ID:       B0B78070-30CB-4BE7-B2DB-B04446D1C3B3
+:END:
 
 基本的な設定群です．一部の関数は記述しておかないと動かない可能性があります．
 
 普通は =init.el= に様々な設定をEmacsに読ませますが，私は諸事情から次のようにブートシーケンスを制御しています．
 
-1. =.emacs= の読み込み
-2. =init.el= の読み込み
-3. =late-init.el= の読み込み
+1. =early-init.el= の読み込み
+2. =.emacs= の読み込み
+3. =init.el= の読み込み
+4. =late-init.el= の読み込み
 
 =.emacs= では，起動の仕方を選択します．通常のモードでは =init.el= を読み込みますが，最小設定モードを読み込んで起動したり，spacemacs用設定を読み込んで起動したり制御できます．また， =.emacs= にはすぐ消すような実験的なコードを記載しています．気に入ったら， =init.el= に移します．
 
@@ -58,6 +58,7 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 
 これ以外に，バッチモードでバイトコンパイルするための =init-eval.el= も使います．このファイルには，バイトコンパイル時だけ必要なパッケージを列挙しています．
 
+- [[https://github.com/takaxp/emacs.d/blob/master/early-init.el][emacs.d/early-init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
@@ -107,7 +108,7 @@ Then load the following at startup
 (when (bound-and-true-p my-profiler-p)
   (profiler-start 'cpu+mem))
 (when (bound-and-true-p my-ad-require-p)
-  (my--safe-load "~/Dropbox/usr/emacs.d/config/init-ad.el"))
+  (my--safe-load (concat my-sync-dir "/usr/emacs.d/config/init-ad.el")))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el :exports none
@@ -134,10 +135,10 @@ Then load the following at startup
 #+end_src
 
 ** [early-init.el] early-init.el を使う
-   :PROPERTIES:
-   :ID:       779FEF5C-522C-4695-B532-B93028BC5FB8
-   :CUSTOM_ID: org43b7d78e
-   :END:
+:PROPERTIES:
+:ID:       779FEF5C-522C-4695-B532-B93028BC5FB8
+:CUSTOM_ID: org43b7d78e
+:END:
 
 ~early-init.el~ の読み込み時には， =(display-graphic-p)= と =window-system= が共に =nil= に設定されるので要注意です．
 
@@ -146,15 +147,6 @@ Then load the following at startup
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; to support native compiling
-(unless (getenv "LIBRARY_PATH")
-  (setenv "LIBRARY_PATH"
-          "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
-;; (message "--- %s" (getenv "LIBRARY_PATH"))
-;; To see the path in your envrinment, M-x my-get-libgccjit-library-path
-#+end_src
-
-#+begin_src emacs-lisp :tangle early-init.el
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
@@ -170,15 +162,21 @@ Then load the following at startup
   (tab-bar-mode -1)
   (tool-bar-mode -1))
 
-(defvar my-home-dir (getenv "HOME"))
-(defvar my-sync-dir (concat my-home-dir "/Dropbox"))
+;; To run native compiling during an emacs session
+;; see M-x my-get-libgccjit-library-path
+(let ((lpath (getenv "LIBRARY_PATH"))
+      (gccjit "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
+  (if (stringp lpath)
+      (unless (string-match gccjit lpath)
+        (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))
+    (setenv "LIBRARY_PATH" gccjit)))
 #+end_src
 
 ** 起動時間の計測
-   :PROPERTIES:
-   :CUSTOM_ID: orga09727ae
-   :ID:       09C2EFDD-9279-4BA6-9364-BFE4CD5C7A07
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orga09727ae
+:ID:       09C2EFDD-9279-4BA6-9364-BFE4CD5C7A07
+:END:
 
 =M-x emacs-init-time= を実行すると，Emacsの起動にかかった時間が表示されます．個人的にはミリ秒表示が好きなので，手を加えて表示を変えます．元ネタは[[http://d.hatena.ne.jp/sugyan/20120120/1327037494][すぎゃーんメモ]]からです．感謝．
 
@@ -556,6 +554,7 @@ This function is called directly from the C code."
 =el-get= でインストールしているパッケージ群と，個別管理している org-mode を使えるようにパスを通します．
 
 #+begin_src emacs-lisp :tangle early-init.el
+(defvar my-sync-dir (expand-file-name "~/Dropbox"))
 (defvar my-package-dir nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, Emacs uses packages installed via el-get.")
@@ -566,7 +565,7 @@ This function is called directly from the C code."
 (unless (file-directory-p my-package-dir)
   (user-error "%s does NOT exist. Run setup script first" my-package-dir))
 
-(defun my-path-setter (path-list target-path)
+(defun my--path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
@@ -579,15 +578,15 @@ This function is called directly from the C code."
              ,my-package-dir ;; may include a path to org
              ,(concat git-path org-path "/lisp") ;; override the path to org
              ,(concat git-path org-path "/contrib/lisp"))))
-  (my-path-setter pl 'load-path))
+  (my--path-setter pl 'load-path))
 
 ;; (2) theme-path
-(my-path-setter
+(my--path-setter
  `(,my-package-dir ,(expand-file-name "~/.emacs.d/lisp"))
  'custom-theme-load-path)
 
 ;; (3) exec-path
-(my-path-setter
+(my--path-setter
  `("/usr/bin" "/usr/local/bin" "/opt/homebrew/bin"
    ,(expand-file-name "~/.cask/bin")
    ,(expand-file-name "~/devel/git/tern/bin")
@@ -606,7 +605,7 @@ This function is called directly from the C code."
 ;; you may want to use exec-path-from-shell.el.
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(setenv "GOPATH" (concat my-home-dir "/.go"))
+(setenv "GOPATH" (expand-file-name "~/.go"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -1819,14 +1818,14 @@ echo "--- done."
 #+begin_src emacs-lisp :tangle no
 ;; 28以前
 (update-file-autoloads
- (concat my-home-dir "/.emacs.d/lisp/late-init.el")
+ (expand-file-name "~/.emacs.d/lisp/late-init.el")
  t
- (concat my-home-dir "/.emacs.d/lisp/init-autoloads.el"))
+ (expand-file-name "~/.emacs.d/lisp/init-autoloads.el"))
 
 ;; 29以降
 (loaddefs-generate
- (concat my-home-dir "/.emacs.d/lisp/")
- (concat my-home-dir "/.emacs.d/lisp/init-autoloads.el"))
+ (expand-file-name "~/.emacs.d/lisp/")
+ (expand-file-name "~/.emacs.d/lisp/init-autoloads.el"))
 #+end_src
 
 *** [paradox.el] パッケージ選択画面の改善
@@ -4770,8 +4769,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 ;; Search Agents
 ;; ndeb option requries "eblook" command
 ;; Use expand-file-name!
-;;(setq lookup-search-agents `((ndeb ,(concat my-home-dir "/Dic/COBUILD5"))
-;;                            (ndeb ,(concat my-home-dir "/Dic/LDOCE4"))))
+;;(setq lookup-search-agents `((ndeb ,(expand-file-name "~/Dic/COBUILD5"))
+;;                            (ndeb ,(expand-file-name "~/Dic/LDOCE4"))))
 ;;(setq lookup-use-bitmap nil)
 ;;(setq ndeb-program-name "/usr/bin/eblook")
 ;;(when (eq window-system 'ns)
@@ -5826,7 +5825,6 @@ version 28 で全角スペースに黒下線が付くので回避します．
      (smartparens-mode nil "smartparens")
      (projectile-mode nil "projectile")
      (selected-minor-mode nil "selected")
-     (skewer-html-mode nil "skewer-html")
      (org-extra-emphasis-intraword-emphasis-mode nil "org-extra-emphasis")
      (gcmh-mode nil "gcmh")
      (super-save-mode nil "super-save")
@@ -6262,16 +6260,20 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 
 ~dired~ でフォントアイコンを使うためのパッケージです．
 
-#+begin_src emacs-lisp :tangle late-init.el
-(autoload-if-found '(nerd-icons-dired-mode) "nerd-icons-dired" nil t)
 
-(with-eval-after-load "dired"
-  (cond ((require 'nerd-icons-dired nil t)
-         (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
-        ((require 'icons-in-terminal nil t)
-         (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
-        ((require 'all-the-icons nil t)
-         (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))))
+#+begin_src emacs-lisp :tangle yes
+(autoload 'nerd-icons-dired-mode "nerd-icons-dired" nil t)
+#+end_src
+
+#+begin_src emacs-lisp :tangle init-dired.el
+;; init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
+
+(cond ((require 'nerd-icons-dired nil t)
+       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+      ((require 'icons-in-terminal nil t)
+       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+      ((require 'all-the-icons nil t)
+       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
 #+end_src
 
 ** [eldoc.el] コンテクストに応じてヘルプを表示
@@ -7952,12 +7954,18 @@ Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
 4. M-x crux-open-with
    - diredでは， =C-c C-o= で呼べるように設定
 
-#+begin_src emacs-lisp emacs-lisp :tangle init-dired.el
-;; init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
+#+begin_src emacs-lisp :tangle init-dired.el
 (keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
+(keymap-set dired-mode-map "F" 'my-reveal-in-finder)
+;; 上位ディレクトリへの移動
+(keymap-set dired-mode-map "u" 'dired-up-directory)
+;; Finder を使ったファイルオープン
+(keymap-set dired-mode-map "f" 'ns-open-file-using-panel)
+(keymap-set dired-mode-map "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
 #+end_src
 
-#+begin_src emacs-lisp emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun crux-copy-file-preserve-attributes (visit)
   "[crux.el]
@@ -8154,12 +8162,12 @@ With a prefix ARG always prompt for command to use."
 #+end_src
 
 ** [dired] ファイラのサポートツール                                   :dired:
-   :PROPERTIES:
-   :CUSTOM_ID: orge2f78ad3
-   :ID:       65232A5E-8598-4810-8835-6CE855CEB3A6
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orge2f78ad3
+:ID:       65232A5E-8598-4810-8835-6CE855CEB3A6
+:END:
 
-=dired.el= をリッチに使うツール群です．
+下記は， =dired.el= をリッチに使うツール群です．
 
  - gited
  - dired-x
@@ -8167,26 +8175,37 @@ With a prefix ARG always prompt for command to use."
  - dired-du
  - helm-dired-history or ivy-dired-history
 
-#+begin_src emacs-lisp :tangle late-init.el
-;; late-init.el
-(add-hook 'dired-mode-hook #'my-dired-activate)
-(with-eval-after-load "dired"
-  (setq dired-listing-switches "-lha"))
+#+begin_src emacs-lisp :tangle yes
+;;;###autoload
+(defun my-dired-activate ()
+  (if (require 'init-dired nil t)
+      (message "Loading init-dired.el...done")
+    (user-error "init-dired.el doesn't exist"))
+  (remove-hook 'dired-mode-hook #'my-dired-activate))
+
+(unless noninteractive
+  (add-hook 'dired-mode-hook #'my-dired-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-dired-activate ()
-  (unless (require 'init-dired nil t)
-    (user-error "init-dired.el doesn't exist")))
+(defun my-reveal-in-finder ()
+  "Reveal the current buffer in Finder."
+  (interactive)
+  (shell-command-to-string "open ."))
 #+end_src
 
-明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は，最初に =M-x dired= を実行したタイミングで読み込みます．
++明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は，最初に =M-x dired= を実行したタイミングで読み込みます．+
 
 #+begin_src emacs-lisp :tangle init-dired.el
+;; brew install coreutils
+(when (eq system-type 'darwin)
+  (setq insert-directory-program "gls"))
+
+(setq dired-listing-switches "-lha")
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
-        '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
@@ -8206,37 +8225,22 @@ With a prefix ARG always prompt for command to use."
 (when (require 'dired-x nil t)
   (dired-extra-startup))
 
-;;;###autoload
-(defun my-reveal-in-finder ()
-  "Reveal the current buffer in Finder."
-  (interactive)
-  (shell-command-to-string "open ."))
-;; dired-x を読み込んだあとじゃないとだめ
-(keymap-set dired-mode-map "F" 'my-reveal-in-finder)
-;; 上位ディレクトリへの移動
-(keymap-set dired-mode-map "u" 'dired-up-directory)
-;; Finder を使ったファイルオープン
-(keymap-set dired-mode-map "f" 'ns-open-file-using-panel)
-
-(keymap-set dired-mode-map "C-M-p" (lambda () (interactive) (other-window -1)))
-(keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
-
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
 (when (eq system-type 'darwin)
   (setq dired-guess-shell-alist-user
-  (list
-   (list (rx (and "."
-      (or
-       ;; Videos
-       "mp4" "avi" "mkv" "rmvb"
-       ;; Torrent
-       "torrent"
-       ;; PDF
-       "pdf"
-       ;; Image
-       "gif" "png" "jpg" "jpeg")
-      string-end)) "open"))))
+        (list
+         (list (rx (and "."
+                        (or
+                         ;; Videos
+                         "mp4" "avi" "mkv" "rmvb"
+                         ;; Torrent
+                         "torrent"
+                         ;; PDF
+                         "pdf"
+                         ;; Image
+                         "gif" "png" "jpg" "jpeg")
+                        string-end)) "open"))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no
@@ -8300,18 +8304,15 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 #+end_src
 
 ** [dired-recent.el] 訪問したディレクトリの履歴を取る                 :dired:
-   :PROPERTIES:
-   :CUSTOM_ID: org7c53511f
-   :ID:       4A30428D-51B2-43F9-9CC2-FF7F5ECAD9C4
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org7c53511f
+:ID:       4A30428D-51B2-43F9-9CC2-FF7F5ECAD9C4
+:END:
 
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "dired"
-  (require 'dired-recent nil t))
-
+#+begin_src emacs-lisp :tangle init-dired.el
 (when (autoload-if-found '(dired-recent-open dired-recent-mode)
                          "dired-recent" nil t)
-  (keymap-global-set "C-x C-d" 'dired-recent-open)
+  (keymap-set dired-mode-map "r" #'dired-recent-open)
   (with-eval-after-load "dired-recent"
     ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
@@ -8324,12 +8325,11 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 
 [[https://github.com/lunaryorn/osx-trash.el][osx-trash]] は，OSXで =system-move-file-to-trash= を使えるようにする．単独で使うのはあまり考えられないので，読み込みを =dired= に紐付けます．
 
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "dired"
-  (setq dired-use-ls-dired nil)
-  (when (require 'osx-trash nil t)
-    (setq delete-by-moving-to-trash t)
-    (osx-trash-setup)))
+#+begin_src emacs-lisp :tangle init-dired
+(setq dired-use-ls-dired nil)
+(when (require 'osx-trash nil t)
+  (setq delete-by-moving-to-trash t)
+  (osx-trash-setup))
 #+end_src
 
 ** [undo-fu.el] シンプルな redo を提供してくる
@@ -11563,6 +11563,9 @@ will not be modified."
     (unless (or field (equal "" field))
       (org-set-property created now)
       (org-cycle-hide-drawers 'children))))
+
+;;;###autoload
+(defun get-current-date-tags () (format-time-string "%Y%m%d"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -11580,7 +11583,6 @@ This user property stores the creation date of the entry")
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     ;; 2010-06-13 の形式では，タグとして認識されない
-    (defun get-current-date-tags () (format-time-string "%Y%m%d"))
     (setq org-default-notes-file (concat org-directory "next.org"))
     (defvar org-capture-academic-file (concat org-directory "academic.org"))
     (defvar org-capture-ical-file (concat org-directory "org-ical.org"))
@@ -13354,14 +13356,13 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 ** TODO [org-extra-emphasis] 強調表現を拡張する
 :PROPERTIES:
 :CUSTOM_ID: orgd536a4cc
+:ID:       AA4E6DB1-B177-4902-A0AE-3F9302123504
 :END:
 
 主にマーカー（黄色や赤色）を導入するために， org mode の強調表現を拡張します． ~!!~ で黄色マーキング， ~!@~ で文字色を赤色に変更できます．
 
 #+begin_src emacs-lisp :tangle init-org.el
-(autoload 'skewer-html-mode "skewer-html" nil t)
 (unless noninteractive
-  (add-hook 'org-mode-hook 'skewer-html-mode)
   (autoload-if-found '(org-extra-emphasis-mode) "org-extra-emphasis" nil t))
 #+end_src
 
@@ -15744,8 +15745,8 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
     (async-start ;; do not call this from byte compiled code directory
      `(lambda ()
         (sleep-for (or ',defer 5))
-        (when (and (load (concat ',my-home-dir "/.emacs.d/early-init.el") t)
-                   (load (concat ',my-home-dir "/.emacs") t))
+        (when (and (load (expand-file-name "~/.emacs.d/early-init.el") t)
+                   (load (expand-file-name "~/.emacs") t))
           (recursive-delete-backup-files 7)
           t))
      (lambda (result)
@@ -16445,6 +16446,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 ** TODO [password-store.el] パスワード管理
    :PROPERTIES:
    :CUSTOM_ID: orgc75ab540
+   :ID:       98544C07-B52E-4D64-9FB1-6F9D48091764
    :END:
 
   - http://h12.me/article/password-management
@@ -16472,7 +16474,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
 (when (autoload-if-found '(id-manager)
                          "id-manager" nil t)
   (with-eval-after-load "id-manager"
-    (setenv "GPG_AGENT_INFO" nil)))
+    (setenv "GPG_AGENT_INFO")))
 #+end_src
 
 ** TODO [network-watch.el] ネットワークインターフェイスの状態を監視
@@ -18023,6 +18025,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
                 (float-time (time-subtract
                              my-init-org-end
                              my-init-org-start))))))
+;; (my-emacs-init-org-time)
 (provide 'init-org)
 #+end_src
 
@@ -18040,6 +18043,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
                 (float-time (time-subtract
                              my-late-init-end
                              my-late-init-start))))))
+;; (my-emacs-late-init-time)
 (provide 'late-init)
 #+end_src
 
@@ -18063,6 +18067,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
 (when (bound-and-true-p my-profiler-p)
   (profiler-report))
 
+;; (my-print-utility-time)
 (provide 'utility)
 #+end_src
 

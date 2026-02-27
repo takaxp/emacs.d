@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-02-25 Wed 18:40 -->
+<!-- 2026-02-28 Sat 00:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -762,7 +762,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgc166040">15. 有用なデフォルト関数</a></li>
+<li><a href="#org682c8f9">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -802,43 +802,43 @@
 <tr>
 <td class="org-left">init.el</td>
 <td class="org-left">起動時に読み込む設定群</td>
-<td class="org-right">491</td>
+<td class="org-right">542</td>
 </tr>
 
 <tr>
 <td class="org-left">init-autoloads.el</td>
 <td class="org-left">起動時に読み込む定義群</td>
-<td class="org-right">880</td>
+<td class="org-right">2403</td>
 </tr>
 
 <tr>
 <td class="org-left">early-init.el</td>
 <td class="org-left">init.elより前に読み込む設定群</td>
-<td class="org-right">105</td>
+<td class="org-right">83</td>
 </tr>
 
 <tr>
 <td class="org-left">late-init.el</td>
 <td class="org-left">最初のユーザアクションで読み込む設定群</td>
-<td class="org-right">2325</td>
+<td class="org-right">2305</td>
 </tr>
 
 <tr>
 <td class="org-left">init-org.el</td>
 <td class="org-left">最初のユーザアクションで読み込むorg-modeの設定群</td>
-<td class="org-right">2146</td>
+<td class="org-right">1135</td>
 </tr>
 
 <tr>
 <td class="org-left">init-dired.el</td>
 <td class="org-left">最初のユーザアクションで読み込むdired関連の設定群</td>
-<td class="org-right">56</td>
+<td class="org-right">70</td>
 </tr>
 
 <tr>
 <td class="org-left">utility.el</td>
 <td class="org-left">独自実装の関数群を集約</td>
-<td class="org-right">3279</td>
+<td class="org-right">4399</td>
 </tr>
 
 <tr>
@@ -862,6 +862,7 @@
 </p>
 
 <ol class="org-ol">
+<li><code class="org-verbatim">early-init.el</code> の読み込み<br /></li>
 <li><code class="org-verbatim">.emacs</code> の読み込み<br /></li>
 <li><code class="org-verbatim">init.el</code> の読み込み<br /></li>
 <li><code class="org-verbatim">late-init.el</code> の読み込み<br /></li>
@@ -888,6 +889,7 @@ Org Mode の設定がかなり肥大化したため， <code class="org-verbatim
 </p>
 
 <ul class="org-ul">
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/early-init.el">emacs.d/early-init.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/.emacs">emacs.d/.emacs at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">emacs.d/init.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">emacs.d/late-init.el at master · takaxp/emacs.d</a><br /></li>
@@ -945,7 +947,7 @@ Then load the following at startup<br />
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-profiler-p)
   (profiler-start 'cpu+mem))
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">bound-and-true-p</span> my-ad-require-p)
-  (my--safe-load <span style="color: #8b2252;">"~/Dropbox/usr/emacs.d/config/init-ad.el"</span>))
+  (my--safe-load (concat my-sync-dir <span style="color: #8b2252;">"/usr/emacs.d/config/init-ad.el"</span>)))
 </code></pre>
 </div>
 
@@ -972,17 +974,7 @@ Then load the following at startup<br />
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Configurations for Emacs
 </span><span style="color: #b22222;">;;                                          </span><span style="color: #b22222;">Takaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a>
 </span><span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><span style="color: #b22222;">
-</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">to support native compiling
-</span>(<span style="color: #a020f0;">unless</span> (getenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>)
-  (setenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>
-          <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"</span>))
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "--- %s" (getenv "LIBRARY_PATH"))
-</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">To see the path in your envrinment, M-x my-get-libgccjit-library-path</span>
-</code></pre>
-</div>
-
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">unless</span> noninteractive
+</span>(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-init</span>
     (format <span style="color: #8b2252;">"%searly-init.el"</span> (expand-file-name user-emacs-directory)))
@@ -997,8 +989,14 @@ Then load the following at startup<br />
   (tab-bar-mode -1)
   (tool-bar-mode -1))
 
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-home-dir</span> (getenv <span style="color: #8b2252;">"HOME"</span>))
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-sync-dir</span> (concat my-home-dir <span style="color: #8b2252;">"/Dropbox"</span>))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">To run native compiling during an emacs session
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">see M-x my-get-libgccjit-library-path
+</span>(<span style="color: #a020f0;">let</span> ((lpath (getenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>))
+      (gccjit <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"</span>))
+  (<span style="color: #a020f0;">if</span> (stringp lpath)
+      (<span style="color: #a020f0;">unless</span> (string-match gccjit lpath)
+        (setenv <span style="color: #8b2252;">"LIBRARY_PATH"</span> (string-join (list gccjit lpath) <span style="color: #8b2252;">":"</span>)))
+    (setenv <span style="color: #8b2252;">"LIBRARY_PATH"</span> gccjit)))
 </code></pre>
 </div>
 </div>
@@ -1383,7 +1381,8 @@ This function is called directly from the C code."</span>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-package-dir</span> nil)
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-sync-dir</span> (expand-file-name <span style="color: #8b2252;">"~/Dropbox"</span>))
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-package-dir</span> nil)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-use-el-get</span> emacs-version <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil
 </span>  <span style="color: #8b2252;">"If version number is provided, Emacs uses packages installed via el-get."</span>)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-package-dir</span>
@@ -1393,7 +1392,7 @@ This function is called directly from the C code."</span>
 (<span style="color: #a020f0;">unless</span> (file-directory-p my-package-dir)
   (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"%s does NOT exist. Run setup script first"</span> my-package-dir))
 
-(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-path-setter</span> (path-list target-path)
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--path-setter</span> (path-list target-path)
   <span style="color: #8b2252;">"Utility function to set PATH-LIST to TARGET-PATH."</span>
   (<span style="color: #a020f0;">dolist</span> (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
@@ -1406,15 +1405,15 @@ This function is called directly from the C code."</span>
              ,my-package-dir <span style="color: #b22222;">;; </span><span style="color: #b22222;">may include a path to org
 </span>             ,(concat git-path org-path <span style="color: #8b2252;">"/lisp"</span>) <span style="color: #b22222;">;; </span><span style="color: #b22222;">override the path to org
 </span>             ,(concat git-path org-path <span style="color: #8b2252;">"/contrib/lisp"</span>))))
-  (my-path-setter pl 'load-path))
+  (my--path-setter pl 'load-path))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(2) theme-path
-</span>(my-path-setter
+</span>(my--path-setter
  `(,my-package-dir ,(expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp"</span>))
  'custom-theme-load-path)
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(3) exec-path
-</span>(my-path-setter
+</span>(my--path-setter
  `(<span style="color: #8b2252;">"/usr/bin"</span> <span style="color: #8b2252;">"/usr/local/bin"</span> <span style="color: #8b2252;">"/opt/homebrew/bin"</span>
    ,(expand-file-name <span style="color: #8b2252;">"~/.cask/bin"</span>)
    ,(expand-file-name <span style="color: #8b2252;">"~/devel/git/tern/bin"</span>)
@@ -1433,7 +1432,7 @@ This function is called directly from the C code."</span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">you may want to use exec-path-from-shell.el.
 </span>(setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/opt/homebrew/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
 (setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/usr/local/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
-(setenv <span style="color: #8b2252;">"GOPATH"</span> (concat my-home-dir <span style="color: #8b2252;">"/.go"</span>))
+(setenv <span style="color: #8b2252;">"GOPATH"</span> (expand-file-name <span style="color: #8b2252;">"~/.go"</span>))
 </code></pre>
 </div>
 
@@ -2730,14 +2729,14 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">28&#20197;&#21069;
 </span>(update-file-autoloads
- (concat my-home-dir <span style="color: #8b2252;">"/.emacs.d/lisp/late-init.el"</span>)
+ (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp/late-init.el"</span>)
  t
- (concat my-home-dir <span style="color: #8b2252;">"/.emacs.d/lisp/init-autoloads.el"</span>))
+ (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp/init-autoloads.el"</span>))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">29&#20197;&#38477;
 </span>(loaddefs-generate
- (concat my-home-dir <span style="color: #8b2252;">"/.emacs.d/lisp/"</span>)
- (concat my-home-dir <span style="color: #8b2252;">"/.emacs.d/lisp/init-autoloads.el"</span>))
+ (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp/"</span>)
+ (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/lisp/init-autoloads.el"</span>))
 </code></pre>
 </div>
 </div>
@@ -6057,8 +6056,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Search Agents
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">ndeb option requries "eblook" command
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Use expand-file-name!
-</span><span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq lookup-search-agents `((ndeb ,(concat my-home-dir "/Dic/COBUILD5"))
-</span><span style="color: #b22222;">;;                            </span><span style="color: #b22222;">(ndeb ,(concat my-home-dir "/Dic/LDOCE4"))))
+</span><span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq lookup-search-agents `((ndeb ,(expand-file-name "~/Dic/COBUILD5"))
+</span><span style="color: #b22222;">;;                            </span><span style="color: #b22222;">(ndeb ,(expand-file-name "~/Dic/LDOCE4"))))
 </span><span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq lookup-use-bitmap nil)
 </span><span style="color: #b22222;">;;</span><span style="color: #b22222;">(setq ndeb-program-name "/usr/bin/eblook")
 </span><span style="color: #b22222;">;;</span><span style="color: #b22222;">(when (eq window-system 'ns)
@@ -7251,7 +7250,6 @@ version 28 で全角スペースに黒下線が付くので回避します．<br
      (smartparens-mode nil <span style="color: #8b2252;">"smartparens"</span>)
      (projectile-mode nil <span style="color: #8b2252;">"projectile"</span>)
      (selected-minor-mode nil <span style="color: #8b2252;">"selected"</span>)
-     (skewer-html-mode nil <span style="color: #8b2252;">"skewer-html"</span>)
      (org-extra-emphasis-intraword-emphasis-mode nil <span style="color: #8b2252;">"org-extra-emphasis"</span>)
      (gcmh-mode nil <span style="color: #8b2252;">"gcmh"</span>)
      (super-save-mode nil <span style="color: #8b2252;">"super-save"</span>)
@@ -7722,16 +7720,21 @@ org-mode の <code class="org-verbatim">org-eval-in-calendar</code> を使って
 <code class="org-code">dired</code> でフォントアイコンを使うためのパッケージです．<br />
 </p>
 
-<div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(autoload-if-found '(nerd-icons-dired-mode) <span style="color: #8b2252;">"nerd-icons-dired"</span> nil t)
 
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
-  (<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons-dired</span> nil t)
-         (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
-        ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
-         (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
-        ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
-         (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))))
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(autoload 'nerd-icons-dired-mode <span style="color: #8b2252;">"nerd-icons-dired"</span> nil t)
+</code></pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
+</span>
+(<span style="color: #a020f0;">cond</span> ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">nerd-icons-dired</span> nil t)
+       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+      ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">icons-in-terminal</span> nil t)
+       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+      ((<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">all-the-icons</span> nil t)
+       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
 </code></pre>
 </div>
 </div>
@@ -9450,8 +9453,14 @@ Configure variable `</span><span style="color: #008b8b;">org-file-apps</span><sp
 </ol>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
-</span>(keymap-set dired-mode-map <span style="color: #8b2252;">"C-c C-o"</span> 'crux-open-with)
+<pre class="src src-emacs-lisp"><code>(keymap-set dired-mode-map <span style="color: #8b2252;">"C-c C-o"</span> 'crux-open-with)
+(keymap-set dired-mode-map <span style="color: #8b2252;">"F"</span> 'my-reveal-in-finder)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;
+</span>(keymap-set dired-mode-map <span style="color: #8b2252;">"u"</span> 'dired-up-directory)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">Finder &#12434;&#20351;&#12387;&#12383;&#12501;&#12449;&#12452;&#12523;&#12458;&#12540;&#12503;&#12531;
+</span>(keymap-set dired-mode-map <span style="color: #8b2252;">"f"</span> 'ns-open-file-using-panel)
+(keymap-set dired-mode-map <span style="color: #8b2252;">"C-M-p"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
+(keymap-set dired-mode-map <span style="color: #8b2252;">"C-M-n"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
 </code></pre>
 </div>
 
@@ -9664,7 +9673,7 @@ With a prefix ARG always prompt for command to use."</span>
 <h3 id="orge2f78ad3"><span class="section-number-3">8.9.</span> [dired] ファイラのサポートツール&nbsp;&nbsp;&nbsp<span class="tag"><span class="dired">dired</span></span></h3>
 <div class="outline-text-3" id="text-orge2f78ad3">
 <p>
-<code class="org-verbatim">dired.el</code> をリッチに使うツール群です．<br />
+下記は， <code class="org-verbatim">dired.el</code> をリッチに使うツール群です．<br />
 </p>
 
 <ul class="org-ul">
@@ -9676,29 +9685,40 @@ With a prefix ARG always prompt for command to use."</span>
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el
-</span>(add-hook 'dired-mode-hook #'my-dired-activate)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
-  (<span style="color: #a020f0;">setq</span> dired-listing-switches <span style="color: #8b2252;">"-lha"</span>))
+<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-dired-activate</span> ()
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-dired</span> nil t)
+      (message <span style="color: #8b2252;">"Loading init-dired.el...done"</span>)
+    (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"init-dired.el doesn't exist"</span>))
+  (remove-hook 'dired-mode-hook #'my-dired-activate))
+
+(<span style="color: #a020f0;">unless</span> noninteractive
+  (add-hook 'dired-mode-hook #'my-dired-activate))
 </code></pre>
 </div>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-dired-activate</span> ()
-  (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">init-dired</span> nil t)
-    (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"init-dired.el doesn't exist"</span>)))
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-reveal-in-finder</span> ()
+  <span style="color: #8b2252;">"Reveal the current buffer in Finder."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (shell-command-to-string <span style="color: #8b2252;">"open ."</span>))
 </code></pre>
 </div>
 
 <p>
-明示的に <code class="org-code">dired</code> を呼ばなくても， <code class="org-code">ibuffer</code> が <code class="org-code">dired</code> を読み込むことがわかったので， <code class="org-code">dired</code> に関係する以下の設定は， <code class="org-code">init-dired.el</code> に分離しました．下記の設定は，最初に <code class="org-verbatim">M-x dired</code> を実行したタイミングで読み込みます．<br />
+<del>明示的に <code class="org-code">dired</code> を呼ばなくても， <code class="org-code">ibuffer</code> が <code class="org-code">dired</code> を読み込むことがわかったので， <code class="org-code">dired</code> に関係する以下の設定は， <code class="org-code">init-dired.el</code> に分離しました．下記の設定は，最初に <code class="org-verbatim">M-x dired</code> を実行したタイミングで読み込みます．</del><br />
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">setq</span> completion-ignored-extensions
+<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">brew install coreutils
+</span>(<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
+  (<span style="color: #a020f0;">setq</span> insert-directory-program <span style="color: #8b2252;">"gls"</span>))
+
+(<span style="color: #a020f0;">setq</span> dired-listing-switches <span style="color: #8b2252;">"-lha"</span>)
+(<span style="color: #a020f0;">setq</span> completion-ignored-extensions
       (append completion-ignored-extensions
-        '(<span style="color: #8b2252;">"./"</span> <span style="color: #8b2252;">"../"</span> <span style="color: #8b2252;">".xlsx"</span> <span style="color: #8b2252;">".docx"</span> <span style="color: #8b2252;">".pptx"</span> <span style="color: #8b2252;">".DS_Store"</span>)))
+              '(<span style="color: #8b2252;">"./"</span> <span style="color: #8b2252;">"../"</span> <span style="color: #8b2252;">".xlsx"</span> <span style="color: #8b2252;">".docx"</span> <span style="color: #8b2252;">".pptx"</span> <span style="color: #8b2252;">".DS_Store"</span>)))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">"dired-mode-map"
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Use build-in `</span><span style="color: #008b8b;">wdired-mode</span><span style="color: #b22222;">'.
@@ -9718,37 +9738,22 @@ With a prefix ARG always prompt for command to use."</span>
 (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-x</span> nil t)
   (dired-extra-startup))
 
-<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-reveal-in-finder</span> ()
-  <span style="color: #8b2252;">"Reveal the current buffer in Finder."</span>
-  (<span style="color: #a020f0;">interactive</span>)
-  (shell-command-to-string <span style="color: #8b2252;">"open ."</span>))
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">dired-x &#12434;&#35501;&#12415;&#36796;&#12435;&#12384;&#12354;&#12392;&#12376;&#12419;&#12394;&#12356;&#12392;&#12384;&#12417;
-</span>(keymap-set dired-mode-map <span style="color: #8b2252;">"F"</span> 'my-reveal-in-finder)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#19978;&#20301;&#12487;&#12451;&#12524;&#12463;&#12488;&#12522;&#12408;&#12398;&#31227;&#21205;
-</span>(keymap-set dired-mode-map <span style="color: #8b2252;">"u"</span> 'dired-up-directory)
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">Finder &#12434;&#20351;&#12387;&#12383;&#12501;&#12449;&#12452;&#12523;&#12458;&#12540;&#12503;&#12531;
-</span>(keymap-set dired-mode-map <span style="color: #8b2252;">"f"</span> 'ns-open-file-using-panel)
-
-(keymap-set dired-mode-map <span style="color: #8b2252;">"C-M-p"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window -1)))
-(keymap-set dired-mode-map <span style="color: #8b2252;">"C-M-n"</span> (<span style="color: #a020f0;">lambda</span> () (<span style="color: #a020f0;">interactive</span>) (other-window 1)))
-
 <span style="color: #b22222;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="https://github.com/xuchunyang/emacs.d">https://github.com/xuchunyang/emacs.</a><a href="https://github.com/xuchunyang/emacs.d">d</a></span><span style="color: #b22222;">
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">type "!" or "X" in dired
 </span>(<span style="color: #a020f0;">when</span> (eq system-type 'darwin)
   (<span style="color: #a020f0;">setq</span> dired-guess-shell-alist-user
-  (list
-   (list (<span style="color: #a020f0;">rx</span> (<span style="color: #a020f0;">and</span> <span style="color: #8b2252;">"."</span>
-      (<span style="color: #a020f0;">or</span>
-       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Videos
-</span>       <span style="color: #8b2252;">"mp4"</span> <span style="color: #8b2252;">"avi"</span> <span style="color: #8b2252;">"mkv"</span> <span style="color: #8b2252;">"rmvb"</span>
-       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Torrent
-</span>       <span style="color: #8b2252;">"torrent"</span>
-       <span style="color: #b22222;">;; </span><span style="color: #b22222;">PDF
-</span>       <span style="color: #8b2252;">"pdf"</span>
-       <span style="color: #b22222;">;; </span><span style="color: #b22222;">Image
-</span>       <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
-      string-end)) <span style="color: #ff0000; font-weight: bold;">"open"</span><span style="color: #ff0000; font-weight: bold;">))))</span>
+        (list
+         (list (<span style="color: #a020f0;">rx</span> (<span style="color: #a020f0;">and</span> <span style="color: #8b2252;">"."</span>
+                        (<span style="color: #a020f0;">or</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Videos
+</span>                         <span style="color: #8b2252;">"mp4"</span> <span style="color: #8b2252;">"avi"</span> <span style="color: #8b2252;">"mkv"</span> <span style="color: #8b2252;">"rmvb"</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Torrent
+</span>                         <span style="color: #8b2252;">"torrent"</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">PDF
+</span>                         <span style="color: #8b2252;">"pdf"</span>
+                         <span style="color: #b22222;">;; </span><span style="color: #b22222;">Image
+</span>                         <span style="color: #8b2252;">"gif"</span> <span style="color: #8b2252;">"png"</span> <span style="color: #8b2252;">"jpg"</span> <span style="color: #8b2252;">"jpeg"</span>)
+                        string-end)) <span style="color: #ff0000; font-weight: bold;">"open"</span><span style="color: #ff0000; font-weight: bold;">))))</span>
 </code></pre>
 </div>
 
@@ -9818,12 +9823,9 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 <h3 id="org7c53511f"><span class="section-number-3">8.10.</span> [dired-recent.el] 訪問したディレクトリの履歴を取る&nbsp;&nbsp;&nbsp<span class="tag"><span class="dired">dired</span></span></h3>
 <div class="outline-text-3" id="text-org7c53511f">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
-  (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">dired-recent</span> nil t))
-
-(<span style="color: #a020f0;">when</span> (autoload-if-found '(dired-recent-open dired-recent-mode)
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">when</span> (autoload-if-found '(dired-recent-open dired-recent-mode)
                          <span style="color: #8b2252;">"dired-recent"</span> nil t)
-  (keymap-global-set <span style="color: #8b2252;">"C-x C-d"</span> 'dired-recent-open)
+  (keymap-set dired-mode-map <span style="color: #8b2252;">"r"</span> #'dired-recent-open)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired-recent"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'helm-config nil t)
 </span>    (dired-recent-mode 1)))
@@ -9839,11 +9841,10 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"dired"</span>
-  (<span style="color: #a020f0;">setq</span> dired-use-ls-dired nil)
-  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">osx-trash</span> nil t)
-    (<span style="color: #a020f0;">setq</span> delete-by-moving-to-trash t)
-    (osx-trash-setup)))
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">setq</span> dired-use-ls-dired nil)
+(<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">osx-trash</span> nil t)
+  (<span style="color: #a020f0;">setq</span> delete-by-moving-to-trash t)
+  (osx-trash-setup))
 </code></pre>
 </div>
 </div>
@@ -13313,6 +13314,9 @@ will not be modified."</span>
     (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">or</span> field (equal <span style="color: #8b2252;">""</span> field))
       (org-set-property created now)
       (org-cycle-hide-drawers 'children))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">get-current-date-tags</span> () (format-time-string <span style="color: #8b2252;">"%Y%m%d"</span>))
 </code></pre>
 </div>
 
@@ -13331,8 +13335,7 @@ This user property stores the creation date of the entry"</span>)
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">2010-06-13 &#12398;&#24418;&#24335;&#12391;&#12399;&#65292;&#12479;&#12464;&#12392;&#12375;&#12390;&#35469;&#35672;&#12373;&#12428;&#12394;&#12356;
-</span>    (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">get-current-date-tags</span> () (format-time-string <span style="color: #8b2252;">"%Y%m%d"</span>))
-    (<span style="color: #a020f0;">setq</span> org-default-notes-file (concat org-directory <span style="color: #8b2252;">"next.org"</span>))
+</span>    (<span style="color: #a020f0;">setq</span> org-default-notes-file (concat org-directory <span style="color: #8b2252;">"next.org"</span>))
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">org-capture-academic-file</span> (concat org-directory <span style="color: #8b2252;">"academic.org"</span>))
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">org-capture-ical-file</span> (concat org-directory <span style="color: #8b2252;">"org-ical.org"</span>))
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">org-capture-buffer-file</span> (concat org-directory <span style="color: #8b2252;">"db/buffer.org"</span>))
@@ -14558,7 +14561,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org7d319ab"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org497d461"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15190,9 +15193,7 @@ See </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="ht
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(autoload 'skewer-html-mode <span style="color: #8b2252;">"skewer-html"</span> nil t)
-(<span style="color: #a020f0;">unless</span> noninteractive
-  (add-hook 'org-mode-hook 'skewer-html-mode)
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">unless</span> noninteractive
   (autoload-if-found '(org-extra-emphasis-mode) <span style="color: #8b2252;">"org-extra-emphasis"</span> nil t))
 </code></pre>
 </div>
@@ -15554,7 +15555,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="org47e78f5" class="figure">
+<div id="orgb5c1b75" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -17744,8 +17745,8 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
     (async-start <span style="color: #b22222;">;; </span><span style="color: #b22222;">do not call this from byte compiled code directory
 </span>     `(<span style="color: #a020f0;">lambda</span> ()
         (sleep-for (<span style="color: #a020f0;">or</span> ',defer 5))
-        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (load (concat ',my-home-dir <span style="color: #8b2252;">"/.emacs.d/early-init.el"</span>) t)
-                   (load (concat ',my-home-dir <span style="color: #8b2252;">"/.emacs"</span>) t))
+        (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (load (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/early-init.el"</span>) t)
+                   (load (expand-file-name <span style="color: #8b2252;">"~/.emacs"</span>) t))
           (recursive-delete-backup-files 7)
           t))
      (<span style="color: #a020f0;">lambda</span> (result)
@@ -18519,7 +18520,7 @@ Emacs から OS のアプリケーションを呼び出します． <code class=
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">when</span> (autoload-if-found '(id-manager)
                          <span style="color: #8b2252;">"id-manager"</span> nil t)
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"id-manager"</span>
-    (setenv <span style="color: #8b2252;">"GPG_AGENT_INFO"</span> nil)))
+    (setenv <span style="color: #8b2252;">"GPG_AGENT_INFO"</span>)))
 </code></pre>
 </div>
 </div>
@@ -20080,8 +20081,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-orgc166040" class="outline-2">
-<h2 id="orgc166040"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-org682c8f9" class="outline-2">
+<h2 id="org682c8f9"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20103,7 +20104,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-02-25 Wed 18:40</p>
+<p class="date">Created: 2026-02-28 Sat 00:30</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

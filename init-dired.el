@@ -1,9 +1,29 @@
 ;; init-dired.el --- config for dired-mode -*- lexical-binding: t -*-
-(keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
 
+(cond ((require 'nerd-icons-dired nil t)
+       (add-hook 'dired-mode-hook #'nerd-icons-dired-mode))
+      ((require 'icons-in-terminal nil t)
+       (add-hook 'dired-mode-hook #'icons-in-terminal-dired-mode))
+      ((require 'all-the-icons nil t)
+       (add-hook 'dired-mode-hook #'all-the-icons-dired-mode)))
+
+(keymap-set dired-mode-map "C-c C-o" 'crux-open-with)
+(keymap-set dired-mode-map "F" 'my-reveal-in-finder)
+;; 上位ディレクトリへの移動
+(keymap-set dired-mode-map "u" 'dired-up-directory)
+;; Finder を使ったファイルオープン
+(keymap-set dired-mode-map "f" 'ns-open-file-using-panel)
+(keymap-set dired-mode-map "C-M-p" (lambda () (interactive) (other-window -1)))
+(keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
+
+;; brew install coreutils
+(when (eq system-type 'darwin)
+  (setq insert-directory-program "gls"))
+
+(setq dired-listing-switches "-lha")
 (setq completion-ignored-extensions
       (append completion-ignored-extensions
-        '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
+              '("./" "../" ".xlsx" ".docx" ".pptx" ".DS_Store")))
 
 ;; "dired-mode-map"
 ;; Use build-in `wdired-mode'.
@@ -23,36 +43,28 @@
 (when (require 'dired-x nil t)
   (dired-extra-startup))
 
-;;;###autoload
-(defun my-reveal-in-finder ()
-  "Reveal the current buffer in Finder."
-  (interactive)
-  (shell-command-to-string "open ."))
-;; dired-x を読み込んだあとじゃないとだめ
-(keymap-set dired-mode-map "F" 'my-reveal-in-finder)
-;; 上位ディレクトリへの移動
-(keymap-set dired-mode-map "u" 'dired-up-directory)
-;; Finder を使ったファイルオープン
-(keymap-set dired-mode-map "f" 'ns-open-file-using-panel)
-
-(keymap-set dired-mode-map "C-M-p" (lambda () (interactive) (other-window -1)))
-(keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
-
 ;; https://github.com/xuchunyang/emacs.d
 ;; type "!" or "X" in dired
 (when (eq system-type 'darwin)
   (setq dired-guess-shell-alist-user
-  (list
-   (list (rx (and "."
-      (or
-       ;; Videos
-       "mp4" "avi" "mkv" "rmvb"
-       ;; Torrent
-       "torrent"
-       ;; PDF
-       "pdf"
-       ;; Image
-       "gif" "png" "jpg" "jpeg")
-      string-end)) "open"))))
+        (list
+         (list (rx (and "."
+                        (or
+                         ;; Videos
+                         "mp4" "avi" "mkv" "rmvb"
+                         ;; Torrent
+                         "torrent"
+                         ;; PDF
+                         "pdf"
+                         ;; Image
+                         "gif" "png" "jpg" "jpeg")
+                        string-end)) "open"))))
+
+(when (autoload-if-found '(dired-recent-open dired-recent-mode)
+                         "dired-recent" nil t)
+  (keymap-set dired-mode-map "r" #'dired-recent-open)
+  (with-eval-after-load "dired-recent"
+    ;; (require 'helm-config nil t)
+    (dired-recent-mode 1)))
 
 (provide 'init-dired)

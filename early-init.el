@@ -2,13 +2,6 @@
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; to support native compiling
-(unless (getenv "LIBRARY_PATH")
-  (setenv "LIBRARY_PATH"
-          "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
-;; (message "--- %s" (getenv "LIBRARY_PATH"))
-;; To see the path in your envrinment, M-x my-get-libgccjit-library-path
-
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
@@ -24,11 +17,18 @@
   (tab-bar-mode -1)
   (tool-bar-mode -1))
 
-(defvar my-home-dir (getenv "HOME"))
-(defvar my-sync-dir (concat my-home-dir "/Dropbox"))
+;; To run native compiling during an emacs session
+;; see M-x my-get-libgccjit-library-path
+(let ((lpath (getenv "LIBRARY_PATH"))
+      (gccjit "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
+  (if (stringp lpath)
+      (unless (string-match gccjit lpath)
+        (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))
+    (setenv "LIBRARY_PATH" gccjit)))
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 
+(defvar my-sync-dir (expand-file-name "~/Dropbox"))
 (defvar my-package-dir nil)
 (defvar my-use-el-get emacs-version ;; nil
   "If version number is provided, Emacs uses packages installed via el-get.")
@@ -39,7 +39,7 @@
 (unless (file-directory-p my-package-dir)
   (user-error "%s does NOT exist. Run setup script first" my-package-dir))
 
-(defun my-path-setter (path-list target-path)
+(defun my--path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
   (dolist (x path-list)
     (add-to-list target-path (file-name-as-directory x))))
@@ -52,15 +52,15 @@
              ,my-package-dir ;; may include a path to org
              ,(concat git-path org-path "/lisp") ;; override the path to org
              ,(concat git-path org-path "/contrib/lisp"))))
-  (my-path-setter pl 'load-path))
+  (my--path-setter pl 'load-path))
 
 ;; (2) theme-path
-(my-path-setter
+(my--path-setter
  `(,my-package-dir ,(expand-file-name "~/.emacs.d/lisp"))
  'custom-theme-load-path)
 
 ;; (3) exec-path
-(my-path-setter
+(my--path-setter
  `("/usr/bin" "/usr/local/bin" "/opt/homebrew/bin"
    ,(expand-file-name "~/.cask/bin")
    ,(expand-file-name "~/devel/git/tern/bin")
@@ -79,7 +79,7 @@
 ;; you may want to use exec-path-from-shell.el.
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
-(setenv "GOPATH" (concat my-home-dir "/.go"))
+(setenv "GOPATH" (expand-file-name "~/.go"))
 
 (unless noninteractive
   (defvar my-early-end (current-time))
