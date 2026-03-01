@@ -4010,7 +4010,7 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
     (with-eval-after-load "auto-complete"
       (ac-flyspell-workaround))
 
-    ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合があるので，それを回避（入力中は，flyspell を無効化）
+    ;; [FIXME] nextstep+inline-patch版で flyspell すると，日本語nyuuのようになる場合がある．入力中に flyspell を無効化して回避．
     (if (require 'super-save nil t)
         (add-hook 'after-save-hook #'my-flyspell-on)
       (run-with-idle-timer 1.6 t #'my-flyspell-on))
