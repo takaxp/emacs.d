@@ -575,6 +575,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
     (turn-off-flyspell)))
 
 ;;;###autoload
+(defun my-delete-backward-char (_n &optional _killflag)
+  (my-flyspell-off))
+
+;;;###autoload
 (defun my--YaTeX-insert-begin-end (env region-mode)
   "Insert \\begin{mode-name} and \\end{mode-name}.
 This works also for other defined begin/end tokens to define the structure."
@@ -1065,14 +1069,12 @@ Obeys `widen-automatically', which see."
     (moom-delete-windows)))
 
 ;;;###autoload
-(defun my-enable-tree-sitter ()
-  (unless (featurep 'tree-sitter)
-    (require 'tree-sitter)
-    (require 'tree-sitter-hl)
-    (require 'tree-sitter-debug)
-    (require 'tree-sitter-query)
-    (require 'tree-sitter-langs))
-  (tree-sitter-hl-mode))
+(defun my-install-treesit-libs ()
+  (when (require 'treesit nil t)
+    (dolist (source treesit-language-source-alist)
+      (let ((lang (car source)))
+        (unless (treesit-language-available-p lang)
+          (treesit-install-language-grammar lang))))))
 
 ;;;###autoload
 (defun my--swiper-thing-at-point ()

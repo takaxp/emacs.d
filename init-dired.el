@@ -17,7 +17,8 @@
 (keymap-set dired-mode-map "C-M-n" (lambda () (interactive) (other-window 1)))
 
 ;; brew install coreutils
-(when (eq system-type 'darwin)
+(when (and (eq system-type 'darwin)
+           (executable-find "gls"))
   (setq insert-directory-program "gls"))
 
 (setq dired-listing-switches "-lha")

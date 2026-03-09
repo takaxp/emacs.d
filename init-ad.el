@@ -1,3 +1,4 @@
+;; init-ad.el  -*- lexical-binding: t -*-
 (defvar my-minimum-time-to-print 0.5)
 (defun my--print-loading-time (f &rest args)
   "https://memo.sugyan.com/entry/20120105/1325756767"

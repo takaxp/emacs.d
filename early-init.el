@@ -12,10 +12,12 @@
   (setq package-enable-at-startup nil
         frame-inhibit-implied-resize t)
 
-  (set-scroll-bar-mode nil)
   (menu-bar-mode -1)
   (tab-bar-mode -1)
-  (tool-bar-mode -1))
+  (when (fboundp 'set-scroll-bar-mode)
+    (set-scroll-bar-mode nil))
+  (when (fboundp 'tool-bar-mode)
+    (tool-bar-mode -1)))
 
 ;; To run native compiling during an emacs session
 ;; see M-x my-get-libgccjit-library-path

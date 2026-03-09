@@ -436,6 +436,11 @@ This function returns a timer object which you can use in
     (add-hook 'before-save-hook #'my-json-mode-beautify)
     (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
 
+(if (and (fboundp 'treesit-language-available-p)
+         (treesit-language-available-p 'javascript))
+    (add-to-list 'major-mode-remap-alist '(javascript-mode . js-ts-mode))
+  (message "--- Missing tree-sitter library for Javascript"))
+
 (when (autoload-if-found '(csv-mode)
                          "csv-mode" nil t)
   (push '("\\.csv$" . csv-mode) auto-mode-alist))
@@ -664,7 +669,8 @@ This function returns a timer object which you can use in
     (if (require 'super-save nil t)
         (add-hook 'after-save-hook #'my-flyspell-on)
       (run-with-idle-timer 1.6 t #'my-flyspell-on))
-    (add-hook 'post-self-insert-hook 'my-flyspell-off)))
+    (add-hook 'post-self-insert-hook 'my-flyspell-off)
+    (advice-add 'delete-backward-char :after #'my-delete-backward-char)))
 
 (autoload-if-found '(counsel-world-clock) "counsel-world-clock" nil t)
 
@@ -1299,17 +1305,22 @@ This function returns a timer object which you can use in
     (setq command-log-mode-key-binding-open-log nil)
     (setq command-log-mode-window-size 60)))
 
-(let* ((elp (expand-file-name
-             (concat "~/.emacs.d/" (format "%s" emacs-version) "/el-get/")))
-       (ets (concat elp "emacs-tree-sitter/"))
-       (tsl (concat elp "tree-sitter-langs/")))
-  ;; (add-to-list 'load-path (concat ets "langs"))
-  (add-to-list 'load-path (concat ets "core"))
-  (add-to-list 'load-path (concat ets "lisp"))
-  (add-to-list 'load-path tsl))
-
-(dolist (hook '(js-mode-hook))
-  (add-hook hook #'my-enable-tree-sitter))
+(with-eval-after-load "treesit"
+  (setq treesit-font-lock-level 4)
+  (setq treesit-language-source-alist
+        '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+          (cmake "https://github.com/uyha/tree-sitter-cmake")
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (html "https://github.com/tree-sitter/tree-sitter-html")
+          (python "https://github.com/tree-sitter/tree-sitter-python")
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+          (json "https://github.com/tree-sitter/tree-sitter-json")
+          (make "https://github.com/alemuller/tree-sitter-make")
+          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+          (toml "https://github.com/tree-sitter/tree-sitter-toml")
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
+  ;; Check the installation (~/.emacs.d/tree-sitter/*.dylib)
+  (my-install-treesit-libs))
 
 (when (autoload-if-found '(swiper-thing-at-point swiper-all-thing-at-point)
                          "swiper" nil t)
