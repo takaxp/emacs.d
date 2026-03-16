@@ -38,11 +38,13 @@
 (defvar my-secure-boot nil
   "Ensure to start Emacs.  If non-nil, postpone and session are disabled.")
 
-;; Enable Native Compile (t: enable, nil: disable)
+;; Disable NativeComp for this session if needed
 ;; run batch-compile.sh -d to delete cached eln files.
-(unless t
+(when (or (equal (getenv "EMACS_DISABLE_NATIVECOMP") "true")
+	  nil) ;; (t: disabled)
   (setq native-comp-jit-compilation nil
-	native-comp-enable-subr-trampolines nil))
+	native-comp-enable-subr-trampolines nil)
+  (message "--- NativeComp is disabled"))
 
 ;; BOOT MODE SELECTION
 (cond
