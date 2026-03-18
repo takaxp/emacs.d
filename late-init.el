@@ -560,6 +560,9 @@ This function returns a timer object which you can use in
   ;; (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
   (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf))
 
+(with-eval-after-load "lisp-mode"
+  (advice-add 'lisp-indent-region :around #'my--suppress-message))
+
 (when (autoload-if-found '(ispell-region ispell-complete-word)
                          "ispell" nil t)
 

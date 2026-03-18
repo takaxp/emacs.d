@@ -4,11 +4,23 @@
 ;;                                                             TODO/DONE/FIXME
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defvar fix-org-ffr-skip-command-list '(org-move-subtree-down))
+(defvar fix-org-ffr--skip-command nil)
 
+(defun fix-org-move-subtree-down (&optional _arg)
+  (setq fix-org-ffr--skip-command 'org-move-subtree-down)
+  (message "--- %s" fix-org-ffr--skip-command))
+(with-eval-after-load "org"
+  (advice-add 'org-move-subtree-down :before #'fix-org-move-subtree-down))
 
+(defun fix-org-fold-core--region-delayed (f &rest args)
+  (unless (memq fix-org-ffr--skip-command fix-org-ffr-skip-command-list)
+    (apply f args))
+  (setq fix-org-ffr--skip-command nil))
 
-
-
+(with-eval-after-load "org-fold-core"
+  (advice-add 'org-fold-core--region-delayed
+	      :around #'fix-org-fold-core--region-delayed))
 
 
 
@@ -41,7 +53,7 @@
 ;; Disable NativeComp for this session if needed
 ;; run batch-compile.sh -d to delete cached eln files.
 (when (or (equal (getenv "EMACS_DISABLE_NATIVECOMP") "true")
-	  nil) ;; (t: disabled)
+	  t) ;; (t: disabled)
   (setq native-comp-jit-compilation nil
 	native-comp-enable-subr-trampolines nil)
   (message "--- NativeComp is disabled"))
@@ -62,6 +74,7 @@
 
  ;; To test the latest org
  (nil
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-mode/lisp"))
   (add-to-list 'load-path (expand-file-name "~/devel/git/org-tree-slide"))
   (setq org-agenda-files '("~/Desktop/test/hoge.org")))

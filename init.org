@@ -3868,6 +3868,9 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
                          "elisp-mode" nil t)
   ;; (push '("\\.el\\'" . emacs-lisp-mode) auto-mode-alist)
   (add-hook 'emacs-lisp-mode-hook #'my-emacs-lisp-mode-indent-conf))
+
+(with-eval-after-load "lisp-mode"
+  (advice-add 'lisp-indent-region :around #'my--suppress-message))
 #+end_src
 
 ** スペルチェック
