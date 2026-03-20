@@ -6,21 +6,28 @@
 
 (defvar fix-org-ffr-skip-command-list '(org-move-subtree-down))
 (defvar fix-org-ffr--skip-command nil)
-
 (defun fix-org-move-subtree-down (&optional _arg)
-  (setq fix-org-ffr--skip-command 'org-move-subtree-down)
-  (message "--- %s" fix-org-ffr--skip-command))
-(with-eval-after-load "org"
-  (advice-add 'org-move-subtree-down :before #'fix-org-move-subtree-down))
-
+  (setq fix-org-ffr--skip-command 'org-move-subtree-down))
 (defun fix-org-fold-core--region-delayed (f &rest args)
   (unless (memq fix-org-ffr--skip-command fix-org-ffr-skip-command-list)
     (apply f args))
   (setq fix-org-ffr--skip-command nil))
-
+(with-eval-after-load "org"
+  (advice-add 'org-move-subtree-down :before #'fix-org-move-subtree-down))
 (with-eval-after-load "org-fold-core"
   (advice-add 'org-fold-core--region-delayed
 	      :around #'fix-org-fold-core--region-delayed))
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41,6 +48,8 @@
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
 
 (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
+(setq my-disabled-packages '(("aggressive-indent-mode" . t)
+			     ("flyspell" . t)))
 (defvar my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defvar my-profiler-p nil

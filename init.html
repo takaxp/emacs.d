@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-03-18 Wed 13:20 -->
+<!-- 2026-03-20 Fri 21:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -763,7 +763,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgd42ccc4">15. 有用なデフォルト関数</a></li>
+<li><a href="#org76ee75a">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -8513,9 +8513,9 @@ Obeys `</span><span style="color: #008b8b;">widen-automatically</span><span styl
      '(dimmer-fraction 0.6))
 
     (<span style="color: #a020f0;">if</span> (version&lt; emacs-version <span style="color: #8b2252;">"27.1"</span>)
-  (<span style="color: #a020f0;">progn</span>
-    (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on))
+        (<span style="color: #a020f0;">progn</span>
+          (add-hook 'focus-out-hook #'dimmer-off)
+          (add-hook 'focus-in-hook #'dimmer-on))
       (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function #'my-dimmer-update))
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">for org-agenda
@@ -9369,20 +9369,36 @@ Built-in の <a href="http://www.emacswiki.org/emacs/RecentFiles">recentf.el</a>
 recentf-auto-cleanup を <code class="org-verbatim">'mode</code> などにすると起動時にファイルのクリーニングが行われるてしまうので， <code class="org-verbatim">'never</code> で回避し，アイドルタイマーなどで対応する．これだけで50[ms]ほど起動を高速化できる．<br />
 </p>
 
+<p>
+macOSで <code class="org-verbatim">my-recentf-privacy-path</code> のフォルダ群にアクセス権がない場合は， <code class="org-verbatim">recentf-cleanup</code> を実行しないように advice をかけています．<br />
+</p>
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-save-list-silence</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-    (recentf-save-list))
-  (message <span style="color: #8b2252;">""</span>))
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--recentf-access-file</span> (path)
+  (recentf-access-file (expand-file-name (concat <span style="color: #8b2252;">"~/"</span> path))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--recentf-accessible-p</span> ()
+  (not (memq nil (mapcar #'my--recentf-access-file my-recentf-privacy-path))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">ad--recentf-cleanup</span> (f)
+  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (eq system-type 'darwin))
+          (my--recentf-accessible-p))
+      (funcall f)
+    (message <span style="color: #8b2252;">"--- missing permission to access one of %s"</span>
+             my-recentf-privacy-path)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-cleanup-silence</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">let</span> ((message-log-max nil))
-    (recentf-cleanup))
-  (message <span style="color: #8b2252;">""</span>))
+    (recentf-cleanup)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-recentf-save-list-silence</span> ()
+  (<span style="color: #a020f0;">let</span> ((message-log-max nil))
+    (recentf-save-list)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-counsel-recentf-action</span> (file)
@@ -9415,8 +9431,11 @@ Configure variable `</span><span style="color: #008b8b;">org-file-apps</span><sp
                          <span style="color: #8b2252;">"recentf"</span> nil t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">see recentf.el
 </span>
   (advice-add 'recentf-save-list <span style="color: #483d8b;">:around</span> #'my--suppress-message)
+  (advice-add 'recentf-cleanup <span style="color: #483d8b;">:around</span> #'ad--recentf-cleanup)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"recentf"</span>
+    (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-recentf-privacy-path</span> '(<span style="color: #8b2252;">"Documents"</span> <span style="color: #8b2252;">"Downloads"</span> <span style="color: #8b2252;">"Desktop"</span>))
+
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/_recentf"</span>))
@@ -9429,10 +9448,11 @@ Configure variable `</span><span style="color: #008b8b;">org-file-apps</span><sp
         (<span style="color: #a020f0;">progn</span>
           (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
           (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">my-recentf-cleanup-silence -&gt; my-recentf-save-list-silence &#12398;&#38918;&#12391;add&#65294;
+</span>      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
+                    #'my-recentf-cleanup-silence)
       (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
-                    #'my-recentf-save-list-silence)
-      (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:before</span> after-focus-change-function
-                    #'my-recentf-cleanup-silence))
+                    #'my-recentf-save-list-silence))
 
     (recentf-mode 1))
 
@@ -13518,7 +13538,6 @@ This user property stores the creation date of the entry"</span>)
     (<span style="color: #a020f0;">setq</span> use-dialog-box nil)
     (<span style="color: #a020f0;">when</span> (y-or-n-p-with-timeout <span style="color: #8b2252;">"Popup agenda now?"</span> 10 nil)
       (org-agenda-list))
-    (message <span style="color: #8b2252;">""</span>)
     (<span style="color: #a020f0;">setq</span> use-dialog-box status)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
@@ -14634,7 +14653,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgedd10b8"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org2a13934"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15628,7 +15647,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="org846ec92" class="figure">
+<div id="org2d883bf" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -19142,7 +19161,8 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (<span style="color: #a020f0;">when</span> (eq system-type 'ns)
     (run-with-idle-timer 180 t 'my-reload-ical-export)
     <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(run-with-idle-timer 1000 t 'org-mobile-push)
-</span>    (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function
+</span>
+    (<span style="color: #a020f0;">add-function</span> <span style="color: #483d8b;">:after</span> after-focus-change-function
                   #'my-ox-icalendar-activate)))
 
 (<span style="color: #a020f0;">declare-function</span> my-ox-upload-icalendar <span style="color: #8b2252;">"init.org"</span>)
@@ -20154,8 +20174,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-orgd42ccc4" class="outline-2">
-<h2 id="orgd42ccc4"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-org76ee75a" class="outline-2">
+<h2 id="org76ee75a"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20177,7 +20197,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-03-18 Wed 13:20</p>
+<p class="date">Created: 2026-03-20 Fri 21:47</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

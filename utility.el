@@ -1135,18 +1135,30 @@ Obeys `widen-automatically', which see."
   (remove-hook 'window-configuration-change-hook #'my-dimmer-activate));; FIXME
 
 ;;;###autoload
-(defun my-recentf-save-list-silence ()
-  (interactive)
-  (let ((message-log-max nil))
-    (recentf-save-list))
-  (message ""))
+(defun my--recentf-access-file (path)
+  (recentf-access-file (expand-file-name (concat "~/" path))))
+
+;;;###autoload
+(defun my--recentf-accessible-p ()
+  (not (memq nil (mapcar #'my--recentf-access-file my-recentf-privacy-path))))
+
+;;;###autoload
+(defun ad--recentf-cleanup (f)
+  (if (or (not (eq system-type 'darwin))
+          (my--recentf-accessible-p))
+      (funcall f)
+    (message "--- missing permission to access one of %s"
+             my-recentf-privacy-path)))
 
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
-  (interactive)
   (let ((message-log-max nil))
-    (recentf-cleanup))
-  (message ""))
+    (recentf-cleanup)))
+
+;;;###autoload
+(defun my-recentf-save-list-silence ()
+  (let ((message-log-max nil))
+    (recentf-save-list)))
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
@@ -2248,7 +2260,6 @@ will not be modified."
     (setq use-dialog-box nil)
     (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
       (org-agenda-list))
-    (message "")
     (setq use-dialog-box status)))
 
 ;;;###autoload

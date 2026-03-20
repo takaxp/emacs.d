@@ -6987,9 +6987,9 @@ Obeys `widen-automatically', which see."
      '(dimmer-fraction 0.6))
 
     (if (version< emacs-version "27.1")
-  (progn
-    (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on))
+        (progn
+          (add-hook 'focus-out-hook #'dimmer-off)
+          (add-hook 'focus-in-hook #'dimmer-on))
       (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
@@ -7844,10 +7844,10 @@ org-player.el を使えば，org-mode のバッファから Bongo を操作で�
 #+end_src
 
 ** 最近開いたファイルリストを保持
-   :PROPERTIES:
-   :CUSTOM_ID: orgf2cd8961
-   :ID:       11929DC8-1129-413D-A87E-5E5DE4E66332
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgf2cd8961
+:ID:       11929DC8-1129-413D-A87E-5E5DE4E66332
+:END:
 
 Built-in の [[http://www.emacswiki.org/emacs/RecentFiles][recentf.el]] を使う．
 
@@ -7855,20 +7855,34 @@ Built-in の [[http://www.emacswiki.org/emacs/RecentFiles][recentf.el]] を使�
 
 recentf-auto-cleanup を ='mode= などにすると起動時にファイルのクリーニングが行われるてしまうので， ='never= で回避し，アイドルタイマーなどで対応する．これだけで50[ms]ほど起動を高速化できる．
 
+macOSで =my-recentf-privacy-path= のフォルダ群にアクセス権がない場合は， =recentf-cleanup= を実行しないように advice をかけています．
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-recentf-save-list-silence ()
-  (interactive)
-  (let ((message-log-max nil))
-    (recentf-save-list))
-  (message ""))
+(defun my--recentf-access-file (path)
+  (recentf-access-file (expand-file-name (concat "~/" path))))
+
+;;;###autoload
+(defun my--recentf-accessible-p ()
+  (not (memq nil (mapcar #'my--recentf-access-file my-recentf-privacy-path))))
+
+;;;###autoload
+(defun ad--recentf-cleanup (f)
+  (if (or (not (eq system-type 'darwin))
+          (my--recentf-accessible-p))
+      (funcall f)
+    (message "--- missing permission to access one of %s"
+             my-recentf-privacy-path)))
 
 ;;;###autoload
 (defun my-recentf-cleanup-silence ()
-  (interactive)
   (let ((message-log-max nil))
-    (recentf-cleanup))
-  (message ""))
+    (recentf-cleanup)))
+
+;;;###autoload
+(defun my-recentf-save-list-silence ()
+  (let ((message-log-max nil))
+    (recentf-save-list)))
 
 ;;;###autoload
 (defun my-counsel-recentf-action (file)
@@ -7900,8 +7914,11 @@ Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
                          "recentf" nil t) ;; see recentf.el
 
   (advice-add 'recentf-save-list :around #'my--suppress-message)
+  (advice-add 'recentf-cleanup :around #'ad--recentf-cleanup)
 
   (with-eval-after-load "recentf"
+    (defvar my-recentf-privacy-path '("Documents" "Downloads" "Desktop"))
+
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
@@ -7914,10 +7931,11 @@ Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
         (progn
           (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
           (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      ;; my-recentf-cleanup-silence -> my-recentf-save-list-silence の順でadd．
       (add-function :before after-focus-change-function
-                    #'my-recentf-save-list-silence)
+                    #'my-recentf-cleanup-silence)
       (add-function :before after-focus-change-function
-                    #'my-recentf-cleanup-silence))
+                    #'my-recentf-save-list-silence))
 
     (recentf-mode 1))
 
@@ -11738,7 +11756,6 @@ This user property stores the creation date of the entry")
     (setq use-dialog-box nil)
     (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
       (org-agenda-list))
-    (message "")
     (setq use-dialog-box status)))
 
 ;;;###autoload
@@ -17042,6 +17059,7 @@ orgバッファからカレンダーを生成し，外部サーバに投げま�
   (when (eq system-type 'ns)
     (run-with-idle-timer 180 t 'my-reload-ical-export)
     ;;    (run-with-idle-timer 1000 t 'org-mobile-push)
+
     (add-function :after after-focus-change-function
                   #'my-ox-icalendar-activate)))
 

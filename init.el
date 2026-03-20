@@ -303,8 +303,11 @@
                          "recentf" nil t) ;; see recentf.el
 
   (advice-add 'recentf-save-list :around #'my--suppress-message)
+  (advice-add 'recentf-cleanup :around #'ad--recentf-cleanup)
 
   (with-eval-after-load "recentf"
+    (defvar my-recentf-privacy-path '("Documents" "Downloads" "Desktop"))
+
     (custom-set-variables
      '(recentf-max-saved-items 2000)
      '(recentf-save-file (expand-file-name "~/.emacs.d/_recentf"))
@@ -317,10 +320,11 @@
         (progn
           (add-hook 'focus-out-hook #'my-recentf-save-list-silence)
           (add-hook 'focus-out-hook #'my-recentf-cleanup-silence))
+      ;; my-recentf-cleanup-silence -> my-recentf-save-list-silence の順でadd．
       (add-function :before after-focus-change-function
-                    #'my-recentf-save-list-silence)
+                    #'my-recentf-cleanup-silence)
       (add-function :before after-focus-change-function
-                    #'my-recentf-cleanup-silence))
+                    #'my-recentf-save-list-silence))
 
     (recentf-mode 1))
 

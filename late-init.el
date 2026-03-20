@@ -1393,9 +1393,9 @@ This function returns a timer object which you can use in
      '(dimmer-fraction 0.6))
 
     (if (version< emacs-version "27.1")
-  (progn
-    (add-hook 'focus-out-hook #'dimmer-off)
-    (add-hook 'focus-in-hook #'dimmer-on))
+        (progn
+          (add-hook 'focus-out-hook #'dimmer-off)
+          (add-hook 'focus-in-hook #'dimmer-on))
       (add-function :before after-focus-change-function #'my-dimmer-update))
 
     ;; for org-agenda
