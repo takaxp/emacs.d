@@ -26,7 +26,10 @@
     (with-current-buffer
         ;; `el-get-silent-update' が使えるカスタマイズパッケージを使う．
         (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/takaxp/el-get/master/el-get-install.el")
+	 ;; For developing
+         "https://raw.githubusercontent.com/takaxp/el-get/develop/el-get-install.el")
+      ;; Stable branch
+      ;; "https://raw.githubusercontent.com/takaxp/el-get/private/el-get-install.el")
       ;; オリジナルはこっち
       ;;"https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
       (goto-char (point-max))
@@ -45,6 +48,7 @@
   (setq el-get-git-shallow-clone t ;; "--depth 1"
         el-get-verbose nil ;; just for sure
         el-get-silent-update t ;; 出力されるメッセージの抑制
+	el-get-byte-compile nil ;; ビルドさせない
         gc-cons-threshold (* 512 1024 1024) ;; 512MB
         el-get-default-process-sync t ;; 常にシングルスレッドで動かす
         garbage-collection-messages t))

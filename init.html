@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-03-20 Fri 21:47 -->
+<!-- 2026-03-26 Thu 13:44 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -763,7 +763,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#org76ee75a">15. 有用なデフォルト関数</a></li>
+<li><a href="#org5e49c0d">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -1019,7 +1019,8 @@ Then load the following at startup<br />
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Configurations for Emacs
 </span><span style="color: #b22222;">;;                                          </span><span style="color: #b22222;">Takaaki ISHIKAWA <a href="mailto:takaxp%40ieee.org">&lt;takaxp@ieee.org&gt;</a>
 </span><span style="color: #b22222;">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">unless</span> noninteractive
+</span>
+(<span style="color: #a020f0;">unless</span> noninteractive
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-start</span> (current-time))
   (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-early-init</span>
     (format <span style="color: #8b2252;">"%searly-init.el"</span> (expand-file-name user-emacs-directory)))
@@ -1430,14 +1431,19 @@ This function is called directly from the C code."</span>
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-sync-dir</span> (expand-file-name <span style="color: #8b2252;">"~/Dropbox"</span>))
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-package-dir</span> nil)
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-use-el-get</span> emacs-version <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil
-</span>  <span style="color: #8b2252;">"If version number is provided, Emacs uses packages installed via el-get."</span>)
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-use-elpaca</span> emacs-version) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil
+</span>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-use-el-get</span> emacs-version
+  <span style="color: #8b2252;">"If version number is provided, Emacs uses packages installed via el-get."</span>)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-package-dir</span>
   (format (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/%s/packages"</span>) my-use-el-get))
-(<span style="color: #a020f0;">when</span> my-use-el-get
-  (<span style="color: #a020f0;">setq</span> my-package-dir my-elget-package-dir))
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elpaca-package-dir</span>
+  (format (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/elpaca/%s/lisp"</span>) my-use-elpaca))
+(<span style="color: #a020f0;">cond</span> (my-use-elpaca
+       (<span style="color: #a020f0;">setq</span> my-package-dir my-elpaca-package-dir))
+      (my-use-el-get
+       (<span style="color: #a020f0;">setq</span> my-package-dir my-elget-package-dir)))
 (<span style="color: #a020f0;">unless</span> (file-directory-p my-package-dir)
-  (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"%s does NOT exist. Run setup script first"</span> my-package-dir))
+  (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"%s does NOT exist. Run setup script"</span> my-package-dir))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--path-setter</span> (path-list target-path)
   <span style="color: #8b2252;">"Utility function to set PATH-LIST to TARGET-PATH."</span>
@@ -1480,6 +1486,17 @@ This function is called directly from the C code."</span>
 </span>(setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/opt/homebrew/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
 (setenv <span style="color: #8b2252;">"PATH"</span> (concat <span style="color: #8b2252;">"/usr/local/bin:"</span> (getenv <span style="color: #8b2252;">"PATH"</span>)))
 (setenv <span style="color: #8b2252;">"GOPATH"</span> (expand-file-name <span style="color: #8b2252;">"~/.go"</span>))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elpaca-restore-load-path</span> (<span style="color: #228b22;">&amp;optional</span> file)
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">with-temp-buffer</span>
+    (insert-file-contents (<span style="color: #a020f0;">or</span> file <span style="color: #8b2252;">"load-path.el"</span>))
+    (<span style="color: #a020f0;">setq</span> load-path (read (current-buffer)))))
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elpaca-save-load-path</span> (<span style="color: #228b22;">&amp;optional</span> file)
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">with-temp-file</span> (concat elpaca-directory (<span style="color: #a020f0;">or</span> file <span style="color: #8b2252;">"load-path.el"</span>))
+    (prin1 load-path (current-buffer))))
 </code></pre>
 </div>
 
@@ -7838,7 +7855,7 @@ org-mode の <code class="org-verbatim">org-eval-in-calendar</code> を使って
 </span>    (advice-add 'eldoc-message <span style="color: #483d8b;">:around</span> #'my--eldoc-message)
 
     (custom-set-variables
-     '(eldoc-idle-delay 1.0))))
+     '(eldoc-idle-delay 0.1))))
 </code></pre>
 </div>
 </div>
@@ -14653,7 +14670,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org2a13934"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga05248d"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15647,7 +15664,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="org2d883bf" class="figure">
+<div id="org1bfd8c3" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -20174,8 +20191,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-org76ee75a" class="outline-2">
-<h2 id="org76ee75a"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-org5e49c0d" class="outline-2">
+<h2 id="org5e49c0d"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20197,7 +20214,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-03-20 Fri 21:47</p>
+<p class="date">Created: 2026-03-26 Thu 13:44</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

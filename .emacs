@@ -19,31 +19,6 @@
 	      :around #'fix-org-fold-core--region-delayed))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
 
@@ -62,7 +37,7 @@
 ;; Disable NativeComp for this session if needed
 ;; run batch-compile.sh -d to delete cached eln files.
 (when (or (equal (getenv "EMACS_DISABLE_NATIVECOMP") "true")
-	  t) ;; (t: disabled)
+	  nil) ;; (t: disabled)
   (setq native-comp-jit-compilation nil
 	native-comp-enable-subr-trampolines nil)
   (message "--- NativeComp is disabled"))
@@ -106,6 +81,11 @@
  ;; Spacemacs
  (nil (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
 
+ ;; Elpaca
+ (nil
+  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
+  (load (concat user-emacs-directory "lisp/elpaca-config.el")))
+
  ;; Normal mode. see also init-eval.el
  (t
   (setq debug-on-error nil
@@ -121,7 +101,15 @@
 				 ;; my-show-org-buffer
 				 ))
   ;; (require 'my-eshell nil t)
-  (require 'init)))
+  (require 'init)
+  ;; (1) - to normal use
+  (add-to-list 'load-path (concat "~/.emacs.d/elpaca/" emacs-version "/lisp"))
+  ;; (2) - to setup
+  ;; (load (concat user-emacs-directory "lisp/elpaca-config.el"))
+  ;; (3)
+  ;; (my-elpaca-restore-load-path
+  ;;  (concat "~/.emacs.d/elpaca/" emacs-version "/load-path.el"))
+  ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (package-initialize) ;; do not delete this line here for previous versions

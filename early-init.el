@@ -2,6 +2,7 @@
 ;; Configurations for Emacs
 ;;                                          Takaaki ISHIKAWA <takaxp@ieee.org>
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (unless noninteractive
   (defvar my-early-start (current-time))
   (defvar my-early-init
@@ -32,14 +33,19 @@
 
 (defvar my-sync-dir (expand-file-name "~/Dropbox"))
 (defvar my-package-dir nil)
-(defvar my-use-el-get emacs-version ;; nil
+(defvar my-use-elpaca emacs-version) ;; nil
+(defvar my-use-el-get emacs-version
   "If version number is provided, Emacs uses packages installed via el-get.")
 (defvar my-elget-package-dir
   (format (expand-file-name "~/.emacs.d/%s/packages") my-use-el-get))
-(when my-use-el-get
-  (setq my-package-dir my-elget-package-dir))
+(defvar my-elpaca-package-dir
+  (format (expand-file-name "~/.emacs.d/elpaca/%s/lisp") my-use-elpaca))
+(cond (my-use-elpaca
+       (setq my-package-dir my-elpaca-package-dir))
+      (my-use-el-get
+       (setq my-package-dir my-elget-package-dir)))
 (unless (file-directory-p my-package-dir)
-  (user-error "%s does NOT exist. Run setup script first" my-package-dir))
+  (warn "%s does NOT exist. Run setup script" my-package-dir))
 
 (defun my--path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
@@ -82,6 +88,17 @@
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
 (setenv "GOPATH" (expand-file-name "~/.go"))
+
+(defun my-elpaca-restore-load-path (&optional file)
+  (interactive)
+  (with-temp-buffer
+    (insert-file-contents (or file "load-path.el"))
+    (setq load-path (read (current-buffer)))))
+
+(defun my-elpaca-save-load-path (&optional file)
+  (interactive)
+  (with-temp-file (concat elpaca-directory (or file "load-path.el"))
+    (prin1 load-path (current-buffer))))
 
 (unless noninteractive
   (defvar my-early-end (current-time))

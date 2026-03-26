@@ -6,18 +6,18 @@
 (require 'elget-setup)
 
 ;;;###autoload
-(defmacro my-elget-bundles ()
-  "List of packages."
-
+(defmacro my-elget-bundles1 ()
+  "List of install packages."
   ;; Fundamental (Under postpone.el)
   (el-get-bundle "takaxp/postpone")
   (el-get-bundle "takaxp/moom")
   (el-get-bundle "takaxp/ascii")
   (el-get-bundle "takaxp/help-fns-plus")
-  (el-get-bundle "takaxp/dimmer.el") ;; to avoid downloding images
+  (el-get-bundle "dimmer.el"
+		 :type http
+		 :url "https://raw.githubusercontent.com/takaxp/dimmer.el/refs/heads/master/dimmer.el")
   (el-get-bundle "takaxp/session")
   (el-get-bundle "ws-butler")
-  ;; (el-get-bundle "which-key")
   (el-get-bundle "aggressive-indent")
   (el-get-bundle "dacap/keyfreq")
   (el-get-bundle "conornash/backup-each-save")
@@ -27,22 +27,7 @@
   (el-get-bundle "k-talo/smooth-scroll.el" :name smooth-scroll)
   (el-get-bundle "tarsius/hl-todo")
   (el-get-bundle "emacsmirror/centered-cursor-mode")
-  (unless (eq system-type 'windows-nt)
-    (el-get-bundle "zk-phi/git-complete"))
-  (progn
-    (el-get-bundle "oantolin/embark")
-    (el-get-bundle "minad/corfu")
-    (el-get-bundle "popon"
-      :type git
-      :url "https://codeberg.org/akib/emacs-popon")
-    (el-get-bundle "corfu-terminal"
-      :type git
-      :url "https://codeberg.org/akib/emacs-corfu-terminal"
-      :depends (popon))
-    (el-get-bundle "xenodium/org-block-capf")
-    (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
-    (el-get-bundle "minad/cape")
-    (el-get-bundle "oantolin/orderless"))
+  (el-get-bundle "minad/corfu")
 
   ;; Org Mode
   (el-get-bundle "takaxp/org-onit")
@@ -51,14 +36,135 @@
   (el-get-bundle "emacsmirror/org-contrib")
   ;;(el-get-bundle "org-tree-slide" :branch "develop")
   (el-get-bundle "org-tree-slide")
-  (progn
+  (el-get-bundle "hniksic/emacs-htmlize")
+  (el-get-bundle "IvanMalison/org-projectile")
+  (el-get-bundle "emacsmirror/orgalist")
+  (el-get-bundle "tarsius/orglink")
+  (el-get-bundle "awth13/org-appear")
+  (el-get-bundle "org-mac-link"
+		 :type git
+		 :url "https://gitlab.com/aimebertrand/org-mac-link.git")
+  (el-get-bundle "uuid")
+  (el-get-bundle "takaxp/facecheck")
+
+  ;; macOS support
+  (when (eq system-type 'darwin)
+    (el-get-bundle "raghavgautam/osx-lib")
+    (el-get-bundle "lunaryorn/osx-trash.el" :name osx-trash)
+    (el-get-bundle "xuchunyang/osx-dictionary.el" :name osx-dictionary))
+
+
+  (progn ;; async.el
     (el-get-bundle "emacs-async")
     (el-get-bundle "org-download"))
+
+  (progn ;; helpful
+    (el-get-bundle "Wilfred/loop.el")
+    (el-get-bundle "Wilfred/elisp-refs")
+    (el-get-bundle "Wilfred/helpful"))
+  (el-get-bundle "purcell/package-lint")
+  (el-get-bundle "projectile")
+  (el-get-bundle "ROCKTAKEY/grugru")
+  (el-get-bundle "bm")
+  (when nil ;;progn ;; git-gutter
+    (el-get-bundle "syohex/emacs-git-gutter" :name git-gutter)
+    (el-get-bundle "nschum/fringe-helper.el")
+    (el-get-bundle "git-gutter-fringe"
+		   :type http
+		   :url "https://raw.githubusercontent.com/emacsorphanage/git-gutter-fringe/refs/heads/master/git-gutter-fringe.el")
+    )
+
+  ;; icons-in-terminal
+  (el-get-bundle "seagle0128/icons-in-terminal.el" :name icons-in-terminal)
+  (progn ;; Nerd-icons
+    (el-get-bundle "rainstormstudio/nerd-icons.el" :name nerd-icons)
+    (el-get-bundle "rainstormstudio/nerd-icons-dired")
+    (el-get-bundle "seagle0128/nerd-icons-ivy-rich")
+    (el-get-bundle "LuigiPiucco/nerd-icons-corfu"))
+
+  (el-get-bundle "gcmh"
+		 :type git
+		 :url "https://gitlab.com/koral/gcmh.git")
+
+  ;; Visualize
+  (el-get-bundle "takaxp/bsv")
+  (el-get-bundle "takaxp/imenu-list")
+  (el-get-bundle "volatile-highlights")
+  (el-get-bundle "highlight-symbol")
+  (el-get-bundle "smartparens")
+  (el-get-bundle "cask/shut-up")
+  (el-get-bundle "emacsmirror/delight") ;; or diminish
+  (el-get-bundle "manage-minor-mode")
+
+  ;; debug: install swiper
+  ;; (el-get-bundle "avy")
+  ;; (el-get-bundle "hydra")
+  ;; (el-get-bundle "swiper")
+
+  ;; ivy modules
+  (el-get-bundle "takaxp/counsel-selected")
+  (el-get-bundle "jixiuf/ivy-dired-history")
+  (el-get-bundle "ericdanan/counsel-projectile")
+  (el-get-bundle "kchenphy/counsel-world-clock")
+  (el-get-bundle "syohex/emacs-counsel-gtags")
+  (el-get-bundle "radian-software/prescient.el" :name prescient)
+  (el-get-bundle "radian-software/ctrlf")
+  ;; (el-get-bundle "momomo5717/avy-migemo")
+  ;; (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet))
+  ;; (el-get-bundle "takaxp/ivy-yasnippet")
+  ;; require ~/.emacs.d/recipes/ivy.rcp
+  (el-get-bundle "akirak/ivy-omni-org")
+  (el-get-bundle "abo-abo/smex")
+  (el-get-bundle "franburstall/ivy-emms")
+  (el-get-bundle "Yevgnen/ivy-rich")
+
+  (el-get-bundle "magnars/expand-region.el" :name expand-region)
+  (el-get-bundle "jdtsmith/mlscroll")
+  (el-get-bundle "rubikitch/replace-from-region")
+  (el-get-bundle "takaxp/ah")
+  (el-get-bundle "google-this")
+  (el-get-bundle "japanese-holidays")
+
+  (when (memq system-type '(darwin windows-nt))
+    (el-get-bundle "d12frosted/counsel-osx-app"))
+
+  nil)
+
+;;;###autoload
+(defmacro my-elget-bundle-hugo ()
+  ;; see private recipe
+  (unless (eq system-type 'windows-nt)
+    (el-get-bundle "kaushalmodi/tomelr")
+    (el-get-bundle "kaushalmodi/ox-hugo"))
+
+  nil)
+
+;;;###autoload
+(defmacro my-elget-bundles ()
+  "List of packages."
+
+  (el-get-bundle "zk-phi/git-complete")
+
+  ;; (el-get-bundle "which-key")
+  (progn
+    (el-get-bundle "oantolin/embark")
+    ;;    (el-get-bundle "minad/corfu")
+    (el-get-bundle "popon"
+		   :type git
+		   :url "https://codeberg.org/akib/emacs-popon")
+    (el-get-bundle "corfu-terminal"
+		   :type git
+		   :url "https://codeberg.org/akib/emacs-corfu-terminal"
+		   :depends (popon))
+    (el-get-bundle "xenodium/org-block-capf")
+    (el-get-bundle "jdtsmith/kind-icon")  ;; requires svg-lib
+    (el-get-bundle "minad/cape")
+    (el-get-bundle "oantolin/orderless"))
+
   (el-get-bundle "org-bullets")
   (el-get-bundle "misohena/phscroll")
   (el-get-bundle "orgbox")
   (el-get-bundle "yjwen/org-reveal" :name ox-reveal)
-  (el-get-bundle "hniksic/emacs-htmlize")
   (el-get-bundle "pinard/org-grep")
   (el-get-bundle "alphapapa/org-web-tools")
   (progn
@@ -71,15 +177,8 @@
     (el-get-bundle "alphapapa/frecency.el" :name frecency) ;; requires a.el
     (el-get-bundle "alphapapa/org-recent-headings") ;; requires frecency.el
     (el-get-bundle "facetframer/orgnav"))
-  (el-get-bundle "IvanMalison/org-projectile")
-  (el-get-bundle "emacsmirror/orgalist")
-  (el-get-bundle "tarsius/orglink")
   (el-get-bundle "Fuco1/org-pretty-table")
   (el-get-bundle "xenodium/company-org-block")
-  (el-get-bundle "awth13/org-appear")
-  (el-get-bundle "org-mac-link"
-    :type git
-    :url "https://gitlab.com/aimebertrand/org-mac-link.git")
   (el-get-bundle "QiangF/org-extra-emphasis")
   (progn
     (el-get-bundle "persist")
@@ -95,15 +194,12 @@
   (el-get-bundle "zweifisch/ob-http")
   (el-get-bundle "astahlman/ob-async" :depends (emacs-async))
   (el-get-bundle "pope/ob-go")
-  (unless (eq system-type 'windows-nt)
-    (el-get-bundle "kaushalmodi/tomelr")
-    (el-get-bundle "kaushalmodi/ox-hugo"))
 
   ;; Major modes
   ;; download zip since python-mode git repository is extremely huge
   (el-get-bundle "python-mode"
-    :type http-zip
-    :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
+		 :type http-zip
+		 :url "https://gitlab.com/python-mode-devs/python-mode/-/archive/master/python-mode-master.zip")
   (el-get-bundle "emacsmirror/csv-mode")
   (el-get-bundle "emacsmirror/po-mode")
   (el-get-bundle "yaml-mode")
@@ -111,15 +207,15 @@
   (el-get-bundle "es-mode")
   (el-get-bundle "markdown-mode")
   (el-get-bundle "gnuplot-mode")
-  (el-get-bundle "cmake-mode")
+  ;; (el-get-bundle "cmake-mode") ;; taking long time
   (el-get-bundle "php-mode")
   (el-get-bundle "bruceravel/gnuplot-mode")
   (el-get-bundle "dominikh/go-mode.el" :name go-mode)
   (progn ;; pass
     (el-get-bundle "NicolasPetton/pass")
     (el-get-bundle "password-store"
-      :type http
-      :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
+		   :type http
+		   :url "https://raw.githubusercontent.com/stuartsierra/password-store/master/contrib/emacs/password-store.el")
     (el-get-bundle "ecraven/ivy-pass")) ;; requires password-store.el
   (unless (eq system-type 'windows-nt)
     (el-get-bundle "emacsmirror/yatex"))
@@ -127,9 +223,8 @@
   ;; Development
   (el-get-bundle "gregsexton/origami.el" :name origami)
   (el-get-bundle "yasnippet")
-  (el-get-bundle "ludwigpacifici/modern-cpp-font-lock")
   (el-get-bundle "AdamNiederer/0xc")
-  (el-get-bundle "uuid")
+  (el-get-bundle "ludwigpacifici/modern-cpp-font-lock")
   (progn
     (el-get-bundle "d5884/yabin")
     (el-get-bundle "netromdk/describe-number"))
@@ -141,11 +236,6 @@
   (el-get-bundle "web-mode")
   (el-get-bundle "yasuyk/web-beautify")
   (el-get-bundle "gist")
-  (progn ;; helpful
-    (el-get-bundle "Wilfred/loop.el")
-    (el-get-bundle "Wilfred/elisp-refs")
-    (el-get-bundle "Wilfred/helpful"))
-  (el-get-bundle "purcell/package-lint")
   (progn
     (el-get-bundle "AdamNiederer/elquery")
     (el-get-bundle "AdamNiederer/cov"))
@@ -155,8 +245,6 @@
   (el-get-bundle "lassik/emacs-format-all-the-code")
   (el-get-bundle "emacsmirror/emr")
   (el-get-bundle "diffview")
-  (el-get-bundle "projectile")
-  (el-get-bundle "takaxp/facecheck")
   (el-get-bundle "twlz0ne/elpl")
   (el-get-bundle "mhayashi1120/Emacs-wgrep")
   (el-get-bundle "syohex/emacs-go-eldoc" :name go-eldoc)
@@ -167,40 +255,14 @@
     (el-get-bundle "ubolonton/emacs-tree-sitter")
     (el-get-bundle "ubolonton/tree-sitter-langs"))
 
-  ;; ivy modules
-  (el-get-bundle "takaxp/counsel-selected")
-  (el-get-bundle "jixiuf/ivy-dired-history")
-  (el-get-bundle "ericdanan/counsel-projectile")
-  (el-get-bundle "kchenphy/counsel-world-clock")
-  (el-get-bundle "syohex/emacs-counsel-gtags")
-  (el-get-bundle "radian-software/prescient.el" :name prescient)
-  (el-get-bundle "radian-software/ctrlf")
-  (el-get-bundle "momomo5717/avy-migemo")
-  ;; (el-get-bundle "mkcms/ivy-yasnippet" :depends (dash swiper yasnippet))
-  (el-get-bundle "takaxp/ivy-yasnippet")
-  ;; require ~/.emacs.d/recipes/ivy.rcp
-  (el-get-bundle "akirak/ivy-omni-org")
-  (el-get-bundle "abo-abo/smex")
-  (el-get-bundle "franburstall/ivy-emms")
-  (el-get-bundle "ROCKTAKEY/grugru")
-  (el-get-bundle "Yevgnen/ivy-rich")
-
-  ;; macOS support
-  (when (eq system-type 'darwin)
-    (el-get-bundle "raghavgautam/osx-lib")
-    (el-get-bundle "lunaryorn/osx-trash.el" :name osx-trash)
-    (el-get-bundle "xuchunyang/osx-dictionary.el" :name osx-dictionary))
-
   ;; Editing support
   (el-get-bundle "d12frosted/flyspell-correct")
-  (el-get-bundle "magnars/expand-region.el" :name expand-region)
   (progn ;; skewer
     (el-get-bundle "skewer-mode")
     (el-get-bundle "auto-complete")) ;; require 'skewer
   (el-get-bundle "auto-complete-clang")
   (el-get-bundle "ac-js2")
-  (el-get-bundle "emacs-jp/migemo")
-  (el-get-bundle "abo-abo/hydra")
+  ;; (el-get-bundle "emacs-jp/migemo")
   (el-get-bundle "mattiase/xr")
   (el-get-bundle "mattiase/relint")
   (el-get-bundle "purcell/reformatter.el" :name reformatter)
@@ -209,44 +271,24 @@
     (el-get-bundle "lorniu/pdd.el" :name pdd)
     (el-get-bundle "lorniu/gt.el" :name gt))
 
-  ;; Visualize
-  (el-get-bundle "takaxp/bsv")
-  (el-get-bundle "takaxp/imenu-list")
-  (el-get-bundle "volatile-highlights")
-  (el-get-bundle "highlight-symbol")
-  (el-get-bundle "smartparens")
-  (el-get-bundle "cask/shut-up")
-  (el-get-bundle "emacsmirror/delight") ;; or diminish
-  (el-get-bundle "manage-minor-mode")
-  (el-get-bundle "syohex/emacs-git-gutter" :name git-gutter)
-  (el-get-bundle "git-gutter-fringe")
   (el-get-bundle "doublep/logview")
   (el-get-bundle "rougier/svg-lib")
   (el-get-bundle "rougier/svg-tag-mode")
-  (el-get-bundle "bm")
   (el-get-bundle "emacsmirror/rainbow-mode")
   (el-get-bundle "DevelopmentCool2449/colorful-mode")
   (el-get-bundle "seagle0128/doom-modeline" :depends (eldoc-eval))
   (el-get-bundle "disk-usage"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
+		 :type git
+		 :url "https://gitlab.com/ambrevar/emacs-disk-usage.git")
   (el-get-bundle "ideasman42/emacs-undo-fu"
-    :type git
-    :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
+		 :type git
+		 :url "https://codeberg.org/ideasman42/emacs-undo-fu.git")
   (el-get-bundle "zk-phi/gitmole")
   (el-get-bundle "chuntaro/emacs-keypression" :name keypression)
   (el-get-bundle "lewang/command-log-mode")
   (el-get-bundle "tarsius/outline-minor-faces")
   (el-get-bundle "tarsius/backline")
-  (el-get-bundle "jdtsmith/mlscroll")
   (el-get-bundle "emacs-vs/rainbow-csv")
-  ;; icons-in-terminal
-  (el-get-bundle "seagle0128/icons-in-terminal.el" :name icons-in-terminal)
-  (progn ;; Nerd-icons
-    (el-get-bundle "rainstormstudio/nerd-icons.el" :name nerd-icons)
-    (el-get-bundle "rainstormstudio/nerd-icons-dired")
-    (el-get-bundle "seagle0128/nerd-icons-ivy-rich")
-    (el-get-bundle "LuigiPiucco/nerd-icons-corfu"))
 
   ;; System related
   (el-get-bundle "Fuco1/dired-hacks")
@@ -254,41 +296,32 @@
   (el-get-bundle "Vifon/dired-recent.el" :name dired-recent)
   (el-get-bundle "neotree")
   (el-get-bundle "find-file-in-project")
-  (el-get-bundle "gcmh"
-    :type git
-    :url "https://gitlab.com/koral/gcmh.git")
 
   ;; Frame and windows
   (el-get-bundle "popwin")
   (el-get-bundle "shackle")
 
   ;; Efficiency
-  (el-get-bundle "rubikitch/replace-from-region")
   (el-get-bundle "quickrun")
   (el-get-bundle "latex-math-preview"
-    :type git
-    :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
+		 :type git
+		 :url "https://gitlab.com/latex-math-preview/latex-math-preview.git")
   (el-get-bundle "sbrisard/bratex")
   (el-get-bundle "zhangkaiyulw/smart-mark")
   (el-get-bundle "emacsmirror/syntax-subword")
-  (el-get-bundle "takaxp/ah")
   ;; (el-get-bundle "phikal/compat.el" :name compat)
   ;; (el-get-bundle "magit/transient")
   (el-get-bundle "conao3/transient-dwim.el"
-    :name transient-dwim
-    :depends (transient))
+		 :name transient-dwim
+		 :depends (transient))
 
   ;; Applications
   (el-get-bundle "ag")
-  (el-get-bundle "google-this")
-  (el-get-bundle "japanese-holidays")
   (el-get-bundle "pdf-tools")
   (el-get-bundle "gif-screencast"
-    :type git
-    :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
+		 :type git
+		 :url "https://gitlab.com/ambrevar/emacs-gif-screencast.git")
   (el-get-bundle "jorgenschaefer/circe")
-  (when (memq system-type '(darwin windows-nt))
-    (el-get-bundle "d12frosted/counsel-osx-app"))
   (el-get-bundle "skeeto/elfeed")
   (el-get-bundle "remyhonig/elfeed-org")
   (el-get-bundle "sabof/edit-color-stamp")
@@ -302,8 +335,8 @@
   ;; Terminal
   (el-get-bundle "szermatt/mistty")
 
-  ;; Under consideration
-  ;; (my-elget-bundles-trying)
+  ;; FIXME required. related to 5dc496030a77b0394c3e21ca6aebc6397874bf0c
+  nil
   )
 
 (defmacro my-elget-bundles-trying ()
@@ -366,6 +399,7 @@
   (el-get-bundle "conao3/leaf.el" :name leaf)
 
   ;; ivy modules
+  (el-get-bundle "abo-abo/hydra")
   (el-get-bundle "asok/all-the-icons-ivy")
   (el-get-bundle "DarwinAwardWinner/amx")
 
@@ -420,10 +454,10 @@
   ;; (el-get-bundle "emms") ;; with private recipe
 
   ;; Resolve Magit dependency
-  (el-get-bundle "ghub")
-  (el-get-bundle "llama")
+  (el-get-bundle "magit/ghub")
+  (el-get-bundle "tarsius/llama")
   (el-get-bundle "emacs-compat/compat")
-  (el-get-bundle "magit-popup")
+  (el-get-bundle "magit/magit-popup")
   (el-get-bundle "magit/transient")
   (el-get-bundle "magit/libegit2"
                  :build `(("make" ,(format "EMACS=%s" el-get-emacs))))
@@ -585,7 +619,11 @@ see `native-compile-prune-cache'."
   (my-elget-setup)
   (unless my-elget-initialize
     (eval '(my-elget-bundles-by-tag))
-    (eval '(my-elget-bundles)))
+    (eval '(my-elget-bundles1))
+    (eval '(my-elget-bundles))
+    (eval '(my-elget-bundle-hugo))
+    ;; (eval '(my-elget-bundles-trying))
+    )
   (el-get 'sync))
 
 ;; init
