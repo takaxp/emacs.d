@@ -28,7 +28,7 @@
       (unless (string-match gccjit lpath)
         (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))
     (setenv "LIBRARY_PATH" gccjit))
-  (unless (file-exists-p gccjit)
+  (unless (file-directory-p gccjit)
     (setq native-comp-jit-compilation nil
           native-comp-enable-subr-trampolines nil)
     (message "--- NativeComp is disabled")))
