@@ -36,8 +36,7 @@
 
 ;; Disable NativeComp for this session if needed
 ;; run batch-compile.sh -d to delete cached eln files.
-(when (or (equal (getenv "EMACS_DISABLE_NATIVECOMP") "true")
-	  nil) ;; (t: disabled)
+(when nil ;; (t: disabled)
   (setq native-comp-jit-compilation nil
 	native-comp-enable-subr-trampolines nil)
   (message "--- NativeComp is disabled"))
@@ -102,13 +101,6 @@
 				 ))
   ;; (require 'my-eshell nil t)
   (require 'init)
-  ;; (1) - to normal use
-  (add-to-list 'load-path (concat "~/.emacs.d/elpaca/" emacs-version "/lisp"))
-  ;; (2) - to setup
-  ;; (load (concat user-emacs-directory "lisp/elpaca-config.el"))
-  ;; (3)
-  ;; (my-elpaca-restore-load-path
-  ;;  (concat "~/.emacs.d/elpaca/" emacs-version "/load-path.el"))
   ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1163,7 +1163,7 @@ This function returns a timer object which you can use in
     (advice-add 'eldoc-message :around #'my--eldoc-message)
 
     (custom-set-variables
-     '(eldoc-idle-delay 0.1))))
+     '(eldoc-idle-delay 0.6))))
 
 (when (autoload-if-found '(keypression-mode)
                          "keypression" nil t)

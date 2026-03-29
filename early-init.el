@@ -27,7 +27,11 @@
   (if (stringp lpath)
       (unless (string-match gccjit lpath)
         (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))
-    (setenv "LIBRARY_PATH" gccjit)))
+    (setenv "LIBRARY_PATH" gccjit))
+  (unless (file-exists-p gccjit)
+    (setq native-comp-jit-compilation nil
+          native-comp-enable-subr-trampolines nil)
+    (message "--- NativeComp is disabled")))
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 

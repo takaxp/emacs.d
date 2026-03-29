@@ -188,7 +188,11 @@ Then load the following at startup
   (if (stringp lpath)
       (unless (string-match gccjit lpath)
         (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))
-    (setenv "LIBRARY_PATH" gccjit)))
+    (setenv "LIBRARY_PATH" gccjit))
+  (unless (file-exists-p gccjit)
+    (setq native-comp-jit-compilation nil
+          native-comp-enable-subr-trampolines nil)
+    (message "--- NativeComp is disabled")))
 #+end_src
 
 ** 起動時間の計測
@@ -6364,7 +6368,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
     (advice-add 'eldoc-message :around #'my--eldoc-message)
 
     (custom-set-variables
-     '(eldoc-idle-delay 0.1))))
+     '(eldoc-idle-delay 0.6))))
 #+end_src
 
 ** [go-eldoc.el] Go用の eldoc
