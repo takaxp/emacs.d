@@ -164,11 +164,12 @@ This function returns a timer object which you can use in
 
 (setq hscroll-margin 40)
 
-(autoload-if-found '(el-get-version
-                     el-get-bundle my-elget-list my-elget-reset-links
-                     el-get-cd el-get-remove el-get-update
-                     el-get-install el-get-reinstall)
-                   "elget-config" nil t)
+(autoload-if-found '(elpaca-version my-elpaca-reset-links
+                                    elpaca my-elpaca-github
+                                    my-elpaca-nativecomp-package
+                                    my-elpaca-nativecomp-prune-current-cache
+                                    my-elpaca-reset-links)
+                   "elpaca-config" nil t)
 
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
@@ -1290,8 +1291,10 @@ This function returns a timer object which you can use in
     ;;                    counsel-app))
     ;;   (add-to-list 'ivy-prescient-sort-commands command t))
     (ivy-prescient-mode 1)
-    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
-          #'ivy-prescient-re-builder)
+    ;; counsel-M-x をイニシャル入力対応にする
+    ;; [2026-04-04] 第2クエリの配色がうまく変更されなくなったので設定しない
+    ;; (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+    ;;       #'ivy-prescient-re-builder)
     (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
 
 (with-eval-after-load "company"
@@ -1415,8 +1418,6 @@ This function returns a timer object which you can use in
 ;; (eval-when-compile
 ;;   (message "Loading transient...")
 ;;   (require 'transient))
-
-(autoload 'my-org-bullet-and-checkbox "transient" nil t)
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
     "Commands to handle bullet and checkbox"

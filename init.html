@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-03-29 Sun 10:55 -->
+<!-- 2026-04-04 Sat 21:44 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -282,6 +282,7 @@
 <li><a href="#orgec66ea31">3.13.3. load-path を一箇所にして起動を高速化</a></li>
 <li><a href="#orgda4ef167">3.13.4. [paradox.el] パッケージ選択画面の改善</a></li>
 <li><a href="#org6c5717fc">3.13.5. [el-get.el] パッケージ管理（GUI，CUI）</a></li>
+<li><a href="#orgce19f21">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
 </ul>
 </li>
 <li><a href="#org03555a6a">3.14. インデント</a></li>
@@ -763,7 +764,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#org2d43962">15. 有用なデフォルト関数</a></li>
+<li><a href="#org1b1a383">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -894,7 +895,7 @@ Org Mode の設定がかなり肥大化したため， <code class="org-verbatim
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/.emacs">emacs.d/.emacs at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init.el">emacs.d/init.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/late-init.el">emacs.d/late-init.el at master · takaxp/emacs.d</a><br /></li>
-<li><a href="https://github.com/takaxp/emacs.d/blob/master/elget-config.el">emacs.d/elget-config.el at master · takaxp/emacs.d</a><br /></li>
+<li><a href="https://github.com/takaxp/emacs.d/blob/master/elpaca-config.el">emacs.d/elpaca-config.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-ad.el">emacs.d/init-ad.el at master · takaxp/emacs.d</a><br /></li>
 <li><a href="https://github.com/takaxp/emacs.d/blob/master/init-eval.el">emacs.d/init-eval.el at master · takaxp/emacs.d</a><br /></li>
 </ul>
@@ -2053,7 +2054,8 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 <h3 id="orgfd894e86"><span class="section-number-3">2.28.</span> elget パッケージを native comp する</h3>
 <div class="outline-text-3" id="text-orgfd894e86">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-delete-eln-file-packages</span> nil)
+<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">utility.el
+</span>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-delete-eln-file-packages</span> nil)
 (add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
@@ -2876,11 +2878,26 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(autoload-if-found '(el-get-version
+<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">late-init.el
+</span>(autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
                      el-get-install el-get-reinstall)
                    <span style="color: #8b2252;">"elget-config"</span> nil t)
+</code></pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgce19f21" class="outline-4">
+<h4 id="orgce19f21"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
+<div class="outline-text-4" id="text-3-13-6">
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(autoload-if-found '(elpaca-version my-elpaca-reset-links
+                                    elpaca my-elpaca-github
+                                    my-elpaca-nativecomp-package
+                                    my-elpaca-nativecomp-prune-current-cache
+                                    my-elpaca-reset-links)
+                   <span style="color: #8b2252;">"elpaca-config"</span> nil t)
 </code></pre>
 </div>
 </div>
@@ -8224,9 +8241,11 @@ Obeys `</span><span style="color: #008b8b;">widen-automatically</span><span styl
 </span>    <span style="color: #b22222;">;;                    </span><span style="color: #b22222;">counsel-app))
 </span>    <span style="color: #b22222;">;;   </span><span style="color: #b22222;">(add-to-list 'ivy-prescient-sort-commands command t))
 </span>    (ivy-prescient-mode 1)
-    (<span style="color: #a020f0;">setf</span> (alist-get 'counsel-M-x ivy-re-builders-alist)
-          #'ivy-prescient-re-builder)
-    (<span style="color: #a020f0;">setf</span> (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">counsel-M-x &#12434;&#12452;&#12491;&#12471;&#12515;&#12523;&#20837;&#21147;&#23550;&#24540;&#12395;&#12377;&#12427;
+</span>    <span style="color: #b22222;">;; </span><span style="color: #b22222;">[2026-04-04] &#31532;2&#12463;&#12456;&#12522;&#12398;&#37197;&#33394;&#12364;&#12358;&#12414;&#12367;&#22793;&#26356;&#12373;&#12428;&#12394;&#12367;&#12394;&#12387;&#12383;&#12398;&#12391;&#35373;&#23450;&#12375;&#12394;&#12356;
+</span>    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+</span>    <span style="color: #b22222;">;;       </span><span style="color: #b22222;">#'ivy-prescient-re-builder)
+</span>    (<span style="color: #a020f0;">setf</span> (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
 
 (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"company"</span>
   (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">prescient</span> nil t)
@@ -8563,13 +8582,16 @@ Obeys `</span><span style="color: #008b8b;">widen-automatically</span><span styl
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(autoload 'my-org-bullet-and-checkbox <span style="color: #8b2252;">"late-init"</span> nil t)
+</code></pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12371;&#12398;&#22580;&#21512;&#12399;&#65292;interactive &#12514;&#12540;&#12489;&#12391; init-eval.el &#12395;&#12354;&#12427;&#35352;&#36848;&#12434;&#12525;&#12540;&#12489;&#12377;&#12427;&#12399;&#12384;&#12417;&#65294;
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">(eval-when-compile
 </span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Loading transient...")
 </span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(require 'transient))
-</span>
-(autoload 'my-org-bullet-and-checkbox <span style="color: #8b2252;">"transient"</span> nil t)
-(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
+</span>(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"transient"</span>
   (transient-define-prefix my-org-bullet-and-checkbox ()
     <span style="color: #8b2252;">"Commands to handle bullet and checkbox"</span>
     [[<span style="color: #8b2252;">"Bullet"</span>
@@ -14674,7 +14696,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org6d63fcb"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org2c263f8"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15668,7 +15690,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="orga1a9296" class="figure">
+<div id="org8a8c927" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -20195,8 +20217,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-org2d43962" class="outline-2">
-<h2 id="org2d43962"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-org1b1a383" class="outline-2">
+<h2 id="org1b1a383"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20218,7 +20240,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-03-29 Sun 10:55</p>
+<p class="date">Created: 2026-04-04 Sat 21:44</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

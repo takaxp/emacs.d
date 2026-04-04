@@ -68,4 +68,9 @@
     ;; (require 'helm-config nil t)
     (dired-recent-mode 1)))
 
+(setq dired-use-ls-dired nil)
+(when (require 'osx-trash nil t)
+  (setq delete-by-moving-to-trash t)
+  (osx-trash-setup))
+
 (provide 'init-dired)

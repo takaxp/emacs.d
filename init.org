@@ -62,7 +62,7 @@ Org Mode の設定がかなり肥大化したため， =init-org.el= として�
 - [[https://github.com/takaxp/emacs.d/blob/master/.emacs][emacs.d/.emacs at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init.el][emacs.d/init.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/late-init.el][emacs.d/late-init.el at master · takaxp/emacs.d]]
-- [[https://github.com/takaxp/emacs.d/blob/master/elget-config.el][emacs.d/elget-config.el at master · takaxp/emacs.d]]
+- [[https://github.com/takaxp/emacs.d/blob/master/elpaca-config.el][emacs.d/elpaca-config.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-ad.el][emacs.d/init-ad.el at master · takaxp/emacs.d]]
 - [[https://github.com/takaxp/emacs.d/blob/master/init-eval.el][emacs.d/init-eval.el at master · takaxp/emacs.d]]
 
@@ -1161,7 +1161,8 @@ This function returns a timer object which you can use in
 
 # see also elget-config.el.
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
+;; utility.el
 (defvar my-elget-delete-eln-file-packages nil)
 (add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
 
@@ -1932,13 +1933,28 @@ echo "--- done."
 
 =el-get= に移行．コマンドラインからも効率よく管理可能．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
 (autoload-if-found '(el-get-version
                      el-get-bundle my-elget-list my-elget-reset-links
                      el-get-cd el-get-remove el-get-update
                      el-get-install el-get-reinstall)
                    "elget-config" nil t)
 #+end_src
+
+*** [elpaca.el] 続・パッケージ管理（GUI，CUI）
+:PROPERTIES:
+:ID:       10C8DE32-978C-452C-9A8E-F8BE81B16888
+:END:
+#+begin_src emacs-lisp :tangle late-init.el
+(autoload-if-found '(elpaca-version my-elpaca-reset-links
+                                    elpaca my-elpaca-github
+                                    my-elpaca-nativecomp-package
+                                    my-elpaca-nativecomp-prune-current-cache
+                                    my-elpaca-reset-links)
+                   "elpaca-config" nil t)
+#+end_src
+
 
 ** インデント
    :PROPERTIES:
@@ -6716,8 +6732,10 @@ Obeys `widen-automatically', which see."
     ;;                    counsel-app))
     ;;   (add-to-list 'ivy-prescient-sort-commands command t))
     (ivy-prescient-mode 1)
-    (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
-          #'ivy-prescient-re-builder)
+    ;; counsel-M-x をイニシャル入力対応にする
+    ;; [2026-04-04] 第2クエリの配色がうまく変更されなくなったので設定しない
+    ;; (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+    ;;       #'ivy-prescient-re-builder)
     (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
 
 (with-eval-after-load "company"
@@ -7028,11 +7046,11 @@ Obeys `widen-automatically', which see."
 #+end_src
 
 ** TODO [transient.el] コマンドディスパッチャを構築する
-   :PROPERTIES:
-   :CREATED:  [2022-03-26 Sat 00:51]
-   :ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
-   :CUSTOM_ID: orgdef403ec
-   :END:
+:PROPERTIES:
+:CREATED:  [2022-03-26 Sat 00:51]
+:ID:       950EB87C-C3EA-4BC3-8989-E30D8C8B12AF
+:CUSTOM_ID: orgdef403ec
+:END:
 
 ~autoload-if-found~ を使ういつもの設定では正しく動作しないので， ~eval-when-compile~ を使用して require しています．
 
@@ -7049,13 +7067,15 @@ Obeys `widen-automatically', which see."
 # つまり，requireを明示的に書かないといけないから，init.elには置けない．
 # eval-when-compile で回避できる．ただ，起動時間への影響は本当に無いのか？
 
+#+begin_src emacs-lisp :tangle yes
+(autoload 'my-org-bullet-and-checkbox "late-init" nil t)
+#+end_src
+
 #+begin_src emacs-lisp :tangle late-init.el
 ;; この場合は，interactive モードで init-eval.el にある記述をロードするはだめ．
 ;; (eval-when-compile
 ;;   (message "Loading transient...")
 ;;   (require 'transient))
-
-(autoload 'my-org-bullet-and-checkbox "transient" nil t)
 (with-eval-after-load "transient"
   (transient-define-prefix my-org-bullet-and-checkbox ()
     "Commands to handle bullet and checkbox"
@@ -8404,11 +8424,12 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
 ** [osx-trash] system-move-file-to-trash を有効にする
    :PROPERTIES:
    :CUSTOM_ID: orga3cbefa8
+   :ID:       452A7FA1-AE8C-4C01-B782-77D604F45557
    :END:
 
 [[https://github.com/lunaryorn/osx-trash.el][osx-trash]] は，OSXで =system-move-file-to-trash= を使えるようにする．単独で使うのはあまり考えられないので，読み込みを =dired= に紐付けます．
 
-#+begin_src emacs-lisp :tangle init-dired
+#+begin_src emacs-lisp :tangle init-dired.el
 (setq dired-use-ls-dired nil)
 (when (require 'osx-trash nil t)
   (setq delete-by-moving-to-trash t)

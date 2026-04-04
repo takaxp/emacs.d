@@ -133,22 +133,6 @@ This function is called directly from the C code."
                      )
                    ":"))))
 
-(defvar my-elget-delete-eln-file-packages nil)
-(add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
-
-;;;###autoload
-(defun my-open-current-eln-dir ()
-  (interactive)
-  (call-process "open" nil 0 nil
-                (concat (car (butlast native-comp-eln-load-path))
-                        comp-native-version-dir)))
-
-;;;###autoload
-(defun my-elget-regenerate-eln-file ()
-  (interactive)
-  (dolist (package-name my-elget-delete-eln-file-packages)
-    (my-elget-nativecomp-package package-name)))
-
 ;;;###autoload
 (defun my-org-hide-drawers-all ()
   (when (eq major-mode 'org-mode)
