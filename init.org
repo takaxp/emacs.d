@@ -574,7 +574,7 @@ This function is called directly from the C code."
 :ID:       EF0212F3-44E6-40FE-9C3E-32C5B494DD43
 :END:
 
-=el-get= でインストールしているパッケージ群と，個別管理している org-mode を使えるようにパスを通します．
+=elpaca= でインストールしているパッケージ群と，個別管理している org-mode を使えるようにパスを通します．2026年4月に， =el-get= から =elpaca= にパッケージ管理を変更しました．
 
 #+begin_src emacs-lisp :tangle early-init.el
 (defvar my-sync-dir (expand-file-name "~/Dropbox"))
@@ -870,10 +870,10 @@ This function is called directly from the C code."
 #+end_src
 
 ** [library-p] load-path にライブラリがあるかを判定
-   :PROPERTIES:
-   :CUSTOM_ID: org30c47759
-   :ID:       3A98DC0A-88FF-4AEF-946D-A94E9979AA0E
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org30c47759
+:ID:       3A98DC0A-88FF-4AEF-946D-A94E9979AA0E
+:END:
 
 パッケージが =load-path= に存在していて使える状態にあるかを調べます．もし存在しなければ，メッセージバッファに [NOT FOUND] を刻みます．
 
@@ -882,8 +882,9 @@ This function is called directly from the C code."
 ="org"= を渡したり， ='("org" "helm")= を渡したりできます．
 
 #+begin_src emacs-lisp :tangle no
+;;;###autoload
 (defun library-p (libraries)
-  "Return t when every specified library can be located. "
+  "Return t when every specified library is located."
   (let ((result t))
     (mapc (lambda (library)
             (unless (locate-library library)
@@ -1111,6 +1112,19 @@ This function returns a timer object which you can use in
   (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
 #+end_src
 
+** Native comp のキャッシュディレクトリを開く
+:PROPERTIES:
+:CUSTOM_ID: orgaa868d82
+:ID:       E4E8F09D-3D9F-4614-9B09-BCABEF507B89
+:END:
+#+begin_src emacs-lisp :tangle late-init.el
+;;;###autoload
+(defun my-open-current-eln-dir ()
+  (interactive)
+  (call-process "open" nil 0 nil
+                (concat (car (butlast native-comp-eln-load-path))
+                        comp-native-version-dir)))
+#+end_src
 ** TODO Native comp のビルドパスを取得
 :PROPERTIES:
 :CUSTOM_ID: org722bba84
@@ -1153,37 +1167,65 @@ This function returns a timer object which you can use in
 (setq custom-file (locate-user-emacs-file "custom.el"))
 #+end_src
 
-** elget パッケージを native comp する
+** loadとrequireの実行時間を計測
 :PROPERTIES:
-:ID:       9C9A3126-543D-4923-8C0E-9FF36679989A
-:CUSTOM_ID: orgfd894e86
+:CUSTOM_ID: orgdb356e99
+:ID:       388BE124-F7F0-473D-9471-1C4AC1F293B3
 :END:
 
-# see also elget-config.el.
-
-#+begin_src emacs-lisp :tangle no
-;; utility.el
-(defvar my-elget-delete-eln-file-packages nil)
-(add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
-
-;;;###autoload
-(defun my-open-current-eln-dir ()
-  (interactive)
-  (call-process "open" nil 0 nil
-                (concat (car (butlast native-comp-eln-load-path))
-                        comp-native-version-dir)))
-
-;;;###autoload
-(defun my-elget-regenerate-eln-file ()
-  (interactive)
-  (dolist (package-name my-elget-delete-eln-file-packages)
-    (my-elget-nativecomp-package package-name)))
+#+begin_src emacs-lisp :tangle init-ad.el
+;; init-ad.el  -*- lexical-binding: t -*-
+(defvar my-minimum-time-to-print 0.5)
+(defun my--print-loading-time (f &rest args)
+  "https://memo.sugyan.com/entry/20120105/1325756767"
+  (let* ((before (current-time))
+         (result (apply f args))
+         (after (current-time))
+         (file-or-feature (car args))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0))))
+    (unless (or (memq file-or-feature '(cl-lib macroexp))
+                (> my-minimum-time-to-print time))
+      (message "--- %04d [ms]: %s%s" time
+               (if (equal (subr-name f) "load") "(loading) " "")
+               file-or-feature))
+    result))
+(advice-add 'load :around #'my--print-loading-time)
+(advice-add 'require :around #'my--print-loading-time)
 #+end_src
 
-** [exec-path-from-shell.el] PATH設定をシェルから継承する          :obsolete:
-   :PROPERTIES:
-   :CUSTOM_ID: orgb59612b6
-   :END:
+#+begin_src emacs-lisp :tangle no :exports none
+;; advice of load function
+(defadvice load (around load-benchmark activate)
+  (let* ((before (current-time))
+         (result ad-do-it)
+         (after  (current-time))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
+         (arg (ad-get-arg 0)))
+    (message "--- %04d [ms]: (loading) %s" time arg)))
+
+;; advice of require function
+(defadvice require (around require-benchmark activate)
+  "http://memo.sugyan.com/entry/20120105/1325756767"
+  (let* ((before (current-time))
+         (result ad-do-it)
+         (after  (current-time))
+         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
+                  (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
+         (arg (ad-get-arg 0)))
+    (unless (or (memq arg '(cl-lib macroexp))
+                (> 0.1 time))
+      (message "--- %04d [ms]: %s" time arg))))
+
+(provide 'init-ad)
+#+end_src
+
+** DONE [exec-path-from-shell.el] PATH設定をシェルから継承する     :obsolete:
+CLOSED: [2026-04-05 Sun 10:27]
+:PROPERTIES:
+:CUSTOM_ID: orgb59612b6
+:END:
 
  - [[https://github.com/purcell/exec-path-from-shell][purcell/exec-path-from-shell: Make Emacs use the $PATH set up by the user's shell]]
 
@@ -1195,10 +1237,11 @@ This function returns a timer object which you can use in
   (exec-path-from-shell-initialize))
 #+end_src
 
-** [eval-after-autoload-if-found] 遅延読み込み                     :obsolete:
-   :PROPERTIES:
-   :CUSTOM_ID: org0b7d9710
-   :END:
+** DONE [eval-after-autoload-if-found] 遅延読み込み                :obsolete:
+CLOSED: [2026-04-05 Sun 10:27]
+:PROPERTIES:
+:CUSTOM_ID: org0b7d9710
+:END:
 
 *現在は使っていません．非推奨です．*
 
@@ -1340,61 +1383,7 @@ autoload-if-found で遅延読み込みすると，eval-after-load と組み合�
        t)))
 #+end_src
 
-** loadとrequireの実行時間を計測
-:PROPERTIES:
-:CUSTOM_ID: orgdb356e99
-:ID:       388BE124-F7F0-473D-9471-1C4AC1F293B3
-:END:
-
-#+begin_src emacs-lisp :tangle init-ad.el
-;; init-ad.el  -*- lexical-binding: t -*-
-(defvar my-minimum-time-to-print 0.5)
-(defun my--print-loading-time (f &rest args)
-  "https://memo.sugyan.com/entry/20120105/1325756767"
-  (let* ((before (current-time))
-         (result (apply f args))
-         (after (current-time))
-         (file-or-feature (car args))
-         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
-                  (/ (- (nth 2 after) (nth 2 before)) 1000.0))))
-    (unless (or (memq file-or-feature '(cl-lib macroexp))
-                (> my-minimum-time-to-print time))
-      (message "--- %04d [ms]: %s%s" time
-               (if (equal (subr-name f) "load") "(loading) " "")
-               file-or-feature))
-    result))
-(advice-add 'load :around #'my--print-loading-time)
-(advice-add 'require :around #'my--print-loading-time)
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-;; advice of load function
-(defadvice load (around load-benchmark activate)
-  (let* ((before (current-time))
-         (result ad-do-it)
-         (after  (current-time))
-         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
-                  (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
-         (arg (ad-get-arg 0)))
-    (message "--- %04d [ms]: (loading) %s" time arg)))
-
-;; advice of require function
-(defadvice require (around require-benchmark activate)
-  "http://memo.sugyan.com/entry/20120105/1325756767"
-  (let* ((before (current-time))
-         (result ad-do-it)
-         (after  (current-time))
-         (time (+ (* (- (nth 1 after) (nth 1 before)) 1000.0)
-                  (/ (- (nth 2 after) (nth 2 before)) 1000.0)))
-         (arg (ad-get-arg 0)))
-    (unless (or (memq arg '(cl-lib macroexp))
-                (> 0.1 time))
-      (message "--- %04d [ms]: %s" time arg))))
-
-(provide 'init-ad)
-#+end_src
-
-** DONE [shut-up.el] Messages 出力を封じる（制御する）
+** DONE [shut-up.el] Messages 出力を封じる（制御する）             :obsolete:
 CLOSED: [2025-04-04 Fri 03:15]
    :PROPERTIES:
    :CUSTOM_ID: orgfca510d8
@@ -1429,7 +1418,7 @@ Note: =my--suppress-message= と save-silently で十分制御可能になった
     `(with-temp-message (or (current-message) "") ,@body)))
 #+end_src
 
-** DONE [window-focus-p] フォーカス判定
+** DONE [window-focus-p] フォーカス判定                            :obsolete:
    CLOSED: [2020-06-04 Thu 08:00]
    :PROPERTIES:
    :CUSTOM_ID: orgcea06248
@@ -1445,10 +1434,31 @@ Note: =my--suppress-message= と save-silently で十分制御可能になった
   (frame-parameter (selected-frame) 'last-focus-update)))
 #+end_src
 
+** DONE elget パッケージを native comp する                        :obsolete:
+CLOSED: [2026-04-05 Sun 10:26]
+:PROPERTIES:
+:ID:       9C9A3126-543D-4923-8C0E-9FF36679989A
+:CUSTOM_ID: orgfd894e86
+:END:
+
+# see also elget-config.el.
+
+#+begin_src emacs-lisp :tangle no
+;; utility.el
+(defvar my-elget-delete-eln-file-packages nil)
+(add-to-list 'my-elget-delete-eln-file-packages 'org-appear)
+
+;;;###autoload
+(defun my-elget-regenerate-eln-file ()
+  (interactive)
+  (dolist (package-name my-elget-delete-eln-file-packages)
+    (my-elget-nativecomp-package package-name)))
+#+end_src
+
 * コア設定
-  :PROPERTIES:
-  :CUSTOM_ID: org8e58f563
-  :END:
+:PROPERTIES:
+:CUSTOM_ID: org8e58f563
+:END:
 #+begin_src emacs-lisp :tangle yes :exports none
 (my-tick-init-time "startup")
 #+end_src
@@ -1710,11 +1720,10 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
    :CUSTOM_ID: orgd7b8f4e2
    :END:
 
-[[https://github.com/cask/cask][Cask]]+Palletの環境を採用しました．それまでは，特定のディレクトリに必要な elisp をダウンロードしておいたり，git から取り寄せて，それらをload-pathに設定するスクリプトを準備するなど，個人的なルールで運用してきましたが，希望の機能をCaskが提供しているので，Emacs24.4になるタイミングで移行しました．
+古くは [[https://github.com/cask/cask][Cask]]+Palletの環境を採用していましたが，その後 =el-get= に移行し，Emacs 31のリリースに向けて最近は =elpaca= を使用しています．
 
-ただし，頒布元が危ういようなファイルはやはり個人で管理しておきたいので，Caskで管理する対象は，MEPLA経由で入手可能なメンテナンスが行き届いたパッケージに限定しています．また，普通の使い方（casl.elを読み込んで初期化）をしていると，起動時に少し時間を要するので，所定のディレクトリにCaskで取り寄せたすべてのファイルをコピーして，そのディレクトリだけをload-pathで指定するという使い方もしています．今のところ大きな問題は生じていません．
-
-*** [cask-mode.el] モード設定
+*** DONE [cask-mode.el] モード設定
+CLOSED: [2026-04-05 Sun 10:34]
     :PROPERTIES:
     :CUSTOM_ID: orgf6f05dc9
     :END:
@@ -1727,11 +1736,16 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
   (push '("/Cask\\'" . cask-mode) auto-mode-alist))
 #+end_src
 
-*** Cask のセットアップ
+*** DONE Cask のセットアップ
+CLOSED: [2026-04-05 Sun 10:34]
     :PROPERTIES:
     :CUSTOM_ID: org02669d67
     :ID:       2EE1AF5B-C077-4547-A856-7DDEAB9CEFFC
     :END:
+
+cask+palletの導入までは，特定のディレクトリに必要な elisp をダウンロードしておいたり，git から取り寄せて，それらをload-pathに設定するスクリプトを準備するなど，個人的なルールで運用してきましたが，希望の機能をCaskが提供しているので，Emacs24.4になるタイミングで移行しました．
+
+ただし，頒布元が危ういようなファイルはやはり個人で管理しておきたいので，Caskで管理する対象は，MEPLA経由で入手可能なメンテナンスが行き届いたパッケージに限定しています．また，普通の使い方（casl.elを読み込んで初期化）をしていると，起動時に少し時間を要するので，所定のディレクトリにCaskで取り寄せたすべてのファイルをコピーして，そのディレクトリだけをload-pathで指定するという使い方もしています．今のところ大きな問題は生じていません．
 
  以下は自分用のメモです．
 
@@ -1742,11 +1756,11 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
  5. cask init            ;; ~/.emacs.d/Cask が存在しない場合だけ実行
  6. cask install
 
-*** load-path を一箇所にして起動を高速化
-    :PROPERTIES:
-    :CUSTOM_ID: orgec66ea31
-    :ID:       920EE0D6-4DAB-4BD4-8DE9-D19B3CEE7503
-    :END:
+*** TODO load-path を一箇所にして起動を高速化
+:PROPERTIES:
+:CUSTOM_ID: orgec66ea31
+:ID:       920EE0D6-4DAB-4BD4-8DE9-D19B3CEE7503
+:END:
 
 Caskを使うと，個々のパッケージが独立にload-pathに設定されます．これにより依存関係がスッキリするわけですが，数が増えると起動時間が遅くなります．重いです．自分の例では，800[ms]のオーバーヘッドでした．これを避けるには，load-pathを一箇所に集約することが効きます．オーバーヘッドは約100[ms]まで削減できました．場合によっては依存関係に問題が生じる可能性がありますが，今のところは問題になっていません．
 
@@ -1869,7 +1883,8 @@ echo "--- done."
  (expand-file-name "~/.emacs.d/lisp/init-autoloads.el"))
 #+end_src
 
-*** [paradox.el] パッケージ選択画面の改善
+*** DONE [paradox.el] パッケージ選択画面の改善
+CLOSED: [2026-04-05 Sun 10:34]
     :PROPERTIES:
     :CUSTOM_ID: orgda4ef167
     :END:
@@ -1925,7 +1940,8 @@ echo "--- done."
       (paradox-enable))))
 #+end_src
 
-*** [el-get.el] パッケージ管理（GUI，CUI）
+*** DONE [el-get.el] パッケージ管理（GUI，CUI）
+CLOSED: [2026-04-05 Sun 10:34]
     :PROPERTIES:
     :CUSTOM_ID: org6c5717fc
     :ID:       4E958002-BA51-4182-A9CF-AF33A090120E
@@ -1955,12 +1971,11 @@ echo "--- done."
                    "elpaca-config" nil t)
 #+end_src
 
-
 ** インデント
-   :PROPERTIES:
-   :CUSTOM_ID: org03555a6a
-   :ID:       8DB34A7B-FF86-4268-BF20-25BAFFA4FD64
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org03555a6a
+:ID:       8DB34A7B-FF86-4268-BF20-25BAFFA4FD64
+:END:
 
 オープンソース等で他の人のコードを修正する場合は，以下のような設定は良くないかもしれません．例えば差分を取ると見た目は変わらないのに，タブとスペースの違いから差分ありと判定されてしまい，意図しない編集履歴が残ることがあります．ただこの問題は，修正対象のファイルが限定されているならば， =M-x tabify= や =M-x untabify= で回避できそうです．
 
@@ -2197,6 +2212,8 @@ emacs -nw --eval="(setq my-boot-mode 'min)" -l ~/.emacs
    :CUSTOM_ID: orge014847e
    :ID:       1E6869BC-7837-47EA-B850-BF06C5719499
    :END:
+
+ビルトインの =epa.el= を使います．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -2694,10 +2711,10 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
 #+end_src
 
 ** スクロールを制御
-   :PROPERTIES:
-   :CUSTOM_ID: orgb8c57f30
-   :ID:       FB9E26DB-42E7-4C3A-AF48-A40F8C721F25
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgb8c57f30
+:ID:       FB9E26DB-42E7-4C3A-AF48-A40F8C721F25
+:END:
 
 一行づつスクロールさせます．デフォルトではバッファの端でスクロールすると，半画面移動します．また，上下の端にカーソルがどのくらい近づいたらスクロールとみなすかも指定できます．
 
@@ -2763,10 +2780,10 @@ scroll-margin を指定すると，カーソルがウィンドウの端から離
 #+end_src
 
 ** [ah.el] カーソル移動に反応するフック
-   :PROPERTIES:
-   :CUSTOM_ID: org7ea97f70
-   :ID:       1C5AA77D-14DB-4748-95F9-5880AFCED31A
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org7ea97f70
+:ID:       1C5AA77D-14DB-4748-95F9-5880AFCED31A
+:END:
 
 カーソルを移動するインタラクティブ関数に反応する =ah-before-move-cursor-hook= と =ah-after-move-cursor-hook= を使います． [[https://github.com/takaxp/ah][ah.el]] に関数定義を切り出しました．
 
@@ -3359,10 +3376,12 @@ Built-in の time-stamp.el を使う．
 #+end_src
 
 ** ChangeLog モード
-   :PROPERTIES:
-   :CUSTOM_ID: org7cb03523
-   :ID:       C01237EE-2654-4C19-8573-25EBC451F453
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org7cb03523
+:ID:       C01237EE-2654-4C19-8573-25EBC451F453
+:END:
+
+=orgalist= を使って，ChangeLog 内でもブリッツを扱えるようにします．
 
 #+begin_src emacs-lisp :tangle no
 ;; see private.el
@@ -3509,12 +3528,16 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 :ID:       8B269347-D237-4244-87A1-8B68EB12B934
 :END:
 
-バッファの保存時に =json-mode-beautify= を走らせます．
+ビルトインの =json-ts-mode= を使います．
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle yes
+(push '("\\.json$" . json-ts-mode) auto-mode-alist)
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
 ;;;###autoload
 (defun my-json-mode-beautify ()
-  (when (eq major-mode 'json-mode)
+  (when (eq major-mode 'json-ts-mode)
     (json-mode-beautify (point-min) (point-max))))
 
 ;;;###autoload
@@ -3523,7 +3546,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
     (json-pretty-print-buffer)))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(json-mode)
                          "json-mode" nil t)
   (push '("\\.json$" . json-mode) auto-mode-alist)
@@ -3533,10 +3556,10 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** javascriptモード
-   :PROPERTIES:
-   :CUSTOM_ID: orgc35f66fb
-   :ID:       4FEB1173-4C0A-4FD2-93E9-12A826A0E0E9
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc35f66fb
+:ID:       4FEB1173-4C0A-4FD2-93E9-12A826A0E0E9
+:END:
 
 #+begin_src emacs-lisp :tangle late-init.el
 (if (and (fboundp 'treesit-language-available-p)
@@ -3545,7 +3568,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
   (message "--- Missing tree-sitter library for Javascript"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle no :exports none
 (when (autoload-if-found '(js2-mode)
                          "js2-mode" nil t)
   (with-eval-after-load "js2-mode"
@@ -3595,9 +3618,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** javaモード
-   :PROPERTIES:
-   :CUSTOM_ID: orgc5b5891d
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc5b5891d
+:END:
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(cc-mode)
@@ -3611,7 +3634,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
    :CUSTOM_ID: orgf0c39e0f
    :END:
 
-  - https://github.com/dakrone/es-mode
+- https://github.com/dakrone/es-mode
 
 [[https://www.elastic.co/products/elasticsearch][ElasticSearch]] のクエリを編集します．org-mode との連携もできます．
 
@@ -3622,9 +3645,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** gnuplotモード
-   :PROPERTIES:
-   :CUSTOM_ID: org2a14728f
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org2a14728f
+:END:
 
 #+begin_src emacs-lisp :tangle no
 ;; yes
@@ -3634,11 +3657,12 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** markdown-modeモード
-   :PROPERTIES:
-   :CUSTOM_ID: orga6fc6cf7
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orga6fc6cf7
+:ID:       DC864092-C827-4771-B25B-5F8EB38B2ED2
+:END:
 
-  - [[http://jblevins.org/projects/markdown-mode/]]
+- [[http://jblevins.org/projects/markdown-mode/]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(markdown-mode)
@@ -3648,9 +3672,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** cmakeモード
-   :PROPERTIES:
-   :CUSTOM_ID: org29328dcd
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org29328dcd
+:END:
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(cmake-mode)
@@ -3664,9 +3688,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** logviewモード
-   :PROPERTIES:
-   :CUSTOM_ID: org41da658e
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org41da658e
+:END:
 
  - [[https://github.com/doublep/logview][doublep/logview: Emacs mode for viewing log files.]]
 
@@ -3679,10 +3703,10 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** viewモード
-   :PROPERTIES:
-   :CUSTOM_ID: org6b6c1c11
-   :ID:       6F2DF669-7FCE-4BA6-9CC7-B654030433B7
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org6b6c1c11
+:ID:       6F2DF669-7FCE-4BA6-9CC7-B654030433B7
+:END:
 
 個別のファイルで view モードで開くことを指定するには次のようにします．
 
@@ -3807,9 +3831,9 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 #+end_src
 
 ** Web/HTMLモード                                                       :web:
-   :PROPERTIES:
-   :CUSTOM_ID: orgfdeec1c5
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgfdeec1c5
+:END:
 
 HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです．古いHTMLモードを使っている方は，移行時期です．以下の =my-web-indent-fold= では， タブキーを打つたびにタグでくくられた領域を展開／非表示して整形します．Org-mode っぽい動作になりますが，操作の度にバッファに変更が加わったと判断されるので好みが分かれると思います．自動保存を有効にしているとそれほど気になりません．
 
@@ -3863,8 +3887,8 @@ HTML編集をするなら [[http://web-mode.org/][web-mode]] がお勧めです�
    :CUSTOM_ID: orge1eeb2a1
    :END:
 
-  - http://www.emacswiki.org/emacs/PoMode
-  - http://www.emacswiki.org/emacs/po-mode+.el
+- http://www.emacswiki.org/emacs/PoMode
+- http://www.emacswiki.org/emacs/po-mode+.el
 
 #+begin_src emacs-lisp :tangle late-init.el
 ;;(autoload 'po-mode "po-mode+" nil nil)
@@ -4004,10 +4028,10 @@ lang en_US
 #+end_src
 
 ** リアルタイムスペルチェック
-   :PROPERTIES:
-   :CUSTOM_ID: orgdd65fc08
-   :ID:       B4A5C2C6-6116-4E56-B2BA-7EEC2D7AEBE0
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgdd65fc08
+:ID:       B4A5C2C6-6116-4E56-B2BA-7EEC2D7AEBE0
+:END:
 
 Built-in の [[http://www.emacswiki.org/emacs/FlySpell][flyspell.el]] を使います．flyspell は内部で =ispell= を読み込んでいるので，辞書機能自体はそちらの設定が使われます．
 
@@ -4113,10 +4137,10 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+end_src
 
 ** 世界時計を使う
-   :PROPERTIES:
-   :CUSTOM_ID: org863cfc2a
-   :ID:       FC3F2298-FD98-4F00-8ED4-5BB255864A71
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org863cfc2a
+:ID:       FC3F2298-FD98-4F00-8ED4-5BB255864A71
+:END:
 
 =M-x display-time-world= で表示されます．次の設定を施して， =shackle.el= と組み合わせれば，表示後に =q= 押下でウィンドウを閉じてカーソルを元のバッファに戻せます．
 
@@ -4139,9 +4163,9 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+end_src
 
 ** [latex-math-preview.el] TeX数式をプレビュー                          :tex:
-   :PROPERTIES:
-   :CUSTOM_ID: orgab4f9bf0
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgab4f9bf0
+:END:
 
   - [[https://gitlab.com/latex-math-preview/latex-math-preview/tree/775887a89447dd19541b121161cc02e9799d0d3a][Files · 775887a89447dd19541b121161cc02e9799d0d3a · latex-math-preview / Latex Math Preview · GitLab]]
   - http://www.emacswiki.org/emacs/latex-math-preview.el
@@ -4166,10 +4190,10 @@ http://www.morishima.net/~naoto/fragments/archives/2005/12/20/flyspell/
 #+end_src
 
 ** [yatex.el] YaTeXでTex編集                                            :tex:
-   :PROPERTIES:
-   :CUSTOM_ID: org770fb4ec
-   :ID:       8AB006F1-8725-4310-AD57-6BAE2295C9D0
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org770fb4ec
+:ID:       8AB006F1-8725-4310-AD57-6BAE2295C9D0
+:END:
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(yatex-mode)
@@ -4252,9 +4276,9 @@ This works also for other defined begin/end tokens to define the structure."
 #+end_src
 
 ** [auxtex.el] AUCTEXでTex編集                                          :tex:
-   :PROPERTIES:
-   :CUSTOM_ID: org9b92b6f8
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org9b92b6f8
+:END:
 
 実践未投入です．
 
@@ -4371,10 +4395,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 私の場合は，できあがった辞書を =/Library/Dictionaries/= 以下に置いています．その状態で dictionary.app の設定で辞書の優先順位を変えることで，常にCOBUILD5の情報を引っ張り出せます．もしくは， =osx-dictionary-dictionary-choice= で辞書名を指定します．
 
 ** [describe-number.el] 16進数などを確認
-   :PROPERTIES:
-   :CUSTOM_ID: orgca044d69
-   :ID:       D78CEF89-489D-48B5-9EB2-CC473E10CF52
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgca044d69
+:ID:       D78CEF89-489D-48B5-9EB2-CC473E10CF52
+:END:
 
 =describe-number.el= を使うと，16進数表示や文字コードを確認できます．
 
@@ -4385,31 +4409,11 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
                    "describe-number" nil t) ;; FIXME
 #+end_src
 
-** [emmet-mode.el] zencoding の後継                                     :web:
-   :PROPERTIES:
-   :CUSTOM_ID: org98d5c1aa
-   :END:
-
-#+begin_src emacs-lisp :tangle no
-;; yes
-(when (autoload-if-found '(emmet-mode)
-                         "emmet-mode" nil t nil)
-  (push '("\\.xml\\'" . nxml-mode) auto-mode-alist)
-  (push '("\\.rdf\\'" . nxml-mode) auto-mode-alist)
-  (dolist (hook
-           '(sgml-mode-hook
-             nxml-mode-hook css-mode-hook html-mode-hook web-mode-hook))
-    (add-hook hook #'emmet-mode))
-  (with-eval-after-load "emmet-mode"
-    (setq emmet-indentation 2)
-    (setq emmet-move-cursor-between-quotes t)))
-#+end_src
-
 ** [web-beautify.el] ソースコード整形                                   :web:
-   :PROPERTIES:
-   :CUSTOM_ID: orgc885e502
-   :ID:       88A45F3A-9372-4662-8F18-364B18083160
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc885e502
+:ID:       88A45F3A-9372-4662-8F18-364B18083160
+:END:
 
 ソースコードを読みやすい表示に整形します．バッファの自動時に自動で整形を実施するには， =after-save-hook= を使えばOKですね．
 
@@ -4431,10 +4435,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+end_src
 
 ** [smartparens.el] 対応するカッコの挿入をアシスト
-   :PROPERTIES:
-   :CUSTOM_ID: orgc3ce60f5
-   :ID:       A3E2186E-9675-4E62-83EB-2B78FF4B1879
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc3ce60f5
+:ID:       A3E2186E-9675-4E62-83EB-2B78FF4B1879
+:END:
 
   - http://smartparens.readthedocs.io/
 
@@ -4474,10 +4478,10 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+end_src
 
 ** TODO [grugru.el] 所定のキーワードをサイクルさせる
-   :PROPERTIES:
-   :CUSTOM_ID: orgcbb87f41
-   :ID:       4B49FC5C-DE07-40F8-936D-943C18E0CD73
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgcbb87f41
+:ID:       4B49FC5C-DE07-40F8-936D-943C18E0CD73
+:END:
 
 入力する候補が決まっているキーワード群について，それらをサイクルさせるようにするパッケージです．例えば， =nil=, =t= を高速に切り替えられるようになります．
 
@@ -4515,7 +4519,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 
 =iedit.el= の方が好みの人が多いかもしれません．
 
- - https://www.emacswiki.org/emacs/replace-from-region.el
+- https://www.emacswiki.org/emacs/replace-from-region.el
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(query-replace-from-region query-replace-regexp-from-region)
@@ -4631,7 +4635,8 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
       (keymap-set selected-keymap "H" #'my-describe-selected-keymap))))
 #+end_src
 
-** [helm-selected.el] selecte.el のアクション候補を絞り込み
+** DONE [helm-selected.el] selecte.el のアクション候補を絞り込み
+CLOSED: [2026-04-06 Mon 14:31]
    :PROPERTIES:
    :CUSTOM_ID: org98897862
    :END:
@@ -4663,14 +4668,14 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+end_src
 
 ** TODO [multiple-cursors.el] 指定箇所を同時編集
-   :PROPERTIES:
-   :CREATED:  [2019-06-19 Wed 00:49]
-   :CUSTOM_ID: org9e3510c2
-   :ID:       E23734EB-0BF4-42EF-A99A-35FE319616DF
-   :END:
+:PROPERTIES:
+:CREATED:  [2019-06-19 Wed 00:49]
+:CUSTOM_ID: org9e3510c2
+:ID:       E23734EB-0BF4-42EF-A99A-35FE319616DF
+:END:
 
- - http://emacsrocks.com/e08.html
- - [[https://github.com/magnars/multiple-cursors.el][magnars/multiple-cursors.el: Multiple cursors for emacs.]]
+- http://emacsrocks.com/e08.html
+- [[https://github.com/magnars/multiple-cursors.el][magnars/multiple-cursors.el: Multiple cursors for emacs.]]
 
 #+begin_src emacs-lisp :tangle no
 ;; late-init.el
@@ -4710,9 +4715,9 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+end_src
 
 ** TODO [isolate.el] ブラケット等の入力をアシスト
-   :PROPERTIES:
-   :CUSTOM_ID: orge18cb840
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orge18cb840
+:END:
 
  - [[https://github.com/casouri/isolate][casouri/isolate: Surrounding magics, extensible]]
 
@@ -4729,7 +4734,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
    :CUSTOM_ID: orgc6f37d6d
    :END:
 
-  - [[https://github.com/zk-phi/git-complete][zk-phi/git-complete: {Emacs} Yet another completion engine powered by "git grep"]]
+- [[https://github.com/zk-phi/git-complete][zk-phi/git-complete: {Emacs} Yet another completion engine powered by "git grep"]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(git-complete)
@@ -4742,7 +4747,7 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
    :CUSTOM_ID: orgab8a7bee
    :END:
 
- - [[https://github.com/abo-abo/tiny][abo-abo/tiny: Quickly generate linear ranges in Emacs]]
+- [[https://github.com/abo-abo/tiny][abo-abo/tiny: Quickly generate linear ranges in Emacs]]
 
 #+begin_src emacs-lisp :tangle no
 (when (require 'tiny nil t)
@@ -4750,13 +4755,13 @@ COBUILD5をデフォルトで使うには，次のサイト参照してくださ
 #+end_src
 
 ** TODO [bratex.el] LaTeX 数式のブラケット入力をサポート
-   :PROPERTIES:
-   :CUSTOM_ID: org12a087af
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org12a087af
+:END:
 
- - [[https://github.com/sbrisard/bratex][sbrisard/bratex: Emacs package for manipulation of brackets in LaTeX mode]]
+- [[https://github.com/sbrisard/bratex][sbrisard/bratex: Emacs package for manipulation of brackets in LaTeX mode]]
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(bratex-config)
                          "bratex" nil t)
   (add-hook 'yatex-mode-hook #'bratex-config))
@@ -5003,6 +5008,27 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
   (keymap-global-set "C-M-w" 'dict-app-search))
 #+end_src
 
+** DONE [emmet-mode.el] zencoding の後継                                :web:
+CLOSED: [2026-04-06 Mon 14:26]
+   :PROPERTIES:
+   :CUSTOM_ID: org98d5c1aa
+   :END:
+
+#+begin_src emacs-lisp :tangle no
+;; yes
+(when (autoload-if-found '(emmet-mode)
+                         "emmet-mode" nil t nil)
+  (push '("\\.xml\\'" . nxml-mode) auto-mode-alist)
+  (push '("\\.rdf\\'" . nxml-mode) auto-mode-alist)
+  (dolist (hook
+           '(sgml-mode-hook
+             nxml-mode-hook css-mode-hook html-mode-hook web-mode-hook))
+    (add-hook hook #'emmet-mode))
+  (with-eval-after-load "emmet-mode"
+    (setq emmet-indentation 2)
+    (setq emmet-move-cursor-between-quotes t)))
+#+end_src
+
 * 表示サポート
   :PROPERTIES:
   :CUSTOM_ID: org94c7bd73
@@ -5011,9 +5037,9 @@ Emacs から辞書を使う．lookup を使う方法もあるが，Emacsから�
 (my-tick-init-time "editing")
 #+end_src
 ** キーコマンド入力中に入力過程をミニバッファに反映する
-   :PROPERTIES:
-   :CUSTOM_ID: orgf6a240ab
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgf6a240ab
+:END:
 
 標準値は ~1~ です．例えば， =C-c f r= で発動する関数があるとき， =C-c= を入力するとその直後にはミニバッファに何も表示されませんが， =echo-keystrokes= だけ経過すると， =C-c= が表示されます． ~0~ に設定すると，いくら経過しても何も表示しません． =which-key.el= の設定で表示を ~1.0~ にすると，時系列的に， ~0.5~ 秒でキー入力の状態を表示し， ~1.0~ 秒で続くキーで入力可能なコマンドがリストアップ表示されます．
 
@@ -5676,9 +5702,9 @@ paren.el の場合は以下の設定．
    :ID:       2BAC0880-EDD6-42DB-A576-6888F72B461D
    :END:
 
-  - [[http://ubulog.blogspot.jp/2007/09/emacs_09.html]]
-  - [[https://beiznotes.org/200906031244034052-2/][emacsでタブとEOFと全角空白の表示を。]]
-  - [[http://qiita.com/itiut@github/items/4d74da2412a29ef59c3a][whitespace-modeを使って、ファイルの保存時に行末のスペースや末尾の改行を削除する - Qiita]]
+- [[http://ubulog.blogspot.jp/2007/09/emacs_09.html]]
+- [[https://beiznotes.org/200906031244034052-2/][emacsでタブとEOFと全角空白の表示を。]]
+- [[http://qiita.com/itiut@github/items/4d74da2412a29ef59c3a][whitespace-modeを使って、ファイルの保存時に行末のスペースや末尾の改行を削除する - Qiita]]
 
 英語で原稿を書く時に全角スペースが入っているを苦労するので，強調表示して編集中でも気づくようにします．また，行末のタブや半角スペースも無駄なので，入り込まないように強調しています．パッケージを使うと too much かなという印象があったので，個別の設定だけを使わせてもらっています．
 
@@ -5755,7 +5781,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
 
 デフォルトの表示は略されすぎていてわかりにくいので，表示内容を具体化します．
 
- - [[https://qiita.com/kai2nenobu/items/ddf94c0e5a36919bc6db][モードラインの文字エンコーディング表示をわかりやすくする - Qiita]]
+- [[https://qiita.com/kai2nenobu/items/ddf94c0e5a36919bc6db][モードラインの文字エンコーディング表示をわかりやすくする - Qiita]]
 
 #+begin_src emacs-lisp :tangle utility.el
 ;; 文字エンコーディングの文字列表現
@@ -5837,7 +5863,7 @@ version 28 で全角スペースに黒下線が付くので回避します．
    :ID:       105C5CC0-49CD-4230-9FD6-46C0BD8FF47B
    :END:
 
-  - [[https://elpa.gnu.org/packages/delight.html][GNU ELPA - delight]]
+- [[https://elpa.gnu.org/packages/delight.html][GNU ELPA - delight]]
 
 以前は =diminish.el= を使用していましたが，ELPA配布のパッケージに移行しました．メジャーモードの短縮表示もマイナーモードの場合と同様に設定できます．この点で，設定がスッキリしました．
 
@@ -5923,8 +5949,8 @@ version 28 で全角スペースに黒下線が付くので回避します．
    :ID:       D4DF1A3F-80F3-44B0-A591-C89D466CA326
    :END:
 
- - http://0xcc.net/migemo/#download
- - [[https://github.com/emacs-jp/migemo][emacs-jp/migemo: emacs migemo client]]
+- http://0xcc.net/migemo/#download
+- [[https://github.com/emacs-jp/migemo][emacs-jp/migemo: emacs migemo client]]
 
 以下は，[[http://www.kaoriya.net/software/cmigemo][cmigemo]] を使う設定です．正直なところ，それほどメリットを感じていません．
 
@@ -6249,7 +6275,7 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
    :ID:       25F7B866-B4B2-4489-8806-267429971ED6
    :END:
 
-=guide-key.el= の後発． =guide-key.el= の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．
+=guide-key.el= の後発． =guide-key.el= の改良でもあり，ディスパッチャが見やすく，直感的でとても使いやすい．Emacs 30からビルトインされています．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -6286,7 +6312,8 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
      '(highlight-symbol-idle-delay 0.5))))
 #+end_src
 
-** [all-the-icons.el] フォントでアイコン表示
+** DONE [all-the-icons.el] フォントでアイコン表示
+CLOSED: [2026-04-06 Mon 14:40]
    :PROPERTIES:
    :CUSTOM_ID: org962224ff
    :END:
@@ -6299,7 +6326,8 @@ org-mode の =org-eval-in-calendar= を使って，カーソル下の日付を�
 
 期待と異なるフォントが表示されたり，コピペするとフォントが入れ替わってしまう場合は， =set-fontset-font= で =unicode= を設定すると解決するかもしれません．
 
-** [all-the-icons-dired] dired でアイコンを表示
+** DONE [all-the-icons-dired] dired でアイコンを表示
+CLOSED: [2026-04-06 Mon 14:40]
    :PROPERTIES:
    :CUSTOM_ID: orgd92b50db
    :END:
@@ -6664,12 +6692,46 @@ Obeys `widen-automatically', which see."
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 #+end_src
 
+** [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）
+   :PROPERTIES:
+   :CUSTOM_ID: org29951da5
+   :ID:       69C013B3-F597-46F1-AB36-CCCB51639B21
+   :END:
+
+コマンド履歴を保存．コマンドのイニシャル入力を可能にする．
+
+#+begin_src emacs-lisp :tangle late-init.el
+(with-eval-after-load "prescient"
+  (setq prescient-aggressive-file-save t) ;; Merged!
+  (setq prescient-save-file (expand-file-name "~/.emacs.d/prescient-save.el"))
+  (prescient-persist-mode 1))
+
+(with-eval-after-load "ivy"
+  (when (and (require 'prescient nil t)
+             (require 'ivy-prescient nil t))
+    (setq ivy-prescient-retain-classic-highlighting t)
+    ;; (dolist (command '(counsel-world-clock ;; Merged!
+    ;;                    counsel-app))
+    ;;   (add-to-list 'ivy-prescient-sort-commands command t))
+    (ivy-prescient-mode 1)
+    ;; counsel-M-x をイニシャル入力対応にする
+    ;; [2026-04-04] 第2クエリの配色がうまく変更されなくなったので設定しない
+    ;; (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
+    ;;       #'ivy-prescient-re-builder)
+    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
+
+(with-eval-after-load "company"
+  (when (and (require 'prescient nil t)
+             (require 'company-prescient nil t))
+    (company-prescient-mode 1)))
+#+end_src
+
 ** [imenu-list.el] サイドバー的にファイル内容の目次要素を表示
    :PROPERTIES:
    :CUSTOM_ID: org45b3667a
    :END:
 
- - [[https://github.com/takaxp/imenu-list][takaxp/imenu-list: Emacs plugin to show the current buffer's imenu entries in a seperate buffer]]
+- [[https://github.com/takaxp/imenu-list][takaxp/imenu-list: Emacs plugin to show the current buffer's imenu entries in a seperate buffer]]
 
 ↑のリポジトリは，オリジナルのコードに対して次の修正を加えています．
  1. トップレベルのツリーで ENT する時，カーソルが imenu-list 側に残さない
@@ -6708,40 +6770,6 @@ Obeys `widen-automatically', which see."
     (when (require 'moom nil t)
       (add-hook 'imenu-list-update-hook #'my--imenu-list-update)
       (advice-add 'imenu-list-quit-window :after #'my--imenu-list-quit-window))))
-#+end_src
-
-** [prescient.el] リスト項目の並び替えとイニシャル入力機能（ivy and company）
-   :PROPERTIES:
-   :CUSTOM_ID: org29951da5
-   :ID:       69C013B3-F597-46F1-AB36-CCCB51639B21
-   :END:
-
-コマンド履歴を保存．コマンドのイニシャル入力を可能にする．
-
-#+begin_src emacs-lisp :tangle late-init.el
-(with-eval-after-load "prescient"
-  (setq prescient-aggressive-file-save t) ;; Merged!
-  (setq prescient-save-file (expand-file-name "~/.emacs.d/prescient-save.el"))
-  (prescient-persist-mode 1))
-
-(with-eval-after-load "ivy"
-  (when (and (require 'prescient nil t)
-             (require 'ivy-prescient nil t))
-    (setq ivy-prescient-retain-classic-highlighting t)
-    ;; (dolist (command '(counsel-world-clock ;; Merged!
-    ;;                    counsel-app))
-    ;;   (add-to-list 'ivy-prescient-sort-commands command t))
-    (ivy-prescient-mode 1)
-    ;; counsel-M-x をイニシャル入力対応にする
-    ;; [2026-04-04] 第2クエリの配色がうまく変更されなくなったので設定しない
-    ;; (setf (alist-get 'counsel-M-x ivy-re-builders-alist)
-    ;;       #'ivy-prescient-re-builder)
-    (setf (alist-get t ivy-re-builders-alist) #'ivy--regex-ignore-order)))
-
-(with-eval-after-load "company"
-  (when (and (require 'prescient nil t)
-             (require 'company-prescient nil t))
-    (company-prescient-mode 1)))
 #+end_src
 
 ** [command-log-mode.el] 発行したコマンドの履歴をバッファに表示する
@@ -6953,8 +6981,8 @@ Obeys `widen-automatically', which see."
 
 =yascroll= を使います．
 
-  - http://d.hatena.ne.jp/m2ym/20110401/1301617991
-  - 2015-03-15: smooth-scroll との組み合わせで重いのを確認．
+- http://d.hatena.ne.jp/m2ym/20110401/1301617991
+- 2015-03-15: smooth-scroll との組み合わせで重いのを確認．
 
 #+begin_src emacs-lisp :tangle no
 (when (require 'yascroll nil t)
@@ -8018,7 +8046,7 @@ Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
 
 =C-g= でカーソルが飛んだ時，元の場所へブックマークから戻れます．mark でも辿れるようにしておきます．
 
- - [[https://pxaka.tokyo/blog/2019/7f6518aa-bab0-91a4-53b3-ba3b8f02a481/][C-g した場所をブックマークする - imadenale]]
+- [[https://pxaka.tokyo/blog/2019/7f6518aa-bab0-91a4-53b3-ba3b8f02a481/][C-g した場所をブックマークする - imadenale]]
 
 #+begin_src emacs-lisp :tangle utility.el
 (defvar my-cg-bookmark "c-g-point-last")
@@ -8041,7 +8069,7 @@ Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
   (add-hook 'ah-before-c-g-hook #'my-cg-bookmark))
 #+end_src
 
-** 開いているバッファのcopy/rename/deleteと別アプリでの表示
+** [crux.el] 開いているバッファのcopy/rename/deleteと別アプリでの表示
 :PROPERTIES:
 :CUSTOM_ID: orgb2530c3e
 :ID:       EBF4C2E9-DE00-4C21-85F0-115CDD949BD1
@@ -8442,7 +8470,7 @@ _Q_ repl regexp   [wdired] C-x C-q : edit / C-c C-c : commit / C-c ESC : abort
    :ID:       ED1DF68B-5D39-441E-97A1-E3B42A365A55
    :END:
 
- - [[https://gitlab.com/ideasman42/emacs-undo-fu][Campbell Barton / emacs-undo-fu · GitLab]]
+- [[https://gitlab.com/ideasman42/emacs-undo-fu][Campbell Barton / emacs-undo-fu · GitLab]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(undo-fu-only-undo undo-fu-only-redo)
@@ -8831,7 +8859,8 @@ Boot                Endtime             Uptime       This emacs
 2019-04-17 12:28:18 2019-04-17 12:28:25   0.00:00:06
 #+end_src
 
-** [ag.el] 検索
+** DONE [ag.el] 検索
+CLOSED: [2026-04-06 Mon 14:56]
    :PROPERTIES:
    :CUSTOM_ID: orgfd3c67b9
    :END:
@@ -9224,7 +9253,7 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
    :CUSTOM_ID: orgac7d1689
    :END:
 
- - [[https://github.com/defunkt/gist.el][defunkt/gist.el: Yet another Emacs paste mode, this one for Gist.]]
+- [[https://github.com/defunkt/gist.el][defunkt/gist.el: Yet another Emacs paste mode, this one for Gist.]]
 
 事前に =github.user= と =github.oauth-token= を設定します．
 
@@ -9338,16 +9367,16 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 #+end_src
 
 ** [origami.el] 関数の折りたたみ
-   :PROPERTIES:
-   :CUSTOM_ID: org2bf4fb77
-   :ID:       CFFB7347-95F2-4B68-87AE-1311BFB614C2
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org2bf4fb77
+:ID:       CFFB7347-95F2-4B68-87AE-1311BFB614C2
+:END:
 
-  - =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
-  - [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
-  - [[https://github.com/zenozeng/yafolding.el][zenozeng/yafolding.el: Yet another folding extension for Emacs]]
-  - [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
-  - 後発として [[https://github.com/tarsius/bicycle][bicycle.el]] があります．
+- =hideshowvis.el= よりも軽い印象なので，現在は =origami.el= を使用中．
+- [[https://github.com/gregsexton/origami.el][gregsexton/origami.el: A folding minor mode for Emacs]]
+- [[https://github.com/zenozeng/yafolding.el][zenozeng/yafolding.el: Yet another folding extension for Emacs]]
+- [[https://github.com/tj64/outline-magic/blob/master/outline-magic.el][outline-magic/outline-magic.el at master · tj64/outline-magic]]
+- 後発として [[https://github.com/tarsius/bicycle][bicycle.el]] があります．
 
 #+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(origami-mode origami-toggle-node)
@@ -9361,10 +9390,10 @@ org バッファを CONTENT view で大量に開いていると，再起動が�
 #+end_src
 
 ** [auto-complete-clang.el] オムニ補完
-   :PROPERTIES:
-   :CUSTOM_ID: org291c6055
-   :ID:       2B0FE7CA-E17F-4DEF-9C5C-7A834F79D6AC
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org291c6055
+:ID:       2B0FE7CA-E17F-4DEF-9C5C-7A834F79D6AC
+:END:
 
 C++バッファでメソッドを補完対象とする．try-catch を使っている場合， =-fcxx-exceptions= オプションが必要で，これはプリコンパイルヘッダを生成する時も同じだ．ここ示す設定では， =~/.emacs.d/= 以下に =stdafx.pch= を生成する必要があり，以下のコマンドを用いてプリコンパイルヘッダを生成する．ヘッダファイルのパスを適切に与えれば，Boostや自作のライブラリも補完対象に設定できる．
 
@@ -9451,12 +9480,12 @@ int main(){
 #+end_src
 
 ** [ggtags.el] タグジャンプ
-   :PROPERTIES:
-   :CUSTOM_ID: org034bbf9f
-   :ID:       F29091D9-CCD6-473C-9E66-D3B14078D088
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org034bbf9f
+:ID:       F29091D9-CCD6-473C-9E66-D3B14078D088
+:END:
 
-  - [[http://tasuwo.github.io/blog/2016/03/04/c-c-plus-plus/][EmacsにおけるC,C++の環境を整える - tasuwo blog]]
+- [[http://tasuwo.github.io/blog/2016/03/04/c-c-plus-plus/][EmacsにおけるC,C++の環境を整える - tasuwo blog]]
 
 # brew install global --with-exuberant-ctags --with-pygments
 
@@ -9493,9 +9522,9 @@ int main(){
 #+end_src
 
 ** [0xc.el] N進数変換
-   :PROPERTIES:
-   :CUSTOM_ID: org216e9539
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org216e9539
+:END:
 
   - 実施頻度の高い16進数と10進数の相互変換に重宝します．
 
@@ -9520,13 +9549,13 @@ int main(){
 #+end_src
 
 ** [hexl.el] バイナリファイルを開く
-   :PROPERTIES:
-   :CUSTOM_ID: orge830f6b0
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orge830f6b0
+:END:
 
 ビルトインの =hexl-mode= を使います．
 
-  - [[https://ayatakesi.github.io/emacs/24.5/Editing-Binary-Files.html][GNU Emacs Manual(Japanese Translation): Editing Binary Files]]
+- [[https://ayatakesi.github.io/emacs/24.5/Editing-Binary-Files.html][GNU Emacs Manual(Japanese Translation): Editing Binary Files]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "hexl"
@@ -9536,11 +9565,11 @@ int main(){
 #+end_src
 
 ** [uuid.el] UUID の生成
-   :PROPERTIES:
-   :CUSTOM_ID: org9ffc2142
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org9ffc2142
+:END:
 
-  - [[https://github.com/nicferrier/emacs-uuid][nicferrier/emacs-uuid: The UUID module from the EmacsWiki, initially by someone called James Mastros.]]
+- [[https://github.com/nicferrier/emacs-uuid][nicferrier/emacs-uuid: The UUID module from the EmacsWiki, initially by someone called James Mastros.]]
 
 新しい =UUID= を生成してカーソル位置に書き出すように =my-uuid-string= を定義しています．
 
@@ -9562,7 +9591,7 @@ int main(){
 
 MELPAへの登録を目指す emacslisp パッケージの実装で，所定の書式で記述されているかを確認できます． ~docstring~ のチェックは， =M-x checkdoc= でできます．
 
-  - https://github.com/purcell/package-lint
+- https://github.com/purcell/package-lint
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(package-lint-current-buffer) "package-lint" nil t)
@@ -9574,8 +9603,8 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
    :ID:       46D0445D-F11A-417F-95F4-30DDA8A8093D
    :END:
 
- - プロジェクト内に限定して検索をかける時に重宝する．
- - カレントバッファがプロジェクト内のファイルの場合は，タイトルバーにプロジェクト名を出すように設定しています．
+- プロジェクト内に限定して検索をかける時に重宝する．
+- カレントバッファがプロジェクト内のファイルの場合は，タイトルバーにプロジェクト名を出すように設定しています．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -9669,16 +9698,16 @@ Otherwise, use `counsel-ag'."
    :END:
 正規表現をチェックしてくれます．
 
- - [[https://github.com/mattiase/relint][mattiase/relint: Elisp regexp lint tool]]
+- [[https://github.com/mattiase/relint][mattiase/relint: Elisp regexp lint tool]]
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(relint-current-buffer) "relint" nil t)
 #+end_src
 
 ** [magit.el] Gitクライアント
-   :PROPERTIES:
-   :CUSTOM_ID: org7d969237
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org7d969237
+:END:
 
 Emacs の中で Git リポジトリを操作できます． =magit-repository-directories= を設定しておけば，管理しているリポジトリの一覧を表示できます． =helm= や =ivy= と連携していれば，絞り込みも簡単です．さらに， =M-x magit-list-repositories= を実行すれば，各リポジトリのステータス全体を一覧表示できます．ただし，調査対象のリポジトリ数が多ければ，一覧表示に時間がかかります．
 
@@ -9716,17 +9745,16 @@ Emacs の中で Git リポジトリを操作できます． =magit-repository-di
    :ID:       6835652E-FAC1-49B6-9D15-791AB574CF62
    :END:
 
-  - [[http://editorconfig.org/#contributing][EditorConfig]]
-  - [[https://github.com/editorconfig/editorconfig-emacs#readme][editorconfig/editorconfig-emacs: EditorConfig plugin for emacs]]
-  - [[https://github.com/10sr/editorconfig-charset-extras-el][10sr/editorconfig-charset-extras-el: Extra EditorConfig Charset Support]]
-
+- [[http://editorconfig.org/#contributing][EditorConfig]]
+- [[https://github.com/editorconfig/editorconfig-emacs#readme][editorconfig/editorconfig-emacs: EditorConfig plugin for emacs]]
+- [[https://github.com/10sr/editorconfig-charset-extras-el][10sr/editorconfig-charset-extras-el: Extra EditorConfig Charset Support]]
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-editorconfig-activate ()
   (if (and (executable-find "editorconfig")
            (require 'editorconfig nil t)
-           (require 'editorconfig-core nil t)  )
+           (require 'editorconfig-core nil t))
       (editorconfig-mode 1)
     (message "Editorconfig is not installed."))
   (remove-hook 'find-file-hook #'my-editorconfig-activate))
@@ -9757,18 +9785,18 @@ trim_trailing_whitespace = true
 
 =gcov= の結果をフリンジに表示します．
 
-  - https://github.com/adamniederer/cov
+- https://github.com/adamniederer/cov
 
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(cov-mode) "cov" nil t)
 #+end_src
 
 ** TODO [format-all.el] コード整形
-   :PROPERTIES:
-   :CUSTOM_ID: orgbf790f4d
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgbf790f4d
+:END:
 
- - [[https://melpa.org/#/format-all][format-all - MELPA]]
+- [[https://melpa.org/#/format-all][format-all - MELPA]]
 
 様々なプログラミング言語に対して，共通のコード整形のトリガー（ =M-x format-all-buffer= ）を提供します．整形するために使うフォーマッタは，原則的に言語ごとに異なる外部ツールを呼び出すので，必要に応じてそれらのツールを別途インストールします．
 
@@ -9791,7 +9819,7 @@ trim_trailing_whitespace = true
    :PROPERTIES:
    :CUSTOM_ID: org4e23f079
    :END:
- - https://gitlab.com/jgkamat/rmsbolt
+- https://gitlab.com/jgkamat/rmsbolt
 
 #+begin_src emacs-lisp :tangle no
 ;; late-init.el
@@ -9803,69 +9831,6 @@ trim_trailing_whitespace = true
    :CUSTOM_ID: org9547f772
    :END:
  - [[https://github.com/tuhdo/semantic-refactor][tuhdo/semantic-refactor: Semantic Refactor is a refactoring tool based on Semantic parser framework]]
-** TODO [company.el] 続・自動補完機能
-   :PROPERTIES:
-   :CUSTOM_ID: orgea32afad
-   :ID:       E8D670B5-9CD4-4A97-8C37-8C03DD6D0912
-   :END:
-
-=auto-complete.el= がメンテナンスモードに入ったので =company= に移行しました．
-
-=company-org-block= は，http://xenodium.com/emacs-org-block-company-completion/ で公開されている情報でしたが，パッケージ化されて，[[https://melpa.org/#/company-org-block][MELPA]]から入手できるようになりました．
-
-#+begin_src emacs-lisp :tangle no
-;; utility.el
-(defun my-company-activate ()
-  (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
-  (remove-hook 'org-mode-hook #'my-company-activate)
-  (require 'company nil t))
-
-(defun my--company-idle-begin (f buf win tick pos)
-  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-    (funcall f buf win tick pos)))
-
-(defun my--company-pseudo-tooltip--ujofwd-on-timer (f command)
-  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
-    (funcall f command)))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-;; late-init.el
-(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
-(add-hook 'org-mode-hook #'my-company-activate)
-
-(with-eval-after-load "company"
-  (keymap-set company-active-map "C-n" 'company-select-next)
-  (keymap-set company-active-map "C-p" 'company-select-previous)
-  (keymap-set company-active-map "<tab>" 'company-complete-selection)
-  (keymap-set company-search-map "C-n" 'company-select-next)
-  (keymap-set company-search-map "C-p" 'company-select-previous)
-  ;; To complete file path, move `company-files' to the fist item of the list
-  (delq 'company-files company-backends)
-
-  (add-to-list 'company-backends 'company-files)
-  (when (require 'company-org-block nil t)
-    (setq company-org-block-edit-style 'inline) ;; 'auto, 'prompt, or 'inline
-    (setq company-org-block-auto-indent nil)
-    (add-to-list 'company-backends 'company-org-block))
-
-  ;; 補完候補に番号を表示
-  (setq company-show-numbers t)
-  ;; 補完候補を出すまでの猶予
-  (setq company-idle-delay 0.8)
-  (setq company-tooltip-idle-delay 0.8)
-  (global-company-mode)
-  (when (require 'company-quickhelp nil t)
-    (company-quickhelp-mode))
-
-  (advice-add 'company-idle-begin :around #'my--company-idle-begin)
-  ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
-  ;;             #'my--company-pseudo-tooltip--ujofwd-on-timer)
-
-  (when (boundp 'mac-ime-before-put-text-hook)
-    ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
-    (add-hook 'mac-ime-before-put-text-hook #'company-cancel)))
-#+end_src
 ** TODO [corfu.el] 続々・自動補完機能
 :PROPERTIES:
 :CREATED:  [2024-03-01 Fri 11:40]
@@ -10072,6 +10037,70 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
                          )))))
 #+end_src
 
+** DONE [company.el] 続・自動補完機能
+CLOSED: [2026-04-06 Mon 15:29]
+   :PROPERTIES:
+   :CUSTOM_ID: orgea32afad
+   :ID:       E8D670B5-9CD4-4A97-8C37-8C03DD6D0912
+   :END:
+
+=auto-complete.el= がメンテナンスモードに入ったので =company= に移行しました．
+
+=company-org-block= は，http://xenodium.com/emacs-org-block-company-completion/ で公開されている情報でしたが，パッケージ化されて，[[https://melpa.org/#/company-org-block][MELPA]]から入手できるようになりました．
+
+#+begin_src emacs-lisp :tangle no
+;; utility.el
+(defun my-company-activate ()
+  (remove-hook 'emacs-lisp-mode-hook #'my-company-activate)
+  (remove-hook 'org-mode-hook #'my-company-activate)
+  (require 'company nil t))
+
+(defun my--company-idle-begin (f buf win tick pos)
+  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
+    (funcall f buf win tick pos)))
+
+(defun my--company-pseudo-tooltip--ujofwd-on-timer (f command)
+  (unless (and (boundp 'ns-put-text-p) ns-put-text-p)
+    (funcall f command)))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no
+;; late-init.el
+(add-hook 'emacs-lisp-mode-hook #'my-company-activate)
+(add-hook 'org-mode-hook #'my-company-activate)
+
+(with-eval-after-load "company"
+  (keymap-set company-active-map "C-n" 'company-select-next)
+  (keymap-set company-active-map "C-p" 'company-select-previous)
+  (keymap-set company-active-map "<tab>" 'company-complete-selection)
+  (keymap-set company-search-map "C-n" 'company-select-next)
+  (keymap-set company-search-map "C-p" 'company-select-previous)
+  ;; To complete file path, move `company-files' to the fist item of the list
+  (delq 'company-files company-backends)
+
+  (add-to-list 'company-backends 'company-files)
+  (when (require 'company-org-block nil t)
+    (setq company-org-block-edit-style 'inline) ;; 'auto, 'prompt, or 'inline
+    (setq company-org-block-auto-indent nil)
+    (add-to-list 'company-backends 'company-org-block))
+
+  ;; 補完候補に番号を表示
+  (setq company-show-numbers t)
+  ;; 補完候補を出すまでの猶予
+  (setq company-idle-delay 0.8)
+  (setq company-tooltip-idle-delay 0.8)
+  (global-company-mode)
+  (when (require 'company-quickhelp nil t)
+    (company-quickhelp-mode))
+
+  (advice-add 'company-idle-begin :around #'my--company-idle-begin)
+  ;; (advice-add 'company-pseudo-tooltip--ujofwd-on-timer :around
+  ;;             #'my--company-pseudo-tooltip--ujofwd-on-timer)
+
+  (when (boundp 'mac-ime-before-put-text-hook)
+    ;; 補完候補が表示されたタイミングで入力を続けたら，補完候補を消す．
+    (add-hook 'mac-ime-before-put-text-hook #'company-cancel)))
+#+end_src
 ** DONE [hideshowvis.el] 関数の表示／非表示                        :obsolete:
    CLOSED: [2018-09-24 Mon 11:23]
    :PROPERTIES:
@@ -10130,7 +10159,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
       (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
-    (when (require 'ol-bookmark nil t)
+    (when (require 'ol-bookmark nil t) ;; in org-contrib
       ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
       (add-to-list 'org-modules 'ol-bookmark)
       (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
@@ -10295,7 +10324,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
  '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
 
 ;; 関連モジュールの読み込み
-(autoload 'org-eldoc-load "org-eldoc" nil t)
+(autoload 'org-eldoc-load "org-eldoc" nil t) ;; in org-contrib
 
 ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
 ;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
@@ -10486,10 +10515,10 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 #+end_src
 
 ** iCal との連携
-   :PROPERTIES:
-   :CUSTOM_ID: org4da0cefd
-   :ID:       0CA19632-E3F9-4152-B883-C0992E306D0D
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org4da0cefd
+:ID:       0CA19632-E3F9-4152-B883-C0992E306D0D
+:END:
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -11004,10 +11033,10 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 #+end_src
 
 ** ImageMagick を使って様々な画像をインライン表示する
-   :PROPERTIES:
-   :CUSTOM_ID: org55076fa0
-   :ID:       3CAD24F0-93AC-4692-9EBF-964A4A3F2CF6
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org55076fa0
+:ID:       3CAD24F0-93AC-4692-9EBF-964A4A3F2CF6
+:END:
 
 システムに ~OpenJPEG~ と ~ImageMagick~ がインストールされていれば，JPEG 2000 などの画像形式もバッファに表示できます．
 
@@ -11033,21 +11062,19 @@ Orgバッファは日々のタスク管理で閲覧する頻度が高くと期�
 #+end_src
 
 ** README を常に org-mode で開く
-   :PROPERTIES:
-   :CUSTOM_ID: org53663ca9
-   :END:
-
-=init-org.el= として書き出して遅延読み込みしています．
+:PROPERTIES:
+:CUSTOM_ID: org53663ca9
+:END:
 
 #+begin_src emacs-lisp :tangle init-org.el
 (push '("[rR][eE][aA][dD][mM][eE]" . org-mode) auto-mode-alist)
 #+end_src
 
 ** ソースブロック等の大文字記述を一括で小文字に変える
-   :PROPERTIES:
-   :CUSTOM_ID: org907cb9db
-   :ID:       7A855A71-B807-43B3-AF8C-096AE2F644D6
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org907cb9db
+:ID:       7A855A71-B807-43B3-AF8C-096AE2F644D6
+:END:
 
 https://scripter.co/org-keywords-lower-case/ で紹介されている関数を，ログ出力部分だけ加筆して使っています．
 
@@ -11072,10 +11099,10 @@ https://scripter.co/org-keywords-lower-case/ で紹介されている関数を�
 #+end_src
 
 ** イベント通知
-   :PROPERTIES:
-   :CUSTOM_ID: orgdae2d9e7
-   :ID:       6CC37CF8-6EA2-4270-BD67-866A2AF45C4E
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgdae2d9e7
+:ID:       6CC37CF8-6EA2-4270-BD67-866A2AF45C4E
+:END:
 
 ここでは， =terminal-notifier= ではなく，事実上，後継アプリと言える =alerter= を使う設定です．
 
@@ -11135,9 +11162,9 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+end_src
 
 ** org-mode でアラーム管理
-   :PROPERTIES:
-   :CUSTOM_ID: orga58b21fc
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orga58b21fc
+:END:
 
 +（注）Growlnotify の代わりに =terminal-notifier= を使うこともできます．+
 
@@ -11199,11 +11226,11 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+end_src
 
 ** リンクをエコーエリアに表示する
-   :PROPERTIES:
-   :CUSTOM_ID: orga3d0c218
-   :CREATED:  [2019-10-01 Thu 14:25]
-   :ID:       1EC54815-CC7C-4D67-9C1C-31D677502262
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orga3d0c218
+:CREATED:  [2019-10-01 Thu 14:25]
+:ID:       1EC54815-CC7C-4D67-9C1C-31D677502262
+:END:
 
 =eldoc= の機能を使うと簡単にできます．
 
@@ -11235,11 +11262,11 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+end_src
 
 ** TODO HHKBで矢印を使わないように設定する
-   :PROPERTIES:
-   :CREATED:  [2022-01-19 Wed 22:38]
-   :ID:       907369AE-679E-4E73-879E-1B4200FE9493
-   :CUSTOM_ID: org10cf6a0a
-   :END:
+:PROPERTIES:
+:CREATED:  [2022-01-19 Wed 22:38]
+:ID:       907369AE-679E-4E73-879E-1B4200FE9493
+:CUSTOM_ID: org10cf6a0a
+:END:
 
 #+begin_comment
 ;; 発動するelementを，item, heading, table に限定．
@@ -11352,14 +11379,14 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
 #+end_src
 
 ** orgmode のテーブルを csv に変換する
-   :PROPERTIES:
-   :CREATED:  [2021-04-04 Sun 21:32]
-   :ID:       BF529B02-A87A-491B-B011-E7AB8ABDA3DA
-   :CUSTOM_ID: org0d2cce2f
-   :END:
- 標準関数の =org-table-export= を使えば，テーブルを csv 等の形式で外部出力できます．ただバッファ上で csv に変えたりする関数があると楽なので次の関数を使います．標準関数の一部を再利用しています．
+:PROPERTIES:
+:CREATED:  [2021-04-04 Sun 21:32]
+:ID:       BF529B02-A87A-491B-B011-E7AB8ABDA3DA
+:CUSTOM_ID: org0d2cce2f
+:END:
+標準関数の =org-table-export= を使えば，テーブルを csv 等の形式で外部出力できます．ただバッファ上で csv に変えたりする関数があると楽なので次の関数を使います．標準関数の一部を再利用しています．
 
- =M-x org-table-to-format= を呼び出すとデフォルトでカンマ区切りに変換してくれます．さらにその情報をコピペできるようにクリップボードに流し込みます．
+=M-x org-table-to-format= を呼び出すとデフォルトでカンマ区切りに変換してくれます．さらにその情報をコピペできるようにクリップボードに流し込みます．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -11407,11 +11434,11 @@ macOS の通知機能を使って，Emacsで発生するイベントをユーザ
       (user-error "<tab>LE_EXPORT_FORMAT invalid"))))
  #+end_src
 ** ソースブロック内で eldoc の発動を抑制する
-   :PROPERTIES:
-   :CREATED:  [2022-01-22 Sat 14:27]
-   :ID:       F3A68BD3-6F8E-42B7-A1CC-D617005E0E5E
-   :CUSTOM_ID: org5c265a12
-   :END:
+:PROPERTIES:
+:CREATED:  [2022-01-22 Sat 14:27]
+:ID:       F3A68BD3-6F8E-42B7-A1CC-D617005E0E5E
+:CUSTOM_ID: org5c265a12
+:END:
 
 org バッファのソースブロックにカーソルがある時には， =eldoc= が発動しないようにします．
 
@@ -11434,11 +11461,11 @@ org バッファのソースブロックにカーソルがある時には， =el
 #+end_src
 
 ** 見出しの上で org-reveal する場合の挙動を変える
-   :PROPERTIES:
-   :CREATED:  [2022-08-15 Mon 22:29]
-   :ID:       E4CAA68A-925A-4B5D-BA76-3AE7916741DC
-   :CUSTOM_ID: org21a5771d
-   :END:
+:PROPERTIES:
+:CREATED:  [2022-08-15 Mon 22:29]
+:ID:       E4CAA68A-925A-4B5D-BA76-3AE7916741DC
+:CUSTOM_ID: org21a5771d
+:END:
 
 通常の ~org-reveal~ は，ドロワを展開しませんが，カーソルが見出し上にある時に ~org-reveal~ (C-c C-r) を呼ぶ時に，ドロワを展開して内容を表示させるようにします．
 
@@ -11755,10 +11782,10 @@ This user property stores the creation date of the entry")
 #+end_src
 
 ** [org-agenda] タスク／予定管理
-   :PROPERTIES:
-   :CUSTOM_ID: orgc3302e41
-   :ID:       F3A7E879-867A-4389-8DAC-620F13B43590
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc3302e41
+:ID:       F3A7E879-867A-4389-8DAC-620F13B43590
+:END:
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -11995,7 +12022,7 @@ This user property stores the creation date of the entry")
 
 =org-onit.el= を導入すると，タグを付けるタイミングで自動的に =org-clock-in= します．タグを取れば =org-clock-out= が実行されるようになります．
 
- - https://github.com/takaxp/org-onit
+- https://github.com/takaxp/org-onit
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -12334,10 +12361,10 @@ update it for multiple appts?")
 #+end_src
 
 ** [org-refile] orgツリーの高速移動
-   :PROPERTIES:
-   :CUSTOM_ID: orgf5236175
-   :ID:       340640E3-5CB2-469B-A6B3-26BE36768C5F
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgf5236175
+:ID:       340640E3-5CB2-469B-A6B3-26BE36768C5F
+:END:
 
 # BUG サブツリーが一つもない場所に refile すると [0/1] などに更新されない... 
 
@@ -13186,10 +13213,10 @@ Note that this mechanism is still under consideration."
 #+end_src
 
 ** [ox-html] HTML見出しへのリンクを固定する
-   :PROPERTIES:
-   :CUSTOM_ID: org32e931e3
-   :ID:       8D7BE7EE-3B7C-46C9-90D9-AE5508A68482
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org32e931e3
+:ID:       8D7BE7EE-3B7C-46C9-90D9-AE5508A68482
+:END:
 
 標準の設定でHTMLを出力すると，各見出しへのリンクとして =org0123456= のようなIDが振られる．しかしそれらのIDは，HTMLを出力するたびに更新されるため，出力したHTMLの見出しをパーマリンクとして使用できない．これを防ぐためには，プロパティで =CUSTOM_ID= を指定する必要がある．
 
@@ -13298,10 +13325,10 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 #+end_src
 
 ** [orglink.el] Orgファイル以外でリンクを使う
-   :PROPERTIES:
-   :CUSTOM_ID: org5cc51a8d
-   :CREATED:  [2019-04-02 Tue 17:27]
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org5cc51a8d
+:CREATED:  [2019-04-02 Tue 17:27]
+:END:
 
 指定したモードのバッファで， =org mode= と同じリンク機能を使えるようにします．
 
@@ -13388,7 +13415,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
    :CUSTOM_ID: orge01f4572
    :END:
 
- - [[https://qiita.com/takaxp/items/017ccc4655877b827551][orgエクスポータのディスパッチャを水平分割画面に表示する - Qiita]]
+- [[https://qiita.com/takaxp/items/017ccc4655877b827551][orgエクスポータのディスパッチャを水平分割画面に表示する - Qiita]]
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -13456,7 +13483,8 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
 #+end_src
 
-** TODO [org-extra-emphasis] 強調表現を拡張する
+** DONE [org-extra-emphasis] 強調表現を拡張する
+CLOSED: [2026-04-06 Mon 16:00]
 :PROPERTIES:
 :CUSTOM_ID: orgd536a4cc
 :ID:       AA4E6DB1-B177-4902-A0AE-3F9302123504
@@ -13464,7 +13492,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 主にマーカー（黄色や赤色）を導入するために， org mode の強調表現を拡張します． ~!!~ で黄色マーキング， ~!@~ で文字色を赤色に変更できます．
 
-#+begin_src emacs-lisp :tangle init-org.el
+#+begin_src emacs-lisp :tangle no
 (unless noninteractive
   (autoload-if-found '(org-extra-emphasis-mode) "org-extra-emphasis" nil t))
 #+end_src
@@ -13771,22 +13799,23 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 ** TODO [toc-org] 目次の挿入
    :PROPERTIES:
    :CUSTOM_ID: org5fce13fa
+   :ID:       F0AA3A94-99A7-4226-80F3-44219FC4565B
    :END:
 
-  - ツリーに TOC タグを付けて，`toc-org-insert-toc'を実行すればOK
+- ツリーに TOC タグを付けて，`toc-org-insert-toc'を実行すればOK
 
 #+begin_src emacs-lisp :tangle init-org.el
 (autoload-if-found '(toc-org-insert-toc) "toc-org" nil t)
 #+end_src
 
 ** TODO [org-review.el] レビューフローのサポート
-   :PROPERTIES:
-   :CUSTOM_ID: org4ca4749d
-   :ID:       461113E3-16FB-4E36-A3CB-B0814ED9559E
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org4ca4749d
+:ID:       461113E3-16FB-4E36-A3CB-B0814ED9559E
+:END:
 
-  - https://github.com/brabalan/org-review
-  - 以下の設定では， =org-agenda= 使用時に =C-c C-r r= で発動
+- https://github.com/brabalan/org-review
+- 以下の設定では， =org-agenda= 使用時に =C-c C-r r= で発動
 
 #+begin_src emacs-lisp :tangle no
 # init-org.el
@@ -13808,10 +13837,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :CUSTOM_ID: org0b29fe80
    :END:
 
-  - [[https://github.com/dfeich/org-screenshot][dfeich/org-screenshot: screenshots integrated with emacs org mode attachments]]
-  - macOSの場合， =screencapture= コマンドをキャプチャコマンドとして指定し，オプションに ~-w~ を付ければ，任意のウィンドウを指定してキャプチャし，それを保存，orgバッファに添付できる．
-  - [X] ファイル名が挿入されない（./.pngになる）
-  - [ ] org-attach の git ハンドリングと同期していない
+- [[https://github.com/dfeich/org-screenshot][dfeich/org-screenshot: screenshots integrated with emacs org mode attachments]]
+- macOSの場合， =screencapture= コマンドをキャプチャコマンドとして指定し，オプションに ~-w~ を付ければ，任意のウィンドウを指定してキャプチャし，それを保存，orgバッファに添付できる．
+- [X] ファイル名が挿入されない（./.pngになる）
+- [ ] org-attach の git ハンドリングと同期していない
 
 [[file:data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png]]
 
@@ -14268,10 +14297,10 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 ** 複数フレーム対応
-   :PROPERTIES:
-   :CUSTOM_ID: orgdffe4e49
-   :ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgdffe4e49
+:ID:       6D9194F2-4A2A-4CF5-B463-32B6C9E2F493
+:END:
 
 フレームを複数使う場合の設定です．
 
@@ -14470,9 +14499,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 ** [winner.el] ウィンドウ構成の履歴を辿る
-   :PROPERTIES:
-   :CUSTOM_ID: org33fd785f
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org33fd785f
+:END:
 
   - ビルトインの =winner.el= を使います．
 
@@ -14497,9 +14526,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
 #+end_src
 
 ** TODO [shackle.el] ポップアップウィンドウの制御                   :Ongoing:
-   :PROPERTIES:
-   :CUSTOM_ID: orga9be167a
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orga9be167a
+:END:
 
  - popwin の後発パッケージ
  - popwin.el にある =dedicated= が使えないので，本当に移行するか検討中．
@@ -14568,9 +14597,9 @@ Papers3.app は，各文献に =papers3://= で始まるURIを割り当ててい
    :CUSTOM_ID: orgdca5e7c2
    :END:
 
- - [[https://github.com/seagle0128/doom-modeline][seagle0128/doom-modeline: A minimal and modern mode-line]]
+- [[https://github.com/seagle0128/doom-modeline][seagle0128/doom-modeline: A minimal and modern mode-line]]
 
-#+begin_src emacs-lisp :tangle utility.el
+#+begin_src emacs-lisp :tangle no
 ;;;###autoload
 (defun my--doom-modeline-buffer-file-state-icon
     (icon &optional text face height voffset)
@@ -14588,7 +14617,7 @@ Uses `all-the-icons-material' to fetch the icon."
       (propertize text 'face face))))
 #+end_src
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (with-eval-after-load "moom"
   (when (and (not noninteractive)
              (eq my-toggle-modeline-global 'doom)
@@ -14607,103 +14636,6 @@ Uses `all-the-icons-material' to fetch the icon."
                 #'my--doom-modeline-buffer-file-state-icon)
     (size-indication-mode 1)
     (doom-modeline-mode 1)))
-#+end_src
-
-** [e2wm.el] 二画面表示                                            :obsolete:
-   :PROPERTIES:
-   :CUSTOM_ID: org4dd0671c
-   :END:
-
-使用頻度が低くなりました．
-
-1. http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
-2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
-
-#+begin_src emacs-lisp :tangle no
-(when (autoload-if-found '(my-e2wm:dp-two e2wm:dp-two e2wm:start-management)
-                         "e2wm" nil t)
-  (with-eval-after-load "e2wm"
-    (defun my-e2wm:dp-two ()
-      (interactive)
-      (e2wm:dp-two)
-      (setq e2wm:c-two-recipe
-            '(- (:lower-size 10)
-                (| left right)
-                sub))
-      (setq e2wm:c-two-winfo
-            '((:name left )
-              (:name right )
-              (:name sub :default-hide t)))
-
-      ;; left, prev
-      (setq e2wm:c-two-right-default 'left))
-
-    ;; 高さを画面の最大に矯正
-    (when (require 'moom nil t)
-      (setq moom-frame-height-tall (moom-max-frame-height))
-      (setq moom-frame-height-small moom-frame-height-tall))
-
-    ;; 幅を画面の最大に矯正
-    (add-hook 'e2wm:pre-start-hook
-              (lambda ()
-                  (set-frame-width
-                   (selected-frame)
-                   (/ (- (display-pixel-width) 30) (frame-char-width)))))
-
-    ;; 幅をデフォルト値に戻す
-    (add-hook 'e2wm:post-stop-hook
-              (lambda ()
-                  (set-frame-width (selected-frame)
-                                   moom--frame-width)))
-
-    ;; To avoid rebooting issue when using desktop.el and recentf.el
-    (add-hook 'kill-emacs-hook
-              (lambda ()
-                  (when (fboundp 'e2wm:stop-management)
-                    (e2wm:stop-management))))))
-;; setting for e2wm
-(when (autoload-if-found '(change-frame-double-window
-                           change-frame-single-window)
-                         "frame-ctr-e2wm" nil t)
-  ;; Set the frame width single size
-  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
-  (keymap-global-set "C-x -" 'change-frame-single-window)
-  ;; Set the frame width double size
-  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
-  (keymap-global-set "C-x =" 'change-frame-double-window))
-#+end_src
-
-** [tabbar-ruler] バッファをタブ切り替え可能に                     :obsolete:
-   :PROPERTIES:
-   :CUSTOM_ID: org0c556404
-   :END:
-
- - 不要かな
-
-#+begin_src emacs-lisp :tangle no
-(when (require 'tabbar-ruler nil t)
-  ;; (when (require 'tabbar-ruler nil t)
-  (setq tabbar-ruler-global-tabbar t) ; If you want tabbar
-  (setq tabbar-ruler-popup-menu t) ; If you want a popup menu.
-  (setq tabbar-ruler-popup-toolbar t) ; If you want a popup toolbar
-  ;;  (setq tabbar-ruler-fancy-tab-separator 'round)
-  ;;  (setq tabbar-ruler-fancy-current-tab-separator 'round)
-  (setq tabbar-ruler-invert-deselected nil)
-  (setq tabbar-ruler-modified-symbol t))
-#+end_src
-
-** [elscreen.el] Emacs バッファをタブ化                            :obsolete:
-   :PROPERTIES:
-   :CUSTOM_ID: org6474a498
-   :END:
-
- - cycle-buffer で十分かなと言う感じで不使用になりました．
-
-#+begin_src emacs-lisp :tangle no
-;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Note: change a string in the elscreen.el from "mac" to "ns"
-;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
-(load "elscreen" "ElScreen" t)
 #+end_src
 
 ** [popwin.el] ポップアップウィンドウの制御                        :obsolete:
@@ -14808,6 +14740,104 @@ Uses `all-the-icons-material' to fetch the icon."
                 #'my--olivetti:moom-toggle-frame-maximized)))
 #+end_src
 
+** DONE [e2wm.el] 二画面表示                                       :obsolete:
+CLOSED: [2026-04-06 Mon 17:35]
+:PROPERTIES:
+:CUSTOM_ID: org4dd0671c
+:END:
+
+使用頻度が低くなりました．
+
+1. http://github.com/kiwanami/emacs-window-manager/raw/master/e2wm.el
+2. http://github.com/kiwanami/emacs-window-layout/raw/master/window-layout.el
+
+#+begin_src emacs-lisp :tangle no
+(when (autoload-if-found '(my-e2wm:dp-two e2wm:dp-two e2wm:start-management)
+                         "e2wm" nil t)
+  (with-eval-after-load "e2wm"
+    (defun my-e2wm:dp-two ()
+      (interactive)
+      (e2wm:dp-two)
+      (setq e2wm:c-two-recipe
+            '(- (:lower-size 10)
+                (| left right)
+                sub))
+      (setq e2wm:c-two-winfo
+            '((:name left )
+              (:name right )
+              (:name sub :default-hide t)))
+
+      ;; left, prev
+      (setq e2wm:c-two-right-default 'left))
+
+    ;; 高さを画面の最大に矯正
+    (when (require 'moom nil t)
+      (setq moom-frame-height-tall (moom-max-frame-height))
+      (setq moom-frame-height-small moom-frame-height-tall))
+
+    ;; 幅を画面の最大に矯正
+    (add-hook 'e2wm:pre-start-hook
+              (lambda ()
+                  (set-frame-width
+                   (selected-frame)
+                   (/ (- (display-pixel-width) 30) (frame-char-width)))))
+
+    ;; 幅をデフォルト値に戻す
+    (add-hook 'e2wm:post-stop-hook
+              (lambda ()
+                  (set-frame-width (selected-frame)
+                                   moom--frame-width)))
+
+    ;; To avoid rebooting issue when using desktop.el and recentf.el
+    (add-hook 'kill-emacs-hook
+              (lambda ()
+                  (when (fboundp 'e2wm:stop-management)
+                    (e2wm:stop-management))))))
+;; setting for e2wm
+(when (autoload-if-found '(change-frame-double-window
+                           change-frame-single-window)
+                         "frame-ctr-e2wm" nil t)
+  ;; Set the frame width single size
+  ;;  C-u C-x - => e2wm OFF, single size width and double height, move center
+  (keymap-global-set "C-x -" 'change-frame-single-window)
+  ;; Set the frame width double size
+  ;;  C-u C-x = => e2wm ON, double size width and height, move to the center
+  (keymap-global-set "C-x =" 'change-frame-double-window))
+#+end_src
+
+** DONE [tabbar-ruler] バッファをタブ切り替え可能に                :obsolete:
+CLOSED: [2026-04-06 Mon 17:36]
+   :PROPERTIES:
+   :CUSTOM_ID: org0c556404
+   :END:
+
+#+begin_src emacs-lisp :tangle no
+(when (require 'tabbar-ruler nil t)
+  ;; (when (require 'tabbar-ruler nil t)
+  (setq tabbar-ruler-global-tabbar t) ; If you want tabbar
+  (setq tabbar-ruler-popup-menu t) ; If you want a popup menu.
+  (setq tabbar-ruler-popup-toolbar t) ; If you want a popup toolbar
+  ;;  (setq tabbar-ruler-fancy-tab-separator 'round)
+  ;;  (setq tabbar-ruler-fancy-current-tab-separator 'round)
+  (setq tabbar-ruler-invert-deselected nil)
+  (setq tabbar-ruler-modified-symbol t))
+#+end_src
+
+** DONE [elscreen.el] Emacs バッファをタブ化                       :obsolete:
+CLOSED: [2026-04-06 Mon 17:36]
+   :PROPERTIES:
+   :CUSTOM_ID: org6474a498
+   :END:
+
+- cycle-buffer で十分かなと言う感じで不使用になりました．
+
+#+begin_src emacs-lisp :tangle no
+;;; ElScreen (require apel) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Note: change a string in the elscreen.el from "mac" to "ns"
+;; 2011-10-26: e2wm's perspective (two) mode is more useful for me.
+(load "elscreen" "ElScreen" t)
+#+end_src
+
 * フォント／配色関連
   :PROPERTIES:
   :CUSTOM_ID: orgf57ce845
@@ -14838,7 +14868,7 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
    :CUSTOM_ID: orgc98c6fff
    :END:
 
-=generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
+ビルトインの =generic-x= を使うと， =/etc/hosts= や =/etc/apache2.conf= に色を付けられる．
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -14858,9 +14888,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
    :ID:       904FA1EC-3F16-47AA-A2A6-932F5EC84752
    :END:
 
-  - ビルトインの =hl-line= を使います．
-  - http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
-  - http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
+- ビルトインの =hl-line= を使います．
+- http://murakan.cocolog-nifty.com/blog/2009/01/emacs-tips-1d45.html
+- http://www.emacswiki.org/cgi-bin/emacs/highlight-current-line.el
 
 色の設定は =custom-set-faces= で．
 
@@ -14964,9 +14994,9 @@ Emacs Lisp で正規表現入力をサポートするツールには， =M-x re-
 #+end_src
 
 ** カーソル位置のフォントを確認
-   :PROPERTIES:
-   :CUSTOM_ID: orgf36a8366
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgf36a8366
+:END:
 
 =M-x describe-char= すると，カーソル位置のフォントの情報が別バッファに表示されます．
 
@@ -15209,7 +15239,7 @@ Linux では次のように処理するだけでよく，意外と簡単．
 
 Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカスタマイズします．
 
-  - http://d.hatena.ne.jp/syohex/20111228/1325086893
+- http://d.hatena.ne.jp/syohex/20111228/1325086893
 
 #+begin_src emacs-lisp :tangle late-init.el
 (with-eval-after-load "diff-mode"
@@ -16262,10 +16292,10 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
    :CUSTOM_ID: org96f7a2a3
    :END:
 
-  - [[https://github.com/raghavgautam/osx-lib][raghavgautam/osx-lib]]
-  - OSXの機能を呼び出すためのツール集
-  - =osx-lib-say-region= を呼び出せば，選択領域を機械音で発声させられます．
-  - =selected.el= と組み合わせると選択後にシングルキーで実施できるのでさらに便利です．
+- [[https://github.com/raghavgautam/osx-lib][raghavgautam/osx-lib]]
+- OSXの機能を呼び出すためのツール集
+- =osx-lib-say-region= を呼び出せば，選択領域を機械音で発声させられます．
+- =selected.el= と組み合わせると選択後にシングルキーで実施できるのでさらに便利です．
 
 #+begin_src emacs-lisp :tangle late-init.el
 (when (autoload-if-found '(osx-lib-say osx-lib-say-region)
@@ -16588,7 +16618,7 @@ Emacs から OS のアプリケーションを呼び出します． =Ivy/Counsel
  - プロキシ内での挙動は不明．
 
 #+begin_src emacs-lisp :tangle no
-;; last-init.efl
+;; last-init.el
 (when (autoload-if-found '(network-watch-mode
                            network-watch-active-p
                            my--network-watch-update-lighter)

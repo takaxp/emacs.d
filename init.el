@@ -235,6 +235,8 @@
 
 (keymap-global-set "RET" 'electric-newline-and-maybe-indent)
 
+(push '("\\.json$" . json-ts-mode) auto-mode-alist)
+
 (keymap-global-set "M-=" 'count-words)
 
 (my-tick-init-time "editing")

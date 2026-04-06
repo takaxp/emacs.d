@@ -445,16 +445,6 @@ When the cursor is at the end of line or before a whitespace, set ARG -1."
   (info (format "(org-ja)%s" (or node ""))))
 
 ;;;###autoload
-(defun my-json-mode-beautify ()
-  (when (eq major-mode 'json-mode)
-    (json-mode-beautify (point-min) (point-max))))
-
-;;;###autoload
-(defun my-json-pretty-print-buffer ()
-  (when (eq major-mode 'json-mode)
-    (json-pretty-print-buffer)))
-
-;;;###autoload
 (defun my-auto-view ()
   "Open a file with `view-mode'."
   (when (file-exists-p buffer-file-name)
@@ -1475,7 +1465,7 @@ Otherwise, use `counsel-ag'."
 (defun my-editorconfig-activate ()
   (if (and (executable-find "editorconfig")
            (require 'editorconfig nil t)
-           (require 'editorconfig-core nil t)  )
+           (require 'editorconfig-core nil t))
       (editorconfig-mode 1)
     (message "Editorconfig is not installed."))
   (remove-hook 'find-file-hook #'my-editorconfig-activate))
@@ -1523,7 +1513,7 @@ Otherwise, use `counsel-ag'."
       (add-to-list 'org-modules 'org-habit)) ;; require org and org-agenda
     (when (version< "9.1.4" (org-version))
       (add-to-list 'org-modules 'org-tempo))
-    (when (require 'ol-bookmark nil t)
+    (when (require 'ol-bookmark nil t) ;; in org-contrib
       ;; [[bookmark:hoge][hogehoge]] 形式のリンクを有効化
       (add-to-list 'org-modules 'ol-bookmark)
       (setq bookmark-save-flag 4) ;; N回 bookmark を操作したら保存
@@ -3022,22 +3012,6 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
   (keymap-set checkdoc-minor-mode-map "q" 'my-delete-checkdoc-window)
   (keymap-set checkdoc-minor-mode-map "C-g" 'my-delete-checkdoc-window)
   (checkdoc-minor-mode 1))
-
-;;;###autoload
-(defun my--doom-modeline-buffer-file-state-icon
-    (icon &optional text face height voffset)
-  "Displays an ICON with FACE, HEIGHT and VOFFSET.
-TEXT is the alternative if it is not applicable.
-Uses `all-the-icons-material' to fetch the icon."
-  (if doom-modeline-icon
-      (when icon
-        (doom-modeline-icon-material
-         icon
-         :face face
-         :height (or height 0.85) ;; 1.1
-         :v-adjust (or voffset -0.225))) ;; -0.225
-    (when text
-      (propertize text 'face face))))
 
 ;;;###autoload
 (defun my-generic-x-activate ()

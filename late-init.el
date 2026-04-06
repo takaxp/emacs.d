@@ -138,6 +138,13 @@ This function returns a timer object which you can use in
 (with-eval-after-load "comp"
   (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
 
+;;;###autoload
+(defun my-open-current-eln-dir ()
+  (interactive)
+  (call-process "open" nil 0 nil
+                (concat (car (butlast native-comp-eln-load-path))
+                        comp-native-version-dir)))
+
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
 
@@ -429,13 +436,6 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(yaml-mode)
                          "yaml-mode" nil t)
   (push '("\\.yml$" . yaml-mode) auto-mode-alist))
-
-(when (autoload-if-found '(json-mode)
-                         "json-mode" nil t)
-  (push '("\\.json$" . json-mode) auto-mode-alist)
-  (with-eval-after-load "json-mode"
-    (add-hook 'before-save-hook #'my-json-mode-beautify)
-    (add-hook 'after-save-hook #'my-json-pretty-print-buffer)))
 
 (if (and (fboundp 'treesit-language-available-p)
          (treesit-language-available-p 'javascript))
@@ -827,10 +827,6 @@ This function returns a timer object which you can use in
 (when (autoload-if-found '(git-complete)
                          "git-complete" nil t)
   (keymap-global-set "C-c f <tab>" 'git-complete))
-
-(when (autoload-if-found '(bratex-config)
-                         "bratex" nil t)
-  (add-hook 'yatex-mode-hook #'bratex-config))
 
 (setq echo-keystrokes 0.5)
 
@@ -1266,18 +1262,6 @@ This function returns a timer object which you can use in
 (with-eval-after-load "ivy"
   (setq ivy-pre-prompt-function #'my-pre-prompt-function))
 
-(when (autoload-if-found '(imenu-list)
-                         "imenu-list" nil t)
-  (with-eval-after-load "imenu-list"
-    (setq imenu-list-size 40)
-    (setq imenu-list-position 'left)
-
-    (add-hook 'imenu-list-major-mode-hook #'my--truncate-lines-activate)
-
-    (when (require 'moom nil t)
-      (add-hook 'imenu-list-update-hook #'my--imenu-list-update)
-      (advice-add 'imenu-list-quit-window :after #'my--imenu-list-quit-window))))
-
 (with-eval-after-load "prescient"
   (setq prescient-aggressive-file-save t) ;; Merged!
   (setq prescient-save-file (expand-file-name "~/.emacs.d/prescient-save.el"))
@@ -1301,6 +1285,18 @@ This function returns a timer object which you can use in
   (when (and (require 'prescient nil t)
              (require 'company-prescient nil t))
     (company-prescient-mode 1)))
+
+(when (autoload-if-found '(imenu-list)
+                         "imenu-list" nil t)
+  (with-eval-after-load "imenu-list"
+    (setq imenu-list-size 40)
+    (setq imenu-list-position 'left)
+
+    (add-hook 'imenu-list-major-mode-hook #'my--truncate-lines-activate)
+
+    (when (require 'moom nil t)
+      (add-hook 'imenu-list-update-hook #'my--imenu-list-update)
+      (advice-add 'imenu-list-quit-window :after #'my--imenu-list-quit-window))))
 
 (when (autoload-if-found '(command-log-mode global-command-log-mode)
                          "command-log-mode" nil t)
@@ -1987,25 +1983,6 @@ This function returns a timer object which you can use in
 
 (with-eval-after-load "checkdoc"
   (advice-add 'checkdoc :before #'my--checkdoc))
-
-(with-eval-after-load "moom"
-  (when (and (not noninteractive)
-             (eq my-toggle-modeline-global 'doom)
-             (require 'doom-modeline nil t))
-    (custom-set-variables
-     '(doom-modeline-buffer-file-name-style 'truncate-except-project)
-     '(doom-modeline-bar-width 1)
-     '(doom-modeline-height (let ((font (face-font 'mode-line)))
-                              (if (and font (fboundp 'font-info))
-                                  (floor (* 0.8 ;; 1.0
-                                            (* 2 (aref (font-info font) 2))))
-                                10)))
-     '(doom-modeline-minor-modes t))
-    ;; (declare-function my--doom-modeline-buffer-file-state-icon "init" nil)
-    (advice-add 'doom-modeline-buffer-file-state-icon :override
-                #'my--doom-modeline-buffer-file-state-icon)
-    (size-indication-mode 1)
-    (doom-modeline-mode 1)))
 
 (with-eval-after-load "emacs-lisp-mode"
   (set-face-foreground 'font-lock-regexp-grouping-backslash "#66CC99")

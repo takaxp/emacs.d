@@ -4,6 +4,8 @@
 ;;                                                             TODO/DONE/FIXME
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; testing on gptel.el
+
 (when 'apply-fix-code ;; nil
   (defvar fix-org-ffr-skip-command-list '(org-move-subtree-down))
   (defvar fix-org-ffr--skip-command nil)

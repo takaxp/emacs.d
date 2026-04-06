@@ -28,7 +28,7 @@
  '(org-document-info ((t (:foreground "DodgerBlue1" :height 1.0)))))
 
 ;; 関連モジュールの読み込み
-(autoload 'org-eldoc-load "org-eldoc" nil t)
+(autoload 'org-eldoc-load "org-eldoc" nil t) ;; in org-contrib
 
 ;; 少なくとも org 9.5 では問題が発生しなくなったので，advice 停止．
 ;; (advice-add 'org-eldoc-load :override #'my--org-eldoc-load)
@@ -1031,9 +1031,6 @@ This user property stores the creation date of the entry")
               #'my--org-export-insert-default-template)
   (advice-add 'org-export-to-buffer :after #'my--org-export-to-buffer)
   (add-hook 'my-org-export-after-hook #'my-copy-exported-buffer))
-
-(unless noninteractive
-  (autoload-if-found '(org-extra-emphasis-mode) "org-extra-emphasis" nil t))
 
 (when (autoload-if-found '(org-appear-mode)
                          "org-appear" nil t)
