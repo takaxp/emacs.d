@@ -3508,7 +3508,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
       (recursive-delete-backup-files 7)
     (async-start ;; do not call this from byte compiled code directory
      `(lambda ()
-        (sleep-for (or ',defer 5))
+        (sleep-for (or ',defer 3))
         (when (and (load (expand-file-name "~/.emacs.d/early-init.el") t)
                    (load (expand-file-name "~/.emacs") t))
           (recursive-delete-backup-files 7)

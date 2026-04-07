@@ -4,7 +4,10 @@
 ;;                                                             TODO/DONE/FIXME
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; testing on gptel.el
+;;; testing on gptel.el
+;; (when (require 'gptel nil t)
+;;   ;; load API key
+;;   (load "~/Dropbox/usr/local/config/private.el.gpg" nil t))
 
 (when 'apply-fix-code ;; nil
   (defvar fix-org-ffr-skip-command-list '(org-move-subtree-down))

@@ -291,7 +291,7 @@
 
 (autoload 'nerd-icons-dired-mode "nerd-icons-dired" nil t)
 
-(autoload 'my-org-bullet-and-checkbox "late-init" nil t)
+(autoload 'my-org-bullet-and-checkbox "transient" nil t)
 
 (my-tick-init-time "presentation")
 
