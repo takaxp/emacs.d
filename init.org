@@ -3725,11 +3725,11 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 :CUSTOM_ID: org41da658e
 :END:
 
- - [[https://github.com/doublep/logview][doublep/logview: Emacs mode for viewing log files.]]
+- [[https://github.com/doublep/logview][doublep/logview: Emacs mode for viewing log files.]]
 
 ログファイルが見やすくなり， ~n/p~ で移動可能になります．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (when (autoload-if-found '(logview-mode)
                          "logview" nil t)
   (push '("\\.log$" . logview-mode) auto-mode-alist))
@@ -6397,7 +6397,6 @@ CLOSED: [2026-04-06 Mon 14:40]
 
 ~dired~ でフォントアイコンを使うためのパッケージです．
 
-
 #+begin_src emacs-lisp :tangle yes
 (autoload 'nerd-icons-dired-mode "nerd-icons-dired" nil t)
 #+end_src
@@ -8344,10 +8343,10 @@ With a prefix ARG always prompt for command to use."
   (if (require 'init-dired nil t)
       (message "Loading init-dired.el...done")
     (user-error "init-dired.el doesn't exist"))
-  (remove-hook 'dired-mode-hook #'my-dired-activate))
+  (remove-hook 'dired-load-hook #'my-dired-activate))
 
 (unless noninteractive
-  (add-hook 'dired-mode-hook #'my-dired-activate))
+  (add-hook 'dired-load-hook #'my-dired-activate))
 #+end_src
 
 #+begin_src emacs-lisp :tangle utility.el

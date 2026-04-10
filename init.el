@@ -360,10 +360,10 @@
   (if (require 'init-dired nil t)
       (message "Loading init-dired.el...done")
     (user-error "init-dired.el doesn't exist"))
-  (remove-hook 'dired-mode-hook #'my-dired-activate))
+  (remove-hook 'dired-load-hook #'my-dired-activate))
 
 (unless noninteractive
-  (add-hook 'dired-mode-hook #'my-dired-activate))
+  (add-hook 'dired-load-hook #'my-dired-activate))
 
 (when (autoload-if-found '(session-initialize)
                          "session" nil t)

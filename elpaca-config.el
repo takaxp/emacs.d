@@ -1,8 +1,9 @@
 ;; -*- lexical-binding: t; -*-
 ;;                                          https://takaxp.github.io/init.html
 ;; Disable nativecomp
-(setq native-comp-jit-compilation nil
-      native-comp-enable-subr-trampolines nil)
+(let ((enable t)) ;; {t, nil}
+  (setq native-comp-jit-compilation enable
+	native-comp-enable-subr-trampolines enable))
 
 ;; Disable package loading by package.el
 (setq package-enable-at-startup nil)
