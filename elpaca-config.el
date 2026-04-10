@@ -1,7 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 ;;                                          https://takaxp.github.io/init.html
 ;; Disable nativecomp
-(let ((enable t)) ;; {t, nil}
+(let ((enable nil)) ;; {t, nil}
   (setq native-comp-jit-compilation enable
 	native-comp-enable-subr-trampolines enable))
 
@@ -131,90 +131,82 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Boot
 (my-elpaca-github "takaxp/postpone")
-(elpaca (gcmh :host gitlab :repo "koral/gcmh"))
+(elpaca 'gcmh)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Core
-(my-elpaca-github "Malabarba/aggressive-indent-mode" aggressive-indent)
-(elpaca 'ws-butler) ;; fatal: Remote branch elpa/ws-butler not found in upstream origin
+(elpaca 'aggressive-indent)
+(elpaca 'ws-butler)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Coursor/Pointer
 (my-elpaca-github "takaxp/ah")
 (my-elpaca-github "takaxp/bsv")
-(my-elpaca-github "joodland/bm")
-(my-elpaca-github "emacsmirror/centered-cursor-mode")
-(my-elpaca-github "zhangkaiyulw/smart-mark")
-(my-elpaca-github "emacsmirror/syntax-subword")
-(progn
-  (my-elpaca-github "magnars/s.el" s)
-  (my-elpaca-github "magnars/expand-region.el" expand-region))
+(elpaca 'bm)
+(elpaca 'centered-cursor-mode)
+(elpaca 'smart-mark)
+(elpaca 'syntax-subword)
+(elpaca 'expand-region)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Editing
-(my-elpaca-github "ludwigpacifici/modern-cpp-font-lock")
-(elpaca 'orgalist) ;; for ChangeLog mode, ELPA
-(my-elpaca-github "yoshiki/yaml-mode")
-(elpaca 'nhexl-mode) ;; fatal: Remote branch externals/nhexl-mode not found in upstream origin
-(elpaca 'csv-mode) ;; fatal: Remote branch externals/csv-mode not found in upstream origin
-(my-elpaca-github "dakrone/es-mode")
+(elpaca 'modern-cpp-font-lock)
+(elpaca 'orgalist) ;; for ChangeLog mode
+(elpaca 'yaml-mode)
+(elpaca 'nhexl-mode)
+(elpaca 'csv-mode)
+(elpaca 'es-mode)
 (elpaca 'markdown-mode)
-(my-elpaca-github "emacsmirror/ascii")
-(my-elpaca-github "doublep/logview")
-(my-elpaca-github "fxbois/web-mode") ;; (elpaca 'web-mode)
-(elpaca 'po-mode) ;; savannah.gnu.org
-(my-elpaca-github "dominikh/go-mode.el" go-mode)
-(elpaca (flyspell-correct-ivy :host github :repo "d12frosted/flyspell-correct"
-			      :main "flyspell-correct-ivy.el"))
-(my-elpaca-github "kchenphy/counsel-world-clock")
-(elpaca (latex-math-preview :host gitlab
-			    :repo "latex-math-preview/latex-math-preview"))
+(my-elpaca-github "emacsmirror/ascii") ;; (elpaca 'ascii)
+(elpaca 'web-mode)
+(elpaca 'po-mode)
+(elpaca 'go-mode)
+(elpaca 'flyspell-correct)
+(elpaca 'counsel-world-clock)
+(elpaca 'latex-math-preview)
 (when (eq system-type 'darwin)
-  (my-elpaca-github "xuchunyang/osx-dictionary.el" osx-dictionary))
-(progn ;; describe-number
+  (elpaca 'osx-dictionary))
+(progn ;; describe-number ;; failed on (elpaca 'describe-number)
   (my-elpaca-github "d5884/yabin")
   (my-elpaca-github "netromdk/describe-number"))
 (elpaca 'smartparens)
-(my-elpaca-github "ROCKTAKEY/grugru")
-(my-elpaca-github "rubikitch/replace-from-region")
+(elpaca 'grugru)
+(elpaca 'replace-from-region)
+(my-elpaca-github "zk-phi/git-complete") ;; (elpaca 'git-complete)
 (progn ;; selected-related
-  (my-elpaca-github "Kungsgeten/selected.el" selected)
-  (my-elpaca-github "Wilfred/helpful")
   (my-elpaca-github "takaxp/counsel-selected")
-  (my-elpaca-github "takaxp/help-fns-plus" help-fns+))
-(my-elpaca-github "zk-phi/git-complete")
+  (my-elpaca-github "takaxp/help-fns-plus" help-fns+)
+  (elpaca 'selected)
+  (elpaca 'helpful))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Display
-(my-elpaca-github "jdtsmith/mlscroll")
-(my-elpaca-github "emacsmirror/delight") ;; or diminish
-(progn ;; git-gutter
-  (my-elpaca-github "syohex/emacs-git-gutter" git-gutter)
-  (my-elpaca-github "nschum/fringe-helper.el" fringe-helper)
-  (my-elpaca-github "emacsorphanage/git-gutter-fringe"))
+(elpaca 'mlscroll)
+(elpaca 'delight)
+(elpaca 'git-gutter-fringe)
 (elpaca 'japanese-holidays)
 (elpaca 'highlight-symbol)
 (progn ;; Nerd-icons
-  (my-elpaca-github "rainstormstudio/nerd-icons.el" nerd-icons)
-  (my-elpaca-github "rainstormstudio/nerd-icons-dired")
-  (my-elpaca-github "LuigiPiucco/nerd-icons-corfu")
-  (my-elpaca-github "seagle0128/nerd-icons-ivy-rich")
-  ;; icons-in-terminal
+  (elpaca 'nerd-icons)
+  (elpaca 'nerd-icons-dired)
+  (elpaca 'nerd-icons-corfu)
+  (elpaca 'nerd-icons-ivy-rich)
   (my-elpaca-github "seagle0128/icons-in-terminal.el" icons-in-terminal))
-(my-elpaca-github "chuntaro/emacs-keypression" keypression)
+(elpaca 'keypression)
+
 (progn ;; ivy
-  (my-elpaca-github "abo-abo/smex")
-  (my-elpaca-github "Yevgnen/ivy-rich")
-  (my-elpaca-github "syohex/emacs-counsel-gtags" counsel-gtags)
-  (my-elpaca-github "ericdanan/counsel-projectile")
-  (my-elpaca-github "akirak/ivy-omni-org")
-  (my-elpaca-github "d12frosted/counsel-osx-app")
-  (my-elpaca-github "ecraven/ivy-pass")
-  (my-elpaca-github "franburstall/ivy-emms"))
+  (elpaca 'smex)
+  (elpaca 'ivy-rich)
+  (elpaca 'counsel-gtags)
+  (elpaca 'counsel-projectile)
+  (elpaca 'ivy-omni-org)
+  (elpaca 'counsel-osx-app)
+  (elpaca 'ivy-pass)
+  (elpaca 'ivy-emms))
 (my-elpaca-github "takaxp/imenu-list")
 (elpaca 'dimmer)
-(my-elpaca-github "emacs-vs/rainbow-csv")
-(my-elpaca-github "lewang/command-log-mode")
+(my-elpaca-github "emacs-vs/rainbow-csv") ;; (elpaca 'rainbow-csv)
+(elpaca 'command-log-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Media
@@ -222,20 +214,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File management
-(my-elpaca-github "bbatsov/crux")
-(my-elpaca-github "conornash/backup-each-save")
+(elpaca 'crux)
+(elpaca 'backup-each-save)
 (elpaca 'dired-du)
 (my-elpaca-github "Fuco1/dired-hacks")
-(my-elpaca-github "Vifon/dired-recent.el" dired-recent)
+(elpaca 'dired-recent)
 (my-elpaca-github "jixiuf/ivy-dired-history")
 (when (eq system-type 'darwin)
-  (my-elpaca-github "lunaryorn/osx-trash.el" osx-trash))
+  (elpaca 'osx-trash))
 (elpaca 'undo-fu)
-(my-elpaca-github "bbatsov/super-save")
+(elpaca 'super-save)
 (my-elpaca-github "takaxp/session")
 (elpaca 'neotree)
 (my-elpaca-github "takaxp/facecheck")
-(my-elpaca-github "dacap/keyfreq")
+(elpaca 'keyfreq)
 (elpaca (disk-usage :host gitlab :repo "ambrevar/emacs-disk-usage"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -244,74 +236,63 @@
 (progn ;; flycheck
   (elpaca 'flycheck)
   (elpaca 'flycheck-pos-tip)
-  (my-elpaca-github "ch1bo/flycheck-clang-tidy"))
+  (elpaca 'flycheck-clang-tidy))
 (elpaca 'quickrun)
 (elpaca 'ggtags)
-(my-elpaca-github "AdamNiederer/0xc")
-(my-elpaca-github "purcell/package-lint")
+(elpaca '0xc)
+(elpaca 'package-lint)
 (elpaca 'projectile)
-(progn ;; relint
-  (my-elpaca-github "mattiase/xr")
-  (my-elpaca-github "mattiase/relint"))
+(elpaca 'relint)
 (elpaca 'editorconfig)
-(progn
-  (my-elpaca-github "AdamNiederer/elquery")
-  (my-elpaca-github "AdamNiederer/cov"))
+(elpaca 'cov)
 (my-elpaca-github "lassik/emacs-format-all-the-code" format-all)
 (elpaca 'uuid)
-(progn ;; corfu
-  (my-elpaca-github "minad/cape")
-  (my-elpaca-github "minad/corfu")
-  (my-elpaca-github "jdtsmith/kind-icon")  ;; requires svg-lib
-  (my-elpaca-github "xenodium/org-block-capf")
-  ;; (elpaca 'corfu-terminal)
-  )
+(elpaca 'corfu)
+(elpaca 'kind-icon)
+(my-elpaca-github "xenodium/org-block-capf")
 (elpaca 'vterm)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org mode
-(progn ;; async.el
-  (my-elpaca-github "astahlman/ob-async") ;; :depends (emacs-async)
-  (elpaca 'org-download))
-(progn ;; org-onit
-  (my-elpaca-github "takaxp/org-onit")
-  (my-elpaca-github "takaxp/org-plist"))
-(my-elpaca-github "mallt/org-clock-today-mode" org-clock-today)
+(elpaca 'ob-async)
+(elpaca 'org-download)
+(my-elpaca-github "takaxp/org-plist")
+(my-elpaca-github "takaxp/org-onit")
+(elpaca 'org-clock-today)
 (elpaca 'orgbox)
-(progn ;; ob
-  (my-elpaca-github "zweifisch/ob-http")
-  (my-elpaca-github "pope/ob-go"))
+(elpaca 'ob-http)
+(elpaca 'ob-go)
 (elpaca (org-tree-slide
 	 :host github :repo "takaxp/org-tree-slide" :branch "develop"))
-(progn ;; ox-hugo
-  (my-elpaca-github "hniksic/emacs-htmlize" htmlize)
-  (elpaca 'ox-hugo))
-(progn ;; ox
-  (my-elpaca-github "0x60df/ox-qmd")
-  (my-elpaca-github "larstvei/ox-gfm")
-  (my-elpaca-github "yjwen/org-reveal" ox-reveal)
-  (my-elpaca-github "jlumpe/ox-json"))
-(when (eq system-type 'darwin)
-  (elpaca (org-mac-link :host gitlab :repo "aimebertrand/org-mac-link")))
-(my-elpaca-github "tarsius/orglink")
-(my-elpaca-github "awth13/org-appear")
-(my-elpaca-github "alphapapa/org-recent-headings")
-(my-elpaca-github "facetframer/orgnav")
-(my-elpaca-github "snosov1/toc-org")
+(elpaca 'htmlize)
+
+(elpaca 'ox-hugo)
+(elpaca 'ox-qmd)
+(elpaca 'ox-gfm)
+(elpaca 'ox-reveal)
+(elpaca 'ox-json)
+(elpaca 'org-mac-link)
+
+(elpaca 'orglink)
+(elpaca 'org-appear)
+(elpaca 'org-recent-headings)
+(elpaca 'orgnav)
+(elpaca 'toc-org)
 (elpaca (org-screenshot :host github :repo "dfeich/org-screenshot"
 			:main "org-attach-screenshot.el"))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Frame/Window
-(my-elpaca-github "takaxp/moom")
+(elpaca 'moom)
 (elpaca 'shackle)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Font/Face
-(my-elpaca-github "tarsius/hl-todo")
+(elpaca 'hl-todo)
 (elpaca 'rainbow-mode)
-(my-elpaca-github "sabof/edit-color-stamp")
-(my-elpaca-github "k-talo/volatile-highlights.el" volatile-highlights)
+(elpaca 'edit-color-stamp)
+(elpaca 'volatile-highlights)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; async
@@ -319,35 +300,35 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utility
 (elpaca 'google-this)
-(progn ;; gt.el
-  (my-elpaca-github "lorniu/pdd.el" pdd)
-  (my-elpaca-github "lorniu/gt.el" gt))
+(elpaca 'gt)
 (when (eq system-type 'darwin)
-  (my-elpaca-github "raghavgautam/osx-lib"))
-(elpaca (gif-screencast :host gitlab :repo "ambrevar/emacs-gif-screencast"))
+  (elpaca 'osx-lib))
+(elpaca 'gif-screencast)
 (elpaca 'manage-minor-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Under test
 (progn
-  (elpaca 'gptel) ;; (my-elpaca-github "karthink/gptel")
-  )
-
+  (elpaca 'gptel))
 
 ;; required at the end of this code to run all items for batch-mode
 (when noninteractive
   (elpaca-wait))
 
 ;;; ivy/counsel/swiper
-(elpaca (counsel :host github :repo "abo-abo/swiper" :main "counsel.el"))
-(elpaca (ivy-prescient :host github :repo "radian-software/prescient.el")
-	:main "ivy-prescient")
-(elpaca (corfu-prescient :host github :repo "radian-software/prescient.el")
-	:main "corfu-prescient")
+(elpaca 'counsel)
+(elpaca 'ivy-prescient)
+(elpaca 'corfu-prescient)
+
+;; (elpaca (counsel :host github :repo "abo-abo/swiper" :main "counsel.el"))
+;; (elpaca (ivy-prescient :host github :repo "radian-software/prescient.el")
+;; 	:main "ivy-prescient")
+;; (elpaca (corfu-prescient :host github :repo "radian-software/prescient.el")
+;; 	:main "corfu-prescient")
 
 ;;; magit
 (progn
-  (my-elpaca-github "magit/transient")
+  (elpaca 'transient) ;; (my-elpaca-github "magit/transient")
   (elpaca 'magit))
 
 ;;; org
@@ -355,7 +336,8 @@
 (elpaca 'org)
 
 ;;; async
-(my-elpaca-github "jwiegley/emacs-async" async)
+(elpaca 'async) ;(my-elpaca-github "jwiegley/emacs-async" async)
+
 
 (elpaca-process-queues)
 (provide 'elpaca-config)
@@ -363,7 +345,6 @@
 ;; Having issues
 ;; (elpaca 'org-extra-emphasis)
 ;; (elpaca 'emr) ;; iedit installed version lower than min require 0.97
-
 
 
 ;; previous
@@ -381,6 +362,7 @@
   (my-elpaca-github "takaxp/ivy-yasnippet")
   (my-elpaca-github "yasuyk/web-beautify")
   (my-elpaca-github "sbrisard/bratex")
+  (elpaca 'logview)
   ;;; Display
   (my-elpaca-github "syohex/emacs-go-eldoc" go-eldoc)
   ;;; File management
