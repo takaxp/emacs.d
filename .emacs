@@ -85,11 +85,6 @@
  ;; Spacemacs
  (nil (load (concat (setq user-emacs-directory "~/.spacemacs.d/") "init.el")))
 
- ;; Elpaca
- (nil
-  (when (boundp 'ns-command-modifier) (setq ns-command-modifier 'meta))
-  (load (concat user-emacs-directory "lisp/elpaca-config.el")))
-
  ;; Normal mode. see also init-eval.el
  (t
   (setq debug-on-error nil
@@ -105,8 +100,7 @@
 				 ;; my-show-org-buffer
 				 ))
   ;; (require 'my-eshell nil t)
-  (require 'init)
-  ))
+  (require 'init)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; (package-initialize) ;; do not delete this line here for previous versions

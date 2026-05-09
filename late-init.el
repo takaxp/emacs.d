@@ -138,46 +138,6 @@ This function returns a timer object which you can use in
 (with-eval-after-load "comp"
   (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
 
-;;;###autoload
-(defun my-open-current-eln-dir ()
-  (interactive)
-  (call-process "open" nil 0 nil
-                (concat (car (butlast native-comp-eln-load-path))
-                        comp-native-version-dir)))
-
-;;;###autoload
-(defun my-nativecomp-prune-current-cache ()
-  "Remove all .eln files that are applicable to the current Emacs invocation.
-see `native-compile-prune-cache'."
-  (interactive)
-  (if (not (featurep 'native-compile))
-      (message "note: Your Emacs isn't built with native-compile support")
-    ;; The last item in native-comp-eln-load-path is assumed to be a system
-    ;; directory, so don't try to delete anything there (bug#59658).
-    (dolist (dir (butlast native-comp-eln-load-path))
-      ;; If a directory is non absolute it is assumed to be relative to
-      ;; `invocation-directory'.
-      (setq dir (expand-file-name dir invocation-directory))
-      (when (file-exists-p dir)
-	(dolist (subdir (seq-filter
-			 (lambda (f)
-			   (not (string-match (rx "/." (? ".") eos) f)))
-			 (directory-files dir t)))
-          (when (and (file-directory-p subdir)
-                     (file-writable-p subdir)
-                     (equal (file-name-nondirectory
-                             (directory-file-name subdir))
-                            comp-native-version-dir))
-            (message "Deleting `%s'..." subdir)
-            ;; We're being overly cautious here -- there shouldn't be
-            ;; anything but .eln files in these directories.
-            (dolist (eln (directory-files subdir t "\\.eln\\(\\.tmp\\)?\\'"))
-              (when (file-writable-p eln)
-		(delete-file eln)))
-            (when (directory-empty-p subdir)
-              (delete-directory subdir))))))
-    (message "Cache cleared")))
-
 ;; Limit the final word to a line break code (automatically correct)
 (setq require-final-newline t)
 
@@ -204,12 +164,10 @@ see `native-compile-prune-cache'."
 
 (setq hscroll-margin 40)
 
-(autoload-if-found '(elpaca-version my-elpaca-reset-links
-                                    elpaca my-elpaca-github
-                                    my-elpaca-nativecomp-package
-                                    my-elpaca-nativecomp-prune-current-cache
-                                    my-elpaca-reset-links)
-                   "elpaca-config" nil t)
+(autoload-if-found '(elpaca-version
+                     elpaca
+                     my-elpaca-reset-links)
+                   "elpaca-install" nil t)
 
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
@@ -1351,7 +1309,9 @@ see `native-compile-prune-cache'."
           (toml "https://github.com/tree-sitter/tree-sitter-toml")
           (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
   ;; Check the installation (~/.emacs.d/tree-sitter/*.dylib)
-  (my-install-treesit-libs))
+  (when (and (fboundp 'treesit-language-available-p)
+         (treesit-language-available-p 'javascript))
+    (my-install-treesit-libs)))
 
 (when (autoload-if-found '(swiper-thing-at-point swiper-all-thing-at-point)
                          "swiper" nil t)
@@ -2323,4 +2283,9 @@ see `native-compile-prune-cache'."
                              my-late-init-end
                              my-late-init-start))))))
 ;; (my-emacs-late-init-time)
+
+(unless (or noninteractive my-secure-boot)
+  (run-with-idle-timer (+ 60 my-default-loading-delay)
+                       nil #'my-nativecomp-ensure-cache))
+
 (provide 'late-init)

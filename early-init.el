@@ -42,14 +42,15 @@
   "If version number is provided, Emacs uses packages installed via el-get.")
 (defvar my-elget-package-dir
   (format (expand-file-name "~/.emacs.d/%s/packages") my-use-el-get))
-(defvar my-elpaca-package-dir
-  (format (expand-file-name "~/.emacs.d/elpaca/%s/lisp") my-use-elpaca))
+(defvar elpaca-directory
+  (expand-file-name (format "elpaca/%s/" emacs-version) user-emacs-directory))
+(defvar my-elpaca-package-dir (expand-file-name "lisp/" elpaca-directory))
 (cond (my-use-elpaca
        (setq my-package-dir my-elpaca-package-dir))
       (my-use-el-get
        (setq my-package-dir my-elget-package-dir)))
 (unless (file-directory-p my-package-dir)
-  (warn "%s does NOT exist. Run setup script" my-package-dir))
+  (make-directory my-package-dir t))
 
 (defun my--path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."

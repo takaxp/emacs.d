@@ -584,14 +584,15 @@ This function is called directly from the C code."
   "If version number is provided, Emacs uses packages installed via el-get.")
 (defvar my-elget-package-dir
   (format (expand-file-name "~/.emacs.d/%s/packages") my-use-el-get))
-(defvar my-elpaca-package-dir
-  (format (expand-file-name "~/.emacs.d/elpaca/%s/lisp") my-use-elpaca))
+(defvar elpaca-directory
+  (expand-file-name (format "elpaca/%s/" emacs-version) user-emacs-directory))
+(defvar my-elpaca-package-dir (expand-file-name "lisp/" elpaca-directory))
 (cond (my-use-elpaca
        (setq my-package-dir my-elpaca-package-dir))
       (my-use-el-get
        (setq my-package-dir my-elget-package-dir)))
 (unless (file-directory-p my-package-dir)
-  (warn "%s does NOT exist. Run setup script" my-package-dir))
+  (make-directory my-package-dir t))
 
 (defun my--path-setter (path-list target-path)
   "Utility function to set PATH-LIST to TARGET-PATH."
@@ -1063,10 +1064,10 @@ This function returns a timer object which you can use in
                 :around #'my--gcmh-idle-garbage-collect)))
 #+end_src
 
-** Native comp が使えるかを判定する
-   :PROPERTIES:
-   :CUSTOM_ID: org5a18ac68
-   :END:
+** NativeComp が使えるかを判定する
+:PROPERTIES:
+:CUSTOM_ID: org5a18ac68
+:END:
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
@@ -1083,19 +1084,19 @@ This function returns a timer object which you can use in
   (setf comp-num-cpus (max 1 (- (num-processors) 2))))
 #+end_src
 
-** Native comp の警告を非表示にする
+** NativeComp の警告を非表示にする
 :PROPERTIES:
 :CUSTOM_ID: org81081865
 :END:
 
- Native comp 実行時に大量に表示される警告を非表示にします．
+ NativeComp 実行時に大量に表示される警告を非表示にします．
 
 #+begin_src emacs-lisp :tangle yes
 ;; Native Compiling の最終のワーニング等をウィンドウに出さない
 (setq native-comp-async-report-warnings-errors nil)
 #+end_src
 
-** Native comp がコンパイルした後にメッセージを表示する
+** NativeComp がコンパイルした後にメッセージを表示する
 :PROPERTIES:
 :CUSTOM_ID: org65713cda
 :ID:       594C5AFB-9E62-45E9-AC9E-07DC4F6FD62D
@@ -1112,12 +1113,14 @@ This function returns a timer object which you can use in
   (add-hook 'native-comp-async-all-done-hook #'my-native-comp-packages-done))
 #+end_src
 
-** Native comp のキャッシュディレクトリを制御
+** NativeComp のキャッシュとキャッシュディレクトリの制御
 :PROPERTIES:
 :CUSTOM_ID: orgaa868d82
 :ID:       E4E8F09D-3D9F-4614-9B09-BCABEF507B89
 :END:
-#+begin_src emacs-lisp :tangle late-init.el
+
+#+begin_src emacs-lisp :tangle utility.el
+;; -*- lexical-binding: t -*-
 ;;;###autoload
 (defun my-open-current-eln-dir ()
   (interactive)
@@ -1139,10 +1142,10 @@ see `native-compile-prune-cache'."
       ;; `invocation-directory'.
       (setq dir (expand-file-name dir invocation-directory))
       (when (file-exists-p dir)
-	(dolist (subdir (seq-filter
-			 (lambda (f)
-			   (not (string-match (rx "/." (? ".") eos) f)))
-			 (directory-files dir t)))
+        (dolist (subdir (seq-filter
+                         (lambda (f)
+                           (not (string-match (rx "/." (? ".") eos) f)))
+                         (directory-files dir t)))
           (when (and (file-directory-p subdir)
                      (file-writable-p subdir)
                      (equal (file-name-nondirectory
@@ -1153,12 +1156,67 @@ see `native-compile-prune-cache'."
             ;; anything but .eln files in these directories.
             (dolist (eln (directory-files subdir t "\\.eln\\(\\.tmp\\)?\\'"))
               (when (file-writable-p eln)
-		(delete-file eln)))
+                (delete-file eln)))
             (when (directory-empty-p subdir)
               (delete-directory subdir))))))
     (message "Cache cleared")))
+
+
+(defun my--delete-eln-file (package-name)
+  "note: see `native-compile-prune-cache'"
+  (when package-name
+    (dolist (dir (butlast native-comp-eln-load-path))
+      (let ((pkg (if (symbolp package-name)
+                     (symbol-name package-name)
+                   package-name)))
+        (dolist (eln (directory-files
+                      (concat dir comp-native-version-dir)
+                      t (concat "^" pkg ".+\\.eln$")))
+          (when (file-writable-p eln)
+            (delete-file eln)
+            (message "Deleting...%s" eln)))))))
+
+;;;###autoload
+(defun my-nativecomp-ensure-cache ()
+  (message "Native Compilation in %s%s"
+           (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
+  (my-nativecomp-recache nil t))
+
+;;;###autoload
+(defun my-nativecomp-recache (&optional package-name non-force)
+  "Recache eln files."
+  (interactive)
+  (when (or (not (called-interactively-p 'interactive))
+            (yes-or-no-p "Recache?"))
+    ;; elpaca
+    (unless (and package-name
+                 (not (locate-library package-name)))
+      (let* ((native-comp-always-compile (not non-force))
+             (package-name (if package-name
+                               (if (symbolp package-name)
+                                   (symbol-name package-name)
+                                 package-name)
+                             ""))
+             (dir-or-pkg (expand-file-name (format "builds/%s" package-name)
+                                           elpaca-directory)))
+        (when native-comp-always-compile
+          (my--delete-eln-file package-name))
+        (native-compile-async dir-or-pkg 'recursively)))
+    ;; init files
+    (native-compile-async "~/.emacs.d/lisp" 'recursively)
+    ;; org-mode
+    (native-compile-async "~/devel/git/org-mode" 'recursively)))
+
+;;;###autoload
+(defun my-elpaca-reset-links ()
+  (interactive)
+  (when (shell-command-to-string
+         (concat "export SYSTEMTYPE=\"darwin\""
+                 " && ~/Dropbox/usr/emacs.d/bin/elpaca.sh -r"))
+    (message "[elpaca] Link updated")))
 #+end_src
-** TODO Native comp のビルドパスを取得
+
+** TODO NativeComp のビルドパスを取得
 :PROPERTIES:
 :CUSTOM_ID: org722bba84
 :ID:       82F3DA12-797C-4C40-802E-25F77A7BE077
@@ -1687,6 +1745,7 @@ Org Mode でナローイングを使う場合は，特に設定しなくてもOK
 ** compilation buffer でのデータ表示で自動するスクロールする
    :PROPERTIES:
    :CUSTOM_ID: org1b2d3cc0
+   :ID:       EA03FCDC-9991-4664-8EF4-FE6C62EA142C
    :END:
 
 =nil= のままだと，出力が続いてもスクロールされないので，自動的にスクロールされるように設定．
@@ -1996,12 +2055,10 @@ CLOSED: [2026-04-05 Sun 10:34]
 :ID:       10C8DE32-978C-452C-9A8E-F8BE81B16888
 :END:
 #+begin_src emacs-lisp :tangle late-init.el
-(autoload-if-found '(elpaca-version my-elpaca-reset-links
-                                    elpaca my-elpaca-github
-                                    my-elpaca-nativecomp-package
-                                    my-elpaca-nativecomp-prune-current-cache
-                                    my-elpaca-reset-links)
-                   "elpaca-config" nil t)
+(autoload-if-found '(elpaca-version
+                     elpaca
+                     my-elpaca-reset-links)
+                   "elpaca-install" nil t)
 #+end_src
 
 ** インデント
@@ -6879,7 +6936,9 @@ Obeys `widen-automatically', which see."
           (toml "https://github.com/tree-sitter/tree-sitter-toml")
           (yaml "https://github.com/ikatyang/tree-sitter-yaml")))
   ;; Check the installation (~/.emacs.d/tree-sitter/*.dylib)
-  (my-install-treesit-libs))
+  (when (and (fboundp 'treesit-language-available-p)
+         (treesit-language-available-p 'javascript))
+    (my-install-treesit-libs)))
 #+end_src
 
 ** TODO [swiper.el] 文字列探索とプレビューを同時に行う
@@ -7112,8 +7171,6 @@ Obeys `widen-automatically', which see."
 :CUSTOM_ID: orgdef403ec
 :END:
 
-~autoload-if-found~ を使ういつもの設定では正しく動作しないので， ~eval-when-compile~ を使用して require しています．
-
 # 下記の設定は有効だが，バイトコンパイルするとうまくいかないので，バイトコンパイルしない設定群を収録する =no-compile.el= を作成して， ~transient.el~ 関連の設定を格納することにしました．
 
 # ~transient-define-prefix~ を ~with-eval-after-load~ でくくると駄目の模様．
@@ -7151,70 +7208,6 @@ Obeys `widen-automatically', which see."
      ["Bullet and Checkbox"
       ("I" "insert" my-org-insert-bullet-and-checkbox)
       ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-(require 'transient nil t)
-
-(transient-define-prefix my-org-bullet-and-checkbox ()
-  "Commands to handle bullet and checkbox"
-  [["Bullet"
-    ("i" "insert" my-org-insert-bullet)
-    ("d" "delete" my-org-delete-bullet)]
-   ["Checkbox"
-    ("[" "insert" my-org-insert-checkbox-into-bullet)
-    ("]" "delete" my-org-delete-checkbox-from-bullet)
-    ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-    ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-    ]
-   ["Bullet and Checkbox"
-    ("I" "insert" my-org-insert-bullet-and-checkbox)
-    ("D" "delete" my-org-delete-bullet-and-checkbox)]])
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-;;(autoload 'my-org-bullet-and-checkbox "transient" nil t)
-;;(when (require 'transient nil t)
-
-(require 'transient nil t)
-(autoload 'my-org-bullet-and-checkbox "transient" nil t)
-
-(with-eval-after-load "transient"
-  (transient-define-prefix my-org-bullet-and-checkbox ()
-    "Commands to handle bullet and checkbox"
-    [["Bullet"
-      ("i" "insert" my-org-insert-bullet)
-      ("d" "delete" my-org-delete-bullet)]
-     ["Checkbox"
-      ("[" "insert" my-org-insert-checkbox-into-bullet)
-      ("]" "delete" my-org-delete-checkbox-from-bullet)
-      ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-      ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-      ]
-     ["Bullet and Checkbox"
-      ("I" "insert" my-org-insert-bullet-and-checkbox)
-      ("D" "delete" my-org-delete-bullet-and-checkbox)]]))
-#+end_src
-
-#+begin_src emacs-lisp :tangle no :exports none
-# この書き方はだめ！
-(when (autoload-if-found '(my-org-bullet-and-checkbox)
-                         "transient" nil t)
-  (with-eval-after-load "transient"
-    (transient-define-prefix my-org-bullet-and-checkbox ()
-      "Commands to handle bullet and checkbox"
-      [["Bullet"
-        ("i" "insert" my-org-insert-bullet)
-        ("d" "delete" my-org-delete-bullet)]
-       ["Checkbox"
-        ("[" "insert" my-org-insert-checkbox-into-bullet)
-        ("]" "delete" my-org-delete-checkbox-from-bullet)
-        ;;("a" "toggle checkbox" my-org-toggle-checkbox)
-        ;;("h" "cycle" my-cycle-bullet-at-heading) ;; single line
-        ]
-       ["Bullet and Checkbox"
-        ("I" "insert" my-org-insert-bullet-and-checkbox)
-        ("D" "delete" my-org-delete-bullet-and-checkbox)]])))
 #+end_src
 
 ** TODO [rainbow-csv.el] CSVファイルをリッチな配色で表示する
@@ -11913,7 +11906,7 @@ This user property stores the creation date of the entry")
                  (concat my-sync-dir "/org/" arg))
                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                 "org2ja.org" "itr.org" "db/books.org")))
+                 "org2ja.org" "itr.org" "db/books.org" "db/list.org")))
   (when (file-exists-p (expand-file-name file))
     (add-to-list 'org-agenda-files file 'append)))
 
@@ -12181,45 +12174,51 @@ This user property stores the creation date of the entry")
       ;; (message "-------------------------")
       ;; (message "parent: %s"
       ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-      (async-start
-       `(lambda ()
-          (setq load-path ',load-path)
-          (require 'org)
-          (require 'appt)
-          (setq org-agenda-files ',org-agenda-files)
-          ;; (org-agenda-to-appt t '((headline "TODO")))
-          (org-agenda-to-appt t)
-          (appt-check) ;; remove past events
-          ;; Remove tags
-          (let ((msgs appt-time-msg-list))
-            (setq appt-time-msg-list nil)
-            (dolist (msg msgs)
-              (add-to-list 'appt-time-msg-list
-                           (let ((match (string-match
-                                         org-tag-group-re (nth 1 msg))))
-                             (if match
-                                 (list (nth 0 msg)
-                                       (org-trim (substring-no-properties
-                                                  (nth 1 msg)
-                                                  0 match))
-                                       (nth 2 msg))
-                               msg)
-                             ) t))
-            ;; just for sure
-            (delq nil appt-time-msg-list)))
-       `(lambda (result)
-          ;; (message "child: %s"
-          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-          (setq appt-time-msg-list result) ;; nil means No event
-          ;; (my-add-prop-to-appt-time-msg-list)
-          (unless (active-minibuffer-window)
-            (let ((cnt (length appt-time-msg-list))
-                  (message-log-max nil))
-              (if (eq cnt 0)
-                  (message "[async] No event to add")
-                (message "[async] Added %d event%s for today"
-                         cnt (if (> cnt 1) "s" "")))))
-          (setq my-org-agenda-to-appt-ready t))))))
+      (message "[async] Appointment checking...")
+      
+
+      (org-agenda-to-appt t)
+      ;; (async-start
+      ;;  `(lambda ()
+      ;;     (setq load-path ',load-path)
+      ;;     (require 'org)
+      ;;     (require 'appt)
+      ;;     (setq org-agenda-files ',org-agenda-files)
+      ;;     ;; (org-agenda-to-appt t '((headline "TODO")))
+      ;;     (org-agenda-to-appt t)
+      ;;     (appt-check) ;; remove past events
+      ;;     ;; Remove tags
+      ;;     (let ((msgs appt-time-msg-list))
+      ;;       (setq appt-time-msg-list nil)
+      ;;       (dolist (msg msgs)
+      ;;         (add-to-list 'appt-time-msg-list
+      ;;                      (let ((match (string-match
+      ;;                                    org-tag-group-re (nth 1 msg))))
+      ;;                        (if match
+      ;;                            (list (nth 0 msg)
+      ;;                                  (org-trim (substring-no-properties
+      ;;                                             (nth 1 msg)
+      ;;                                             0 match))
+      ;;                                  (nth 2 msg))
+      ;;                          msg)
+      ;;                        ) t))
+      ;;       ;; just for sure
+      ;;       (delq nil appt-time-msg-list)))
+      ;;  (lambda (result)
+      ;;    ;; (message "child: %s"
+      ;;    ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+      ;;    (setq appt-time-msg-list result) ;; nil means No event
+      ;;    ;; (my-add-prop-to-appt-time-msg-list)
+      ;;    (unless (active-minibuffer-window)
+      ;;      (let ((cnt (length appt-time-msg-list))
+      ;;            (message-log-max nil))
+      ;;        (if (eq cnt 0)
+      ;;            (message "[async] No event to add")
+      ;;          (message "[async] Added %d event%s for today"
+      ;;                   cnt (if (> cnt 1) "s" "")))))
+      ;;    (setq my-org-agenda-to-appt-ready t)))
+
+      )))
 
 ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
 ;; Need review
@@ -13204,6 +13203,7 @@ org-mode の表のようにフェイスを統一しています． =calfw= を�
              (nth 4 (org-heading-components)))
     (let ((command "/Users/taka/.local/scripts/push-hugo.sh"))
       (if (require 'async nil t)
+          (message "[async] ox-hugo uploading")
           (async-start
            `(lambda () (shell-command-to-string ',command)))
         (shell-command-to-string command)))))
@@ -17522,22 +17522,21 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 (defun my-cycle-bullet-at-heading (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
   (interactive "P")
-  (save-excursion
-    (beginning-of-line)
-    (let ((bullet "- ")
-          (point-at-eol (point-at-eol)))
-      (cond
-       ((re-search-forward
-         my-org-bullet-with-checkbox-re point-at-eol t)
-        (replace-match (if arg "" "\\1") nil nil))
-       ((re-search-forward
-         "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
-         point-at-eol t)
-        (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match (concat "\\1" bullet) nil nil))
-       (t nil)))))
+  (beginning-of-line)
+  (let ((bullet "- ")
+        (point-at-eol (point-at-eol)))
+    (cond
+     ((re-search-forward
+       my-org-bullet-with-checkbox-re point-at-eol t)
+      (replace-match (if arg "" "\\1") nil nil))
+     ((re-search-forward
+       "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+       point-at-eol t)
+      (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
+     ((re-search-forward
+       (concat "\\(^[ \t]*\\)") point-at-eol t)
+      (replace-match (concat "\\1" bullet) nil nil))
+     (t nil))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none
@@ -18210,6 +18209,11 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）
                              my-late-init-end
                              my-late-init-start))))))
 ;; (my-emacs-late-init-time)
+
+(unless (or noninteractive my-secure-boot)
+  (run-with-idle-timer (+ 60 my-default-loading-delay)
+                       nil #'my-nativecomp-ensure-cache))
+
 (provide 'late-init)
 #+end_src
 

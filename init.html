@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-04-10 Fri 15:19 -->
+<!-- 2026-05-09 Sat 10:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -239,11 +239,11 @@
 <li><a href="#org30c47759">2.20. [library-p] load-path にライブラリがあるかを判定</a></li>
 <li><a href="#orgb75ac2db">2.21. run-at-time をハックして diary-lib.el の読み込みを抑制</a></li>
 <li><a href="#orgdc071e4d">2.22. <span class="todo TODO">TODO</span> [gcmh.el] idle 中にGC実行</a></li>
-<li><a href="#org5a18ac68">2.23. Native comp が使えるかを判定する</a></li>
-<li><a href="#org81081865">2.24. Native comp の警告を非表示にする</a></li>
-<li><a href="#org65713cda">2.25. Native comp がコンパイルした後にメッセージを表示する</a></li>
-<li><a href="#orgaa868d82">2.26. Native comp のキャッシュディレクトリを制御</a></li>
-<li><a href="#org722bba84">2.27. <span class="todo TODO">TODO</span> Native comp のビルドパスを取得</a></li>
+<li><a href="#org5a18ac68">2.23. NativeComp が使えるかを判定する</a></li>
+<li><a href="#org81081865">2.24. NativeComp の警告を非表示にする</a></li>
+<li><a href="#org65713cda">2.25. NativeComp がコンパイルした後にメッセージを表示する</a></li>
+<li><a href="#orgaa868d82">2.26. NativeComp のキャッシュとキャッシュディレクトリの制御</a></li>
+<li><a href="#org722bba84">2.27. <span class="todo TODO">TODO</span> NativeComp のビルドパスを取得</a></li>
 <li><a href="#orgb6d21621">2.28. custom.el の指定</a></li>
 <li><a href="#orgdb356e99">2.29. loadとrequireの実行時間を計測</a></li>
 <li><a href="#orgb59612b6">2.30. <span class="done DONE">DONE</span> [exec-path-from-shell.el] PATH設定をシェルから継承する&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
@@ -283,7 +283,7 @@
 <li><a href="#orgec66ea31">3.13.3. <span class="todo TODO">TODO</span> load-path を一箇所にして起動を高速化</a></li>
 <li><a href="#orgda4ef167">3.13.4. <span class="done DONE">DONE</span> [paradox.el] パッケージ選択画面の改善</a></li>
 <li><a href="#org6c5717fc">3.13.5. <span class="done DONE">DONE</span> [el-get.el] パッケージ管理（GUI，CUI）</a></li>
-<li><a href="#orgaa84eda">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
+<li><a href="#orgca007f7">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
 </ul>
 </li>
 <li><a href="#org03555a6a">3.14. インデント</a></li>
@@ -765,7 +765,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#org12344a0">15. 有用なデフォルト関数</a></li>
+<li><a href="#orgd8c7b33">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -1442,14 +1442,15 @@ This function is called directly from the C code."</span>
   <span style="color: #8b2252;">"If version number is provided, Emacs uses packages installed via el-get."</span>)
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elget-package-dir</span>
   (format (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/%s/packages"</span>) my-use-el-get))
-(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elpaca-package-dir</span>
-  (format (expand-file-name <span style="color: #8b2252;">"~/.emacs.d/elpaca/%s/lisp"</span>) my-use-elpaca))
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">elpaca-directory</span>
+  (expand-file-name (format <span style="color: #8b2252;">"elpaca/%s/"</span> emacs-version) user-emacs-directory))
+(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-elpaca-package-dir</span> (expand-file-name <span style="color: #8b2252;">"lisp/"</span> elpaca-directory))
 (<span style="color: #a020f0;">cond</span> (my-use-elpaca
        (<span style="color: #a020f0;">setq</span> my-package-dir my-elpaca-package-dir))
       (my-use-el-get
        (<span style="color: #a020f0;">setq</span> my-package-dir my-elget-package-dir)))
 (<span style="color: #a020f0;">unless</span> (file-directory-p my-package-dir)
-  (<span style="color: #ff0000; font-weight: bold;">warn</span> <span style="color: #8b2252;">"%s does NOT exist. Run setup script"</span> my-package-dir))
+  (make-directory my-package-dir t))
 
 (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--path-setter</span> (path-list target-path)
   <span style="color: #8b2252;">"Utility function to set PATH-LIST to TARGET-PATH."</span>
@@ -1956,7 +1957,7 @@ This function returns a timer object which you can use in
 </div>
 </div>
 <div id="outline-container-org5a18ac68" class="outline-3">
-<h3 id="org5a18ac68"><span class="section-number-3">2.23.</span> Native comp が使えるかを判定する</h3>
+<h3 id="org5a18ac68"><span class="section-number-3">2.23.</span> NativeComp が使えるかを判定する</h3>
 <div class="outline-text-3" id="text-org5a18ac68">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
@@ -1979,10 +1980,10 @@ This function returns a timer object which you can use in
 </div>
 </div>
 <div id="outline-container-org81081865" class="outline-3">
-<h3 id="org81081865"><span class="section-number-3">2.24.</span> Native comp の警告を非表示にする</h3>
+<h3 id="org81081865"><span class="section-number-3">2.24.</span> NativeComp の警告を非表示にする</h3>
 <div class="outline-text-3" id="text-org81081865">
 <p>
-Native comp 実行時に大量に表示される警告を非表示にします．<br />
+NativeComp 実行時に大量に表示される警告を非表示にします．<br />
 </p>
 
 <div class="org-src-container">
@@ -1993,7 +1994,7 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-org65713cda" class="outline-3">
-<h3 id="org65713cda"><span class="section-number-3">2.25.</span> Native comp がコンパイルした後にメッセージを表示する</h3>
+<h3 id="org65713cda"><span class="section-number-3">2.25.</span> NativeComp がコンパイルした後にメッセージを表示する</h3>
 <div class="outline-text-3" id="text-org65713cda">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
@@ -2010,10 +2011,11 @@ Native comp 実行時に大量に表示される警告を非表示にします�
 </div>
 </div>
 <div id="outline-container-orgaa868d82" class="outline-3">
-<h3 id="orgaa868d82"><span class="section-number-3">2.26.</span> Native comp のキャッシュディレクトリを制御</h3>
+<h3 id="orgaa868d82"><span class="section-number-3">2.26.</span> NativeComp のキャッシュとキャッシュディレクトリの制御</h3>
 <div class="outline-text-3" id="text-orgaa868d82">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+<pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">-*- lexical-binding: t -*-
+</span><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-open-current-eln-dir</span> ()
   (<span style="color: #a020f0;">interactive</span>)
   (call-process <span style="color: #8b2252;">"open"</span> nil 0 nil
@@ -2052,12 +2054,66 @@ see `</span><span style="color: #008b8b;">native-compile-prune-cache</span><span
             (<span style="color: #a020f0;">when</span> (directory-empty-p subdir)
               (delete-directory subdir))))))
     (message <span style="color: #8b2252;">"Cache cleared"</span>)))
+
+
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my--delete-eln-file</span> (package-name)
+  <span style="color: #8b2252;">"note: see `</span><span style="color: #008b8b;">native-compile-prune-cache</span><span style="color: #8b2252;">'"</span>
+  (<span style="color: #a020f0;">when</span> package-name
+    (<span style="color: #a020f0;">dolist</span> (dir (butlast native-comp-eln-load-path))
+      (<span style="color: #a020f0;">let</span> ((pkg (<span style="color: #a020f0;">if</span> (symbolp package-name)
+                     (symbol-name package-name)
+                   package-name)))
+        (<span style="color: #a020f0;">dolist</span> (eln (directory-files
+                      (concat dir comp-native-version-dir)
+                      t (concat <span style="color: #8b2252;">"^"</span> pkg <span style="color: #8b2252;">".+\\.eln$"</span>)))
+          (<span style="color: #a020f0;">when</span> (file-writable-p eln)
+            (delete-file eln)
+            (message <span style="color: #8b2252;">"Deleting...%s"</span> eln)))))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nativecomp-ensure-cache</span> ()
+  (message <span style="color: #8b2252;">"Native Compilation in %s%s"</span>
+           (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
+  (my-nativecomp-recache nil t))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nativecomp-recache</span> (<span style="color: #228b22;">&amp;optional</span> package-name non-force)
+  <span style="color: #8b2252;">"Recache eln files."</span>
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">or</span> (not (called-interactively-p 'interactive))
+            (yes-or-no-p <span style="color: #8b2252;">"Recache?"</span>))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">elpaca
+</span>    (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">and</span> package-name
+                 (not (locate-library package-name)))
+      (<span style="color: #a020f0;">let*</span> ((native-comp-always-compile (not non-force))
+             (package-name (<span style="color: #a020f0;">if</span> package-name
+                               (<span style="color: #a020f0;">if</span> (symbolp package-name)
+                                   (symbol-name package-name)
+                                 package-name)
+                             <span style="color: #8b2252;">""</span>))
+             (dir-or-pkg (expand-file-name (format <span style="color: #8b2252;">"builds/%s"</span> package-name)
+                                           elpaca-directory)))
+        (<span style="color: #a020f0;">when</span> native-comp-always-compile
+          (my--delete-eln-file package-name))
+        (native-compile-async dir-or-pkg 'recursively)))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">init files
+</span>    (native-compile-async <span style="color: #8b2252;">"~/.emacs.d/lisp"</span> 'recursively)
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-mode
+</span>    (native-compile-async <span style="color: #8b2252;">"~/devel/git/org-mode"</span> 'recursively)))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-elpaca-reset-links</span> ()
+  (<span style="color: #a020f0;">interactive</span>)
+  (<span style="color: #a020f0;">when</span> (shell-command-to-string
+         (concat <span style="color: #8b2252;">"export SYSTEMTYPE=\"darwin\""</span>
+                 <span style="color: #8b2252;">" &amp;&amp; ~/Dropbox/usr/emacs.d/bin/elpaca.sh -r"</span>))
+    (message <span style="color: #8b2252;">"[elpaca] Link updated"</span>)))
 </code></pre>
 </div>
 </div>
 </div>
 <div id="outline-container-org722bba84" class="outline-3">
-<h3 id="org722bba84"><span class="section-number-3">2.27.</span> <span class="todo TODO">TODO</span> Native comp のビルドパスを取得</h3>
+<h3 id="org722bba84"><span class="section-number-3">2.27.</span> <span class="todo TODO">TODO</span> NativeComp のビルドパスを取得</h3>
 <div class="outline-text-3" id="text-org722bba84">
 <p>
 起動のたびに brew に関する情報を集めて libgccjit 用に LIBRARY_PATH を設定するのは高コストなので， setenv で設定するべきパスを事前に取得する．<br />
@@ -2934,16 +2990,14 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 </div>
 </div>
 </div>
-<div id="outline-container-orgaa84eda" class="outline-4">
-<h4 id="orgaa84eda"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
+<div id="outline-container-orgca007f7" class="outline-4">
+<h4 id="orgca007f7"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
 <div class="outline-text-4" id="text-3-13-6">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(autoload-if-found '(elpaca-version my-elpaca-reset-links
-                                    elpaca my-elpaca-github
-                                    my-elpaca-nativecomp-package
-                                    my-elpaca-nativecomp-prune-current-cache
-                                    my-elpaca-reset-links)
-                   <span style="color: #8b2252;">"elpaca-config"</span> nil t)
+<pre class="src src-emacs-lisp"><code>(autoload-if-found '(elpaca-version
+                     elpaca
+                     my-elpaca-reset-links)
+                   <span style="color: #8b2252;">"elpaca-install"</span> nil t)
 </code></pre>
 </div>
 </div>
@@ -8366,7 +8420,9 @@ Obeys `</span><span style="color: #008b8b;">widen-automatically</span><span styl
           (toml <span style="color: #8b2252;">"https://github.com/tree-sitter/tree-sitter-toml"</span>)
           (yaml <span style="color: #8b2252;">"https://github.com/ikatyang/tree-sitter-yaml"</span>)))
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">Check the installation (~/.emacs.d/tree-sitter/*.dylib)
-</span>  (my-install-treesit-libs))
+</span>  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (fboundp 'treesit-language-available-p)
+         (treesit-language-available-p 'javascript))
+    (my-install-treesit-libs)))
 </code></pre>
 </div>
 </div>
@@ -8608,10 +8664,6 @@ Obeys `</span><span style="color: #008b8b;">widen-automatically</span><span styl
 <div id="outline-container-orgdef403ec" class="outline-3">
 <h3 id="orgdef403ec"><span class="section-number-3">6.50.</span> <span class="todo TODO">TODO</span> [transient.el] コマンドディスパッチャを構築する</h3>
 <div class="outline-text-3" id="text-orgdef403ec">
-<p>
-<code class="org-code">autoload-if-found</code> を使ういつもの設定では正しく動作しないので， <code class="org-code">eval-when-compile</code> を使用して require しています．<br />
-</p>
-
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(autoload 'my-org-bullet-and-checkbox <span style="color: #8b2252;">"transient"</span> nil t)
 </code></pre>
@@ -9821,7 +9873,7 @@ With a prefix ARG always prompt for command to use."</span>
                          <span style="color: #8b2252;">"backup-each-save"</span> nil t)
   (add-hook 'after-save-hook #'my-auto-backup)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">%y-%m-%d_%M-%S &#12391;&#32066;&#12431;&#12427;&#12501;&#12449;&#12452;&#12523;&#12434;&#26412;&#26469;&#12398;&#12513;&#12472;&#12515;&#12540;&#12514;&#12540;&#12489;&#12391;&#38283;&#12367;
-</span>  (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"-[0-9-]\\{</span><span style="color: #a0522d;">8\\</span><span style="color: #8b2252;">}_[0-9-]\\{</span><span style="color: #a0522d;">5\\</span><span style="color: #8b2252;">}$"</span> nil t))
+</span>  (add-to-list 'auto-mode-alist '(<span style="color: #8b2252;">"-[0-9-]\\{8\\}_[0-9-]\\{5\\}$"</span> nil t))
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"backup-each-save"</span>
     (<span style="color: #a020f0;">setq</span> backup-each-save-mirror-location <span style="color: #8b2252;">"~/.emacs.d/backup"</span>)
@@ -13665,7 +13717,7 @@ This user property stores the creation date of the entry"</span>)
                  (concat my-sync-dir <span style="color: #8b2252;">"/org/"</span> arg))
                '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"next.org"</span> <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span>
                  <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span>  <span style="color: #8b2252;">"academic.org"</span> <span style="color: #8b2252;">"tr/work.org"</span>
-                 <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span> <span style="color: #8b2252;">"db/books.org"</span>)))
+                 <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span> <span style="color: #8b2252;">"db/books.org"</span> <span style="color: #8b2252;">"db/list.org"</span>)))
   (<span style="color: #a020f0;">when</span> (file-exists-p (expand-file-name file))
     (add-to-list 'org-agenda-files file 'append)))
 
@@ -13943,45 +13995,51 @@ This user property stores the creation date of the entry"</span>)
       <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "-------------------------")
 </span>      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "parent: %s"
 </span>      <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(format-time-string "%H:%M:%S.%3N" (current-time)))
-</span>      (async-start
-       `(<span style="color: #a020f0;">lambda</span> ()
-          (<span style="color: #a020f0;">setq</span> load-path ',load-path)
-          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>)
-          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">appt</span>)
-          (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-agenda-to-appt t '((headline "TODO")))
-</span>          (org-agenda-to-appt t)
-          (appt-check) <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove past events
-</span>          <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags
-</span>          (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
-            (<span style="color: #a020f0;">setq</span> appt-time-msg-list nil)
-            (<span style="color: #a020f0;">dolist</span> (msg msgs)
-              (add-to-list 'appt-time-msg-list
-                           (<span style="color: #a020f0;">let</span> ((match (string-match
-                                         org-tag-group-re (nth 1 msg))))
-                             (<span style="color: #a020f0;">if</span> match
-                                 (list (nth 0 msg)
-                                       (org-trim (substring-no-properties
-                                                  (nth 1 msg)
-                                                  0 match))
-                                       (nth 2 msg))
-                               msg)
-                             ) <span style="color: #ff0000; font-weight: bold;">t))</span>
-            <span style="color: #b22222;">;; </span><span style="color: #b22222;">just for sure
-</span>            (delq nil appt-time-msg-list)))
-       `(<span style="color: #a020f0;">lambda</span> (result)
-          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "child: %s"
-</span>          <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(format-time-string "%H:%M:%S.%3N" (current-time)))
-</span>          (<span style="color: #a020f0;">setq</span> appt-time-msg-list result) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil means No event
-</span>          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-add-prop-to-appt-time-msg-list)
-</span>          (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
-            (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list))
-                  (message-log-max nil))
-              (<span style="color: #a020f0;">if</span> (eq cnt 0)
-                  (message <span style="color: #8b2252;">"[async] No event to add"</span>)
-                (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
-                         cnt (<span style="color: #a020f0;">if</span> (&gt; cnt 1) <span style="color: #8b2252;">"s"</span> <span style="color: #8b2252;">""</span>)))))
-          (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))
+</span>      (message <span style="color: #8b2252;">"[async] Appointment checking..."</span>)
+
+
+      (org-agenda-to-appt t)
+      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(async-start
+</span>      <span style="color: #b22222;">;;  </span><span style="color: #b22222;">`(lambda ()
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq load-path ',load-path)
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(require 'org)
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(require 'appt)
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq org-agenda-files ',org-agenda-files)
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; (org-agenda-to-appt t '((headline "TODO")))
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-agenda-to-appt t)
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(appt-check) ;; remove past events
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; Remove tags
+</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(let ((msgs appt-time-msg-list))
+</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(setq appt-time-msg-list nil)
+</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(dolist (msg msgs)
+</span>      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(add-to-list 'appt-time-msg-list
+</span>      <span style="color: #b22222;">;;                      </span><span style="color: #b22222;">(let ((match (string-match
+</span>      <span style="color: #b22222;">;;                                    </span><span style="color: #b22222;">org-tag-group-re (nth 1 msg))))
+</span>      <span style="color: #b22222;">;;                        </span><span style="color: #b22222;">(if match
+</span>      <span style="color: #b22222;">;;                            </span><span style="color: #b22222;">(list (nth 0 msg)
+</span>      <span style="color: #b22222;">;;                                  </span><span style="color: #b22222;">(org-trim (substring-no-properties
+</span>      <span style="color: #b22222;">;;                                             </span><span style="color: #b22222;">(nth 1 msg)
+</span>      <span style="color: #b22222;">;;                                             </span><span style="color: #b22222;">0 match))
+</span>      <span style="color: #b22222;">;;                                  </span><span style="color: #b22222;">(nth 2 msg))
+</span>      <span style="color: #b22222;">;;                          </span><span style="color: #b22222;">msg)
+</span>      <span style="color: #b22222;">;;                        </span><span style="color: #b22222;">) t))
+</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">;; just for sure
+</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(delq nil appt-time-msg-list)))
+</span>      <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(lambda (result)
+</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">;; (message "child: %s"
+</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq appt-time-msg-list result) ;; nil means No event
+</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">;; (my-add-prop-to-appt-time-msg-list)
+</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(unless (active-minibuffer-window)
+</span>      <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(let ((cnt (length appt-time-msg-list))
+</span>      <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(message-log-max nil))
+</span>      <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(if (eq cnt 0)
+</span>      <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(message "[async] No event to add")
+</span>      <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(message "[async] Added %d event%s for today"
+</span>      <span style="color: #b22222;">;;                   </span><span style="color: #b22222;">cnt (if (&gt; cnt 1) "s" "")))))
+</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq my-org-agenda-to-appt-ready t)))
+</span>
+      )))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">appt-display-format &#12364; 'echo &#12391;&#12418; appt-disp-window-function &#12434;&#21628;&#12406;
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Need review
@@ -14722,7 +14780,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orgc9e4a06"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orga8152d1"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15015,6 +15073,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
              (nth 4 (org-heading-components)))
     (<span style="color: #a020f0;">let</span> ((command <span style="color: #8b2252;">"/Users/taka/.local/scripts/push-hugo.sh"</span>))
       (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t)
+          (message <span style="color: #8b2252;">"[async] ox-hugo uploading"</span>)
           (async-start
            `(<span style="color: #a020f0;">lambda</span> () (shell-command-to-string ',command)))
         (shell-command-to-string command)))))
@@ -15716,7 +15775,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="orgd442d7b" class="figure">
+<div id="org56f7174" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -19476,7 +19535,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>)
 
 (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-bullet-with-checkbox-re</span>
-  (concat my-org-bullet-re <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>))
+  (concat my-org-bullet-re <span style="color: #8b2252;">"\\[.\\][ \t]+"</span>))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-insert-bullet</span> (begin end)
@@ -19503,7 +19562,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (goto-char begin)
   (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward
                <span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span> end t)
-              (not (looking-at <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>)))
+              (not (looking-at <span style="color: #8b2252;">"\\[.\\][ \t]+"</span>)))
     (<span style="color: #a020f0;">let</span> ((len (- (match-end 0) (match-beginning 0))))
       (replace-match <span style="color: #8b2252;">""</span> nil nil)
       (<span style="color: #a020f0;">setq</span> end (- end len))))
@@ -19531,7 +19590,7 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
          (len (string-width checkbox)))
     (goto-char begin)
     (<span style="color: #a020f0;">while</span> (<span style="color: #a020f0;">and</span> (re-search-forward my-org-bullet-re end t)
-                (not (looking-at <span style="color: #8b2252;">"\\[</span><span style="color: #008b8b;">.\\</span><span style="color: #8b2252;">][ \t]+"</span>)))
+                (not (looking-at <span style="color: #8b2252;">"\\[.\\][ \t]+"</span>)))
       (replace-match (concat <span style="color: #8b2252;">"\\1"</span> checkbox) nil nil)
       (<span style="color: #a020f0;">setq</span> end (+ end len)))
     (goto-char begin)))
@@ -19598,22 +19657,21 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading</span> (arg)
   <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
   (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (<span style="color: #a020f0;">save-excursion</span>
-    (beginning-of-line)
-    (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
-          (point-at-eol (point-at-eol)))
-      (<span style="color: #a020f0;">cond</span>
-       ((re-search-forward
-         my-org-bullet-with-checkbox-re point-at-eol t)
-        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> <span style="color: #8b2252;">"\\1"</span>) nil nil))
-       ((re-search-forward
-         <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
-         point-at-eol t)
-        (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1[ ] "</span>)) nil nil))
-       ((re-search-forward
-         (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
-        (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil))
-       (t nil)))))
+  (beginning-of-line)
+  (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
+        (point-at-eol (point-at-eol)))
+    (<span style="color: #a020f0;">cond</span>
+     ((re-search-forward
+       my-org-bullet-with-checkbox-re point-at-eol t)
+      (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> <span style="color: #8b2252;">"\\1"</span>) nil nil))
+     ((re-search-forward
+       <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*[-\\+\\*][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+       point-at-eol t)
+      (replace-match (<span style="color: #a020f0;">if</span> arg <span style="color: #8b2252;">""</span> (concat <span style="color: #8b2252;">"\\1[ ] "</span>)) nil nil))
+     ((re-search-forward
+       (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
+      (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil))
+     (t nil))))
 </code></pre>
 </div>
 </div>
@@ -20239,8 +20297,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-org12344a0" class="outline-2">
-<h2 id="org12344a0"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-orgd8c7b33" class="outline-2">
+<h2 id="orgd8c7b33"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20262,7 +20320,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-04-10 Fri 15:19</p>
+<p class="date">Created: 2026-05-09 Sat 10:30</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

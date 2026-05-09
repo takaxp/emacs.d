@@ -1,72 +1,6 @@
 ;; -*- lexical-binding: t; -*-
 ;;                                          https://takaxp.github.io/init.html
-;; Disable nativecomp
-(let ((enable nil)) ;; {t, nil}
-  (setq native-comp-jit-compilation enable
-	native-comp-enable-subr-trampolines enable))
-
-;; Disable package loading by package.el
-(setq package-enable-at-startup nil)
-
-(setq elpaca-queue-limit 24)
-;; [250 packages]
-;; 100 1:58
-;; 64  1:13
-;; 32  1:12, 1:05
-;; 28  1:01
-;; 24  0:59, 1:00
-;; 20  0:59
-;; 16  1:07, 1:05
-;; 12  1:18
-;; 8   1:57
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; elpaca installer
-(defvar elpaca-installer-version 0.12)
-(defvar elpaca-directory
-  (expand-file-name (format "elpaca/%s/" emacs-version) user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1 :inherit ignore
-                              :files (:defaults "elpaca-test.el"
-						(:exclude "extensions"))
-			      :build (:not elpaca-activate)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-sources-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (<= emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                  ((zerop (apply #'call-process
-				 `("git" nil ,buffer t "clone"
-                                   ,@(when-let*
-					 ((depth (plist-get order :depth)))
-                                       (list (format "--depth=%d" depth)
-					     "--no-single-branch"))
-                                   ,(plist-get order :repo) ,repo))))
-                  ((zerop (call-process "git" nil buffer t "checkout"
-                                        (or (plist-get order :ref) "--"))))
-                  (emacs (concat invocation-directory invocation-name))
-                  ((zerop (call-process
-			   emacs nil buffer nil "-Q" "-L" "." "--batch"
-                           "--eval"
-			   "(byte-recompile-directory \".\" 0 'force)")))
-                  ((require 'elpaca))
-                  ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
-;; (add-hook 'after-init-hook #'elpaca-process-queues) ;; moved to bottom
-(elpaca `(,@elpaca-order))
+(require 'elpaca-install)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utility
@@ -76,57 +10,9 @@
          (pkg-sym  (or sym (intern name))))
     `(elpaca (,pkg-sym :host github :repo ,repo))))
 
-(defun my-elpaca-post-process ()
-  (interactive)
-  ;; (message "elpaca--waiting: %s" elpaca--waiting)
-  ;; (message "elpaca--queues: %s" (length elpaca--queues))
-  (when (fboundp 'my-elpaca-save-load-path)
-    (message "--- saving load-path")
-    (my-elpaca-save-load-path))
-  ;; If you kill emacs here, do not use ":wait t" anywhere
-  ;; (kill-emacs)
-  )
-
-(defun my--elpaca-delete-eln-file (package-name)
-  "note: see `native-compile-prune-cache'"
-  (when package-name
-    (dolist (dir (butlast native-comp-eln-load-path))
-      (let ((pkg (if (symbolp package-name)
-                     (symbol-name package-name)
-                   package-name)))
-	(dolist (eln (directory-files
-                      (concat dir comp-native-version-dir)
-                      t (concat "^" pkg ".+\\.eln$")))
-          (when (file-writable-p eln)
-            (delete-file eln)
-            (message "Deleting...%s" eln)))))))
-
-;;;###autoload
-(defun my-elpaca-nativecomp-package (&optional package-name non-force)
-  "Remove .eln files and regenerated"
-  (interactive)
-  (unless (and package-name
-	       (not (locate-library package-name)))
-    (let* ((native-comp-always-compile (not non-force))
-	   (package-name (if package-name
-			     (if (symbolp package-name)
-                                 (symbol-name package-name)
-			       package-name)
-			   ""))
-	   (dir-or-pkg (format "%s%s" elpaca-builds-directory package-name)))
-      (when native-comp-always-compile
-	(my--elpaca-delete-eln-file package-name))
-      (message "--- %s" dir-or-pkg)
-      (native-compile-async dir-or-pkg 'recursively))) ;; not activated in batch-mode.
-  (my-elpaca-reset-links)) ;; this may be overhead if called multiple times
-
-;;;###autoload
-(defun my-elpaca-reset-links ()
-  (interactive)
-  (when (shell-command-to-string
-         (concat "export SYSTEMTYPE=\"darwin\""
-                 " && ~/Dropbox/usr/emacs.d/bin/elpaca.sh -r"))
-    (message "[elpaca] Link updated")))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Packages to install
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Boot
@@ -245,12 +131,17 @@
 (elpaca 'relint)
 (elpaca 'editorconfig)
 (elpaca 'cov)
-(my-elpaca-github "lassik/emacs-format-all-the-code" format-all)
+(progn
+  (my-elpaca-github "lassik/emacs-format-all-the-code" format-all)
+  (elpaca 'language-id)) ;; safety install format-all
 (elpaca 'uuid)
-(elpaca 'corfu)
+(progn
+  (elpaca 'corfu-prescient)
+  (elpaca 'corfu)) ;; safety install corfu-prescient
 (elpaca 'kind-icon)
 (my-elpaca-github "xenodium/org-block-capf")
 (elpaca 'vterm)
+(elpaca 'slime)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org mode
@@ -318,9 +209,9 @@
 ;;; ivy/counsel/swiper
 (elpaca 'counsel)
 (elpaca 'ivy-prescient)
-(elpaca 'corfu-prescient)
+;; (elpaca 'corfu-prescient)
 
-;; (elpaca (counsel :host github :repo "abo-abo/swiper" :main "counsel.el"))
+(elpaca (counsel :host github :repo "abo-abo/swiper" :main "counsel.el"))
 ;; (elpaca (ivy-prescient :host github :repo "radian-software/prescient.el")
 ;; 	:main "ivy-prescient")
 ;; (elpaca (corfu-prescient :host github :repo "radian-software/prescient.el")
@@ -328,8 +219,8 @@
 
 ;;; magit
 (progn
-  (elpaca 'transient) ;; (my-elpaca-github "magit/transient")
-  (elpaca 'magit))
+  (elpaca 'magit)
+  (elpaca 'transient :inherit nil))
 
 ;;; org
 (elpaca 'org-contrib)
@@ -338,14 +229,13 @@
 ;;; async
 (elpaca 'async) ;(my-elpaca-github "jwiegley/emacs-async" async)
 
-
-(elpaca-process-queues)
-(provide 'elpaca-config)
-
 ;; Having issues
 ;; (elpaca 'org-extra-emphasis)
 ;; (elpaca 'emr) ;; iedit installed version lower than min require 0.97
 
+;;; compat
+;; compat installed version (30 2 9999) lower than min required 31 (2026-05-08)
+(elpaca 'compat)
 
 ;; previous
 (when nil
@@ -432,3 +322,9 @@
     (my-elpaca-github "ubolonton/emacs-tree-sitter")
     (my-elpaca-github "ubolonton/tree-sitter-langs"))
   (my-elpaca-github "emacsmirror/yatex"))
+
+
+;;; run queues
+(elpaca-process-queues)
+
+(provide 'elpaca-config)

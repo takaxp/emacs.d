@@ -574,7 +574,7 @@ This user property stores the creation date of the entry")
                  (concat my-sync-dir "/org/" arg))
                '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
                  "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                 "org2ja.org" "itr.org" "db/books.org")))
+                 "org2ja.org" "itr.org" "db/books.org" "db/list.org")))
   (when (file-exists-p (expand-file-name file))
     (add-to-list 'org-agenda-files file 'append)))
 

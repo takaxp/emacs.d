@@ -111,6 +111,101 @@ This function is called directly from the C code."
 (defun my-native-comp-packages-done ()
   (message "Native Compilation...done"))
 
+;; -*- lexical-binding: t -*-
+;;;###autoload
+(defun my-open-current-eln-dir ()
+  (interactive)
+  (call-process "open" nil 0 nil
+                (concat (car (butlast native-comp-eln-load-path))
+                        comp-native-version-dir)))
+
+;;;###autoload
+(defun my-nativecomp-prune-current-cache ()
+  "Remove all .eln files that are applicable to the current Emacs invocation.
+see `native-compile-prune-cache'."
+  (interactive)
+  (if (not (featurep 'native-compile))
+      (message "note: Your Emacs isn't built with native-compile support")
+    ;; The last item in native-comp-eln-load-path is assumed to be a system
+    ;; directory, so don't try to delete anything there (bug#59658).
+    (dolist (dir (butlast native-comp-eln-load-path))
+      ;; If a directory is non absolute it is assumed to be relative to
+      ;; `invocation-directory'.
+      (setq dir (expand-file-name dir invocation-directory))
+      (when (file-exists-p dir)
+        (dolist (subdir (seq-filter
+                         (lambda (f)
+                           (not (string-match (rx "/." (? ".") eos) f)))
+                         (directory-files dir t)))
+          (when (and (file-directory-p subdir)
+                     (file-writable-p subdir)
+                     (equal (file-name-nondirectory
+                             (directory-file-name subdir))
+                            comp-native-version-dir))
+            (message "Deleting `%s'..." subdir)
+            ;; We're being overly cautious here -- there shouldn't be
+            ;; anything but .eln files in these directories.
+            (dolist (eln (directory-files subdir t "\\.eln\\(\\.tmp\\)?\\'"))
+              (when (file-writable-p eln)
+                (delete-file eln)))
+            (when (directory-empty-p subdir)
+              (delete-directory subdir))))))
+    (message "Cache cleared")))
+
+
+(defun my--delete-eln-file (package-name)
+  "note: see `native-compile-prune-cache'"
+  (when package-name
+    (dolist (dir (butlast native-comp-eln-load-path))
+      (let ((pkg (if (symbolp package-name)
+                     (symbol-name package-name)
+                   package-name)))
+        (dolist (eln (directory-files
+                      (concat dir comp-native-version-dir)
+                      t (concat "^" pkg ".+\\.eln$")))
+          (when (file-writable-p eln)
+            (delete-file eln)
+            (message "Deleting...%s" eln)))))))
+
+;;;###autoload
+(defun my-nativecomp-ensure-cache ()
+  (message "Native Compilation in %s%s"
+           (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
+  (my-nativecomp-recache nil t))
+
+;;;###autoload
+(defun my-nativecomp-recache (&optional package-name non-force)
+  "Recache eln files."
+  (interactive)
+  (when (or (not (called-interactively-p 'interactive))
+            (yes-or-no-p "Recache?"))
+    ;; elpaca
+    (unless (and package-name
+                 (not (locate-library package-name)))
+      (let* ((native-comp-always-compile (not non-force))
+             (package-name (if package-name
+                               (if (symbolp package-name)
+                                   (symbol-name package-name)
+                                 package-name)
+                             ""))
+             (dir-or-pkg (expand-file-name (format "builds/%s" package-name)
+                                           elpaca-directory)))
+        (when native-comp-always-compile
+          (my--delete-eln-file package-name))
+        (native-compile-async dir-or-pkg 'recursively)))
+    ;; init files
+    (native-compile-async "~/.emacs.d/lisp" 'recursively)
+    ;; org-mode
+    (native-compile-async "~/devel/git/org-mode" 'recursively)))
+
+;;;###autoload
+(defun my-elpaca-reset-links ()
+  (interactive)
+  (when (shell-command-to-string
+         (concat "export SYSTEMTYPE=\"darwin\""
+                 " && ~/Dropbox/usr/emacs.d/bin/elpaca.sh -r"))
+    (message "[elpaca] Link updated")))
+
 ;;;###autoload
 (defun my-get-libgccjit-library-path ()
   "Return \"LIBRARY_PATH\" to use libgccjit on macOS."
@@ -2314,45 +2409,51 @@ will not be modified."
       ;; (message "-------------------------")
       ;; (message "parent: %s"
       ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-      (async-start
-       `(lambda ()
-          (setq load-path ',load-path)
-          (require 'org)
-          (require 'appt)
-          (setq org-agenda-files ',org-agenda-files)
-          ;; (org-agenda-to-appt t '((headline "TODO")))
-          (org-agenda-to-appt t)
-          (appt-check) ;; remove past events
-          ;; Remove tags
-          (let ((msgs appt-time-msg-list))
-            (setq appt-time-msg-list nil)
-            (dolist (msg msgs)
-              (add-to-list 'appt-time-msg-list
-                           (let ((match (string-match
-                                         org-tag-group-re (nth 1 msg))))
-                             (if match
-                                 (list (nth 0 msg)
-                                       (org-trim (substring-no-properties
-                                                  (nth 1 msg)
-                                                  0 match))
-                                       (nth 2 msg))
-                               msg)
-                             ) t))
-            ;; just for sure
-            (delq nil appt-time-msg-list)))
-       `(lambda (result)
-          ;; (message "child: %s"
-          ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-          (setq appt-time-msg-list result) ;; nil means No event
-          ;; (my-add-prop-to-appt-time-msg-list)
-          (unless (active-minibuffer-window)
-            (let ((cnt (length appt-time-msg-list))
-                  (message-log-max nil))
-              (if (eq cnt 0)
-                  (message "[async] No event to add")
-                (message "[async] Added %d event%s for today"
-                         cnt (if (> cnt 1) "s" "")))))
-          (setq my-org-agenda-to-appt-ready t))))))
+      (message "[async] Appointment checking...")
+      
+
+      (org-agenda-to-appt t)
+      ;; (async-start
+      ;;  `(lambda ()
+      ;;     (setq load-path ',load-path)
+      ;;     (require 'org)
+      ;;     (require 'appt)
+      ;;     (setq org-agenda-files ',org-agenda-files)
+      ;;     ;; (org-agenda-to-appt t '((headline "TODO")))
+      ;;     (org-agenda-to-appt t)
+      ;;     (appt-check) ;; remove past events
+      ;;     ;; Remove tags
+      ;;     (let ((msgs appt-time-msg-list))
+      ;;       (setq appt-time-msg-list nil)
+      ;;       (dolist (msg msgs)
+      ;;         (add-to-list 'appt-time-msg-list
+      ;;                      (let ((match (string-match
+      ;;                                    org-tag-group-re (nth 1 msg))))
+      ;;                        (if match
+      ;;                            (list (nth 0 msg)
+      ;;                                  (org-trim (substring-no-properties
+      ;;                                             (nth 1 msg)
+      ;;                                             0 match))
+      ;;                                  (nth 2 msg))
+      ;;                          msg)
+      ;;                        ) t))
+      ;;       ;; just for sure
+      ;;       (delq nil appt-time-msg-list)))
+      ;;  (lambda (result)
+      ;;    ;; (message "child: %s"
+      ;;    ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
+      ;;    (setq appt-time-msg-list result) ;; nil means No event
+      ;;    ;; (my-add-prop-to-appt-time-msg-list)
+      ;;    (unless (active-minibuffer-window)
+      ;;      (let ((cnt (length appt-time-msg-list))
+      ;;            (message-log-max nil))
+      ;;        (if (eq cnt 0)
+      ;;            (message "[async] No event to add")
+      ;;          (message "[async] Added %d event%s for today"
+      ;;                   cnt (if (> cnt 1) "s" "")))))
+      ;;    (setq my-org-agenda-to-appt-ready t)))
+
+      )))
 
 ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
 ;; Need review
@@ -2659,6 +2760,7 @@ update it for multiple appts?")
              (nth 4 (org-heading-components)))
     (let ((command "/Users/taka/.local/scripts/push-hugo.sh"))
       (if (require 'async nil t)
+          (message "[async] ox-hugo uploading")
           (async-start
            `(lambda () (shell-command-to-string ',command)))
         (shell-command-to-string command)))))
@@ -4113,22 +4215,21 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
 (defun my-cycle-bullet-at-heading (arg)
   "Add a bullet of \" - \" if the line is NOT a bullet line."
   (interactive "P")
-  (save-excursion
-    (beginning-of-line)
-    (let ((bullet "- ")
-          (point-at-eol (point-at-eol)))
-      (cond
-       ((re-search-forward
-         my-org-bullet-with-checkbox-re point-at-eol t)
-        (replace-match (if arg "" "\\1") nil nil))
-       ((re-search-forward
-         "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
-         point-at-eol t)
-        (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
-       ((re-search-forward
-         (concat "\\(^[ \t]*\\)") point-at-eol t)
-        (replace-match (concat "\\1" bullet) nil nil))
-       (t nil)))))
+  (beginning-of-line)
+  (let ((bullet "- ")
+        (point-at-eol (point-at-eol)))
+    (cond
+     ((re-search-forward
+       my-org-bullet-with-checkbox-re point-at-eol t)
+      (replace-match (if arg "" "\\1") nil nil))
+     ((re-search-forward
+       "\\(^[ \t]*[-\\+\\*][ \t]\\|^[ \t]*[a-z0-9A-Z]*[\\.)][ \t]\\)"
+       point-at-eol t)
+      (replace-match (if arg "" (concat "\\1[ ] ")) nil nil))
+     ((re-search-forward
+       (concat "\\(^[ \t]*\\)") point-at-eol t)
+      (replace-match (concat "\\1" bullet) nil nil))
+     (t nil))))
 
 ;;;###autoload
 (defun my-replace-punctuation-to-normal ()
