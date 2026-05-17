@@ -4212,12 +4212,10 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
   (goto-char begin))
 
 ;;;###autoload
-(defun my-cycle-bullet-at-heading (arg)
-  "Add a bullet of \" - \" if the line is NOT a bullet line."
-  (interactive "P")
-  (beginning-of-line)
+(defun my-cycle-bullet-at-heading-core (arg)
   (let ((bullet "- ")
         (point-at-eol (point-at-eol)))
+    (beginning-of-line)
     (cond
      ((re-search-forward
        my-org-bullet-with-checkbox-re point-at-eol t)
@@ -4230,6 +4228,16 @@ Downloaded packages will be stored under ~/.eamcs.d/elpa."
        (concat "\\(^[ \t]*\\)") point-at-eol t)
       (replace-match (concat "\\1" bullet) nil nil))
      (t nil))))
+
+;;;###autoload
+(defun my-cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  ;; FIXME
+  (if (and (bolp) (eolp))
+      (my-cycle-bullet-at-heading-core arg)
+    (save-excursion
+      (my-cycle-bullet-at-heading-core arg))))
 
 ;;;###autoload
 (defun my-replace-punctuation-to-normal ()

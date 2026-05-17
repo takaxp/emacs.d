@@ -141,7 +141,7 @@
 (elpaca 'kind-icon)
 (my-elpaca-github "xenodium/org-block-capf")
 (elpaca 'vterm)
-(elpaca 'slime)
+;; (elpaca 'slime)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org mode
@@ -209,7 +209,7 @@
 ;;; ivy/counsel/swiper
 (elpaca 'counsel)
 (elpaca 'ivy-prescient)
-;; (elpaca 'corfu-prescient)
+(elpaca 'corfu-prescient)
 
 (elpaca (counsel :host github :repo "abo-abo/swiper" :main "counsel.el"))
 ;; (elpaca (ivy-prescient :host github :repo "radian-software/prescient.el")
@@ -237,94 +237,10 @@
 ;; compat installed version (30 2 9999) lower than min required 31 (2026-05-08)
 (elpaca 'compat)
 
-;; previous
-(when nil
-  ;;; Boot
-  (my-elpaca-github "cask/shut-up")
-  ;;; Editing
-  (my-elpaca-github "R-emacs/r-mode")
-  (elpaca 'json-mode) ;; use json-ts-mode.el
-  (elpaca 'js2-mode)
-  (elpaca 'js2-refactor)
-  (elpaca 'ac-js2)
-  (my-elpaca-github "bruceravel/gnuplot-mode" gnuplot)
-  (elpaca 'cmake-mode) ;; taking long time
-  (my-elpaca-github "takaxp/ivy-yasnippet")
-  (my-elpaca-github "yasuyk/web-beautify")
-  (my-elpaca-github "sbrisard/bratex")
-  (elpaca 'logview)
-  ;;; Display
-  (my-elpaca-github "syohex/emacs-go-eldoc" go-eldoc)
-  ;;; File management
-  (my-elpaca-github "davep/uptimes.el" uptimes)
-  ;;; Development
-  (my-elpaca-github "gregsexton/origami.el" origami)
-  (progn ;; auto-complete
-    (elpaca 'skewer-mode)
-    (elpaca 'auto-complete) ;; require 'skewer
-    (elpaca 'auto-complete-clang))
-  (elpaca (company-prescient :host github :repo "radian-software/prescient.el")
-	  :main "company-prescient")
-  (my-elpaca-github "xenodium/company-org-block")
-  ;;; org
-  (my-elpaca-github "takaxp/org-bookmark-heading")
-
-  ;;; Frame/Window
-  (elpaca 'popwin)
-  (my-elpaca-github "seagle0128/doom-modeline"); :depends (eldoc-eval))
-
-  (my-elpaca-github "k-talo/smooth-scroll.el")
-  (my-elpaca-github "szermatt/mistty")
-  (my-elpaca-github "jorgenschaefer/circe")
-  (my-elpaca-github "skeeto/elfeed")
-  (my-elpaca-github "remyhonig/elfeed-org")
-  (my-elpaca-github "conao3/transient-dwim.el" transient-dwim)
-  (my-elpaca-github "rougier/svg-lib")
-  (my-elpaca-github "rougier/svg-tag-mode")
-  (my-elpaca-github "DevelopmentCool2449/colorful-mode")
-  (my-elpaca-github "zk-phi/gitmole")
-  (my-elpaca-github "momomo5717/avy-migemo")
-  (my-elpaca-github "NicolasPetton/pass")
-  (my-elpaca-github "twlz0ne/elpl")
-  (my-elpaca-github "mhayashi1120/Emacs-wgrep" wgrep)
-  (my-elpaca-github "jacktasia/dumb-jump")
-  (my-elpaca-github "radian-software/ctrlf")
-  (my-elpaca-github "dedi/gxref") ;; emacs 25.1 or later
-  (my-elpaca-github "oantolin/embark")
-  (my-elpaca-github "oantolin/orderless")
-  (my-elpaca-github "misohena/phscroll")
-  (my-elpaca-github "pinard/org-grep")
-  (my-elpaca-github "alphapapa/org-web-tools")
-  (my-elpaca-github "alphapapa/org-ql")
-  (my-elpaca-github "Fuco1/org-pretty-table")
-  (my-elpaca-github "purcell/reformatter.el" reformatter)
-  (progn
-    (elpaca 'persist)
-    (my-elpaca-github "ichernyshovvv/org-timeblock"))
-  (progn
-    (my-elpaca-github "tarsius/outline-minor-faces")
-    (my-elpaca-github "tarsius/backline"))
-
-  (elpaca 'org-bullets)
-  (elpaca 'php-mode)
-  (elpaca 'find-file-in-project)
-  (elpaca 'pdf-tools)
-  (elpaca 'python-mode)
-  (elpaca 'password-store)
-  (elpaca 'clang-format)
-  (elpaca 'diffview)
-  (elpaca 'yasnippet)
-
-  (my-elpaca-github "emacs-jp/migemo")
-  (when (< emacs-major-version 29)
-    ;; integrated in Emacs 29 or later
-    (my-elpaca-github "karlotness/tree-sitter.el" tree-sitter)
-    (my-elpaca-github "ubolonton/emacs-tree-sitter")
-    (my-elpaca-github "ubolonton/tree-sitter-langs"))
-  (my-elpaca-github "emacsmirror/yatex"))
-
-
 ;;; run queues
 (elpaca-process-queues)
+
+;;; additional/previous packages
+;; (require 'elpaca-previous)
 
 (provide 'elpaca-config)

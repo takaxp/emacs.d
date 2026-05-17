@@ -8063,11 +8063,11 @@ Configure variable `org-file-apps' to open FILE with Word/Excel/PowerPoint."
 #+end_src
 
 ** C-g した場所をブックマークする
-   :PROPERTIES:
-   :CUSTOM_ID: org9f20061e
-   :CREATED:  [2019-10-03 Thu 14:24]
-   :ID:       C1A76A0A-0845-4283-BB16-1C42BD427AF0
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: org9f20061e
+:CREATED:  [2019-10-03 Thu 14:24]
+:ID:       C1A76A0A-0845-4283-BB16-1C42BD427AF0
+:END:
 
 =C-g= でカーソルが飛んだ時，元の場所へブックマークから戻れます．mark でも辿れるようにしておきます．
 
@@ -17519,12 +17519,10 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-cycle-bullet-at-heading (arg)
-  "Add a bullet of \" - \" if the line is NOT a bullet line."
-  (interactive "P")
-  (beginning-of-line)
+(defun my-cycle-bullet-at-heading-core (arg)
   (let ((bullet "- ")
         (point-at-eol (point-at-eol)))
+    (beginning-of-line)
     (cond
      ((re-search-forward
        my-org-bullet-with-checkbox-re point-at-eol t)
@@ -17537,6 +17535,16 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
        (concat "\\(^[ \t]*\\)") point-at-eol t)
       (replace-match (concat "\\1" bullet) nil nil))
      (t nil))))
+
+;;;###autoload
+(defun my-cycle-bullet-at-heading (arg)
+  "Add a bullet of \" - \" if the line is NOT a bullet line."
+  (interactive "P")
+  ;; FIXME
+  (if (and (bolp) (eolp))
+      (my-cycle-bullet-at-heading-core arg)
+    (save-excursion
+      (my-cycle-bullet-at-heading-core arg))))
 #+end_src
 
 #+begin_src emacs-lisp :tangle no :exports none

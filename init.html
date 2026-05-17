@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-05-09 Sat 10:30 -->
+<!-- 2026-05-17 Sun 21:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -283,7 +283,7 @@
 <li><a href="#orgec66ea31">3.13.3. <span class="todo TODO">TODO</span> load-path を一箇所にして起動を高速化</a></li>
 <li><a href="#orgda4ef167">3.13.4. <span class="done DONE">DONE</span> [paradox.el] パッケージ選択画面の改善</a></li>
 <li><a href="#org6c5717fc">3.13.5. <span class="done DONE">DONE</span> [el-get.el] パッケージ管理（GUI，CUI）</a></li>
-<li><a href="#orgca007f7">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
+<li><a href="#org3e5d22b">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
 </ul>
 </li>
 <li><a href="#org03555a6a">3.14. インデント</a></li>
@@ -765,7 +765,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgd8c7b33">15. 有用なデフォルト関数</a></li>
+<li><a href="#orgebf35bb">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -2990,8 +2990,8 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 </div>
 </div>
 </div>
-<div id="outline-container-orgca007f7" class="outline-4">
-<h4 id="orgca007f7"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
+<div id="outline-container-org3e5d22b" class="outline-4">
+<h4 id="org3e5d22b"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
 <div class="outline-text-4" id="text-3-13-6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(autoload-if-found '(elpaca-version
@@ -14780,7 +14780,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="orga8152d1"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org8c2e34b"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15775,7 +15775,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="org56f7174" class="figure">
+<div id="orgc704d32" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -19654,12 +19654,10 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading</span> (arg)
-  <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
-  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
-  (beginning-of-line)
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading-core</span> (arg)
   (<span style="color: #a020f0;">let</span> ((bullet <span style="color: #8b2252;">"- "</span>)
         (point-at-eol (point-at-eol)))
+    (beginning-of-line)
     (<span style="color: #a020f0;">cond</span>
      ((re-search-forward
        my-org-bullet-with-checkbox-re point-at-eol t)
@@ -19672,6 +19670,16 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
        (concat <span style="color: #8b2252;">"</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>) point-at-eol t)
       (replace-match (concat <span style="color: #8b2252;">"\\1"</span> bullet) nil nil))
      (t nil))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-cycle-bullet-at-heading</span> (arg)
+  <span style="color: #8b2252;">"Add a bullet of \" - \" if the line is NOT a bullet line."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"P"</span>)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME
+</span>  (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> (bolp) (eolp))
+      (my-cycle-bullet-at-heading-core arg)
+    (<span style="color: #a020f0;">save-excursion</span>
+      (my-cycle-bullet-at-heading-core arg))))
 </code></pre>
 </div>
 </div>
@@ -20297,8 +20305,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-orgd8c7b33" class="outline-2">
-<h2 id="orgd8c7b33"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-orgebf35bb" class="outline-2">
+<h2 id="orgebf35bb"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20320,7 +20328,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-05-09 Sat 10:30</p>
+<p class="date">Created: 2026-05-17 Sun 21:38</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
