@@ -1768,7 +1768,9 @@ This function returns a timer object which you can use in
                                 my--appt-disp-window appt-check)
                          "appt" nil t)
 
-  (defvar my-org-agenda-to-appt-async t)
+  ;; org-agenda-to-appt を非同期に実行するか
+  (defvar my-org-agenda-to-appt-async nil)
+
   (with-eval-after-load "appt"
     ;; モードラインに残り時間を表示しない
     (setq appt-display-mode-line nil)
@@ -1798,7 +1800,7 @@ This function returns a timer object which you can use in
 
   (with-eval-after-load "ivy"
     (defvar counsel-appt-time-msg-list nil))
-)
+  )
 
 (add-hook 'org-mode-hook 'prettify-symbols-mode)
 (with-eval-after-load "nerd-icons"

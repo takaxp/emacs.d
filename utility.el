@@ -169,9 +169,10 @@ see `native-compile-prune-cache'."
 
 ;;;###autoload
 (defun my-nativecomp-ensure-cache ()
-  (message "Native Compilation in %s%s"
-           (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
-  (my-nativecomp-recache nil t))
+  (when (featurep 'native-compile)
+    (message "Native Compilation in %s%s"
+             (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
+    (my-nativecomp-recache nil t)))
 
 ;;;###autoload
 (defun my-nativecomp-recache (&optional package-name non-force)
@@ -2389,71 +2390,75 @@ will not be modified."
 ;; 重複実行の抑制用フラグ
 (defvar my-org-agenda-to-appt-ready t)
 
+;; (setq my-org-agenda-to-appt-ready nil)
+;; (message "-------------------------")
+;; (message "parent: %s"
+;;            (format-time-string "%H:%M:%S.%3N" (current-time)))
+;; (setq my-org-agenda-to-appt-ready t)
+
 ;;;###autoload
 (defun my-org-agenda-to-appt (&optional force)
   "Update `appt-time-mag-list'.  Use `async' if possible."
   (interactive)
   (unless (featurep 'org)
     (require 'org))
+  (when force
+    (setq my-org-agenda-to-appt-ready t))
   (if (or (not (require 'async nil t))
           (not my-org-agenda-to-appt-async))
       (unless (active-minibuffer-window)
         ;; (org-agenda-to-appt t '((headline "TODO")))
-        (org-agenda-to-appt t)
-        (appt-check))
-    (when force
-      (setq my-org-agenda-to-appt-ready t))
+        (let ((my-org-agenda-to-appt-ready nil))
+          (org-agenda-to-appt t)
+          (appt-check)))
     (if (not my-org-agenda-to-appt-ready)
         (message "[appt] Locked")
       (setq my-org-agenda-to-appt-ready nil)
-      ;; (message "-------------------------")
-      ;; (message "parent: %s"
-      ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-      (message "[async] Appointment checking...")
-      
+      (async-start
+       `(lambda ()
+          (setq load-path ',load-path)
+          (require 'org)
+          (require 'appt)
 
-      (org-agenda-to-appt t)
-      ;; (async-start
-      ;;  `(lambda ()
-      ;;     (setq load-path ',load-path)
-      ;;     (require 'org)
-      ;;     (require 'appt)
-      ;;     (setq org-agenda-files ',org-agenda-files)
-      ;;     ;; (org-agenda-to-appt t '((headline "TODO")))
-      ;;     (org-agenda-to-appt t)
-      ;;     (appt-check) ;; remove past events
-      ;;     ;; Remove tags
-      ;;     (let ((msgs appt-time-msg-list))
-      ;;       (setq appt-time-msg-list nil)
-      ;;       (dolist (msg msgs)
-      ;;         (add-to-list 'appt-time-msg-list
-      ;;                      (let ((match (string-match
-      ;;                                    org-tag-group-re (nth 1 msg))))
-      ;;                        (if match
-      ;;                            (list (nth 0 msg)
-      ;;                                  (org-trim (substring-no-properties
-      ;;                                             (nth 1 msg)
-      ;;                                             0 match))
-      ;;                                  (nth 2 msg))
-      ;;                          msg)
-      ;;                        ) t))
-      ;;       ;; just for sure
-      ;;       (delq nil appt-time-msg-list)))
-      ;;  (lambda (result)
-      ;;    ;; (message "child: %s"
-      ;;    ;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-      ;;    (setq appt-time-msg-list result) ;; nil means No event
-      ;;    ;; (my-add-prop-to-appt-time-msg-list)
-      ;;    (unless (active-minibuffer-window)
-      ;;      (let ((cnt (length appt-time-msg-list))
-      ;;            (message-log-max nil))
-      ;;        (if (eq cnt 0)
-      ;;            (message "[async] No event to add")
-      ;;          (message "[async] Added %d event%s for today"
-      ;;                   cnt (if (> cnt 1) "s" "")))))
-      ;;    (setq my-org-agenda-to-appt-ready t)))
+          ;; FIXME To avoid generating a zombie process for saving 'list.org'.
+          (defalias 'y-or-n-p (lambda (&rest _) t))
+          (defalias 'yes-or-no-p (lambda (&rest _) t))
 
-      )))
+          (setq org-agenda-files ',org-agenda-files)
+          ;; (org-agenda-to-appt t '((headline "TODO")))
+          (org-agenda-to-appt t)
+          (appt-check) ;; remove past events
+          ;; Remove tags
+          (let ((msgs appt-time-msg-list))
+            (setq appt-time-msg-list nil)
+            (dolist (msg msgs)
+              (add-to-list 'appt-time-msg-list
+                           (let ((match (string-match
+                                         org-tag-group-re (nth 1 msg))))
+                             (if match
+                                 (list (nth 0 msg)
+                                       (org-trim (substring-no-properties
+                                                  (nth 1 msg)
+                                                  0 match))
+                                       (nth 2 msg))
+                               msg)
+                             ) t))
+            ;; just for sure
+            (delq nil appt-time-msg-list)
+            appt-time-msg-list))
+       (lambda (result)
+         (message "--- child: %s"
+                  (format-time-string "%H:%M:%S.%3N" (current-time)))
+         (setq appt-time-msg-list result) ;; nil means No event
+         ;; (my-add-prop-to-appt-time-msg-list)
+         (unless (active-minibuffer-window)
+           (let ((cnt (length appt-time-msg-list))
+                 (message-log-max nil))
+             (if (eq cnt 0)
+                 (message "[async] No event to add")
+               (message "[async] Added %d event%s for today"
+                        cnt (if (> cnt 1) "s" "")))))
+         (setq my-org-agenda-to-appt-ready t))))))
 
 ;; appt-display-format が 'echo でも appt-disp-window-function を呼ぶ
 ;; Need review
@@ -2538,7 +2543,7 @@ update it for multiple appts?")
   "Make sure FILE exists.  If not, ask user what to do."
   (let ((read-char-default-timeout 0)) ;; not nil
     (unless (file-exists-p file)
-      (message "Non-existent agenda file %s.    [R]emove from list or [A]bort?"
+      (message "Non-existent agenda file %s.      [R]emove from list or [A]bort?"
                (abbreviate-file-name file))
       (let ((r (downcase (or (read-char-exclusive) ?r))))
         (cond

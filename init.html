@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-05-17 Sun 21:38 -->
+<!-- 2026-05-20 Wed 12:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -283,7 +283,7 @@
 <li><a href="#orgec66ea31">3.13.3. <span class="todo TODO">TODO</span> load-path を一箇所にして起動を高速化</a></li>
 <li><a href="#orgda4ef167">3.13.4. <span class="done DONE">DONE</span> [paradox.el] パッケージ選択画面の改善</a></li>
 <li><a href="#org6c5717fc">3.13.5. <span class="done DONE">DONE</span> [el-get.el] パッケージ管理（GUI，CUI）</a></li>
-<li><a href="#org3e5d22b">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
+<li><a href="#orgde6fbe0">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
 </ul>
 </li>
 <li><a href="#org03555a6a">3.14. インデント</a></li>
@@ -765,7 +765,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgebf35bb">15. 有用なデフォルト関数</a></li>
+<li><a href="#org86a1f60">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -2072,9 +2072,10 @@ see `</span><span style="color: #008b8b;">native-compile-prune-cache</span><span
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nativecomp-ensure-cache</span> ()
-  (message <span style="color: #8b2252;">"Native Compilation in %s%s"</span>
-           (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
-  (my-nativecomp-recache nil t))
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">native-compile</span>)
+    (message <span style="color: #8b2252;">"Native Compilation in %s%s"</span>
+             (car (butlast native-comp-eln-load-path)) comp-native-version-dir)
+    (my-nativecomp-recache nil t)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-nativecomp-recache</span> (<span style="color: #228b22;">&amp;optional</span> package-name non-force)
@@ -2990,8 +2991,8 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 </div>
 </div>
 </div>
-<div id="outline-container-org3e5d22b" class="outline-4">
-<h4 id="org3e5d22b"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
+<div id="outline-container-orgde6fbe0" class="outline-4">
+<h4 id="orgde6fbe0"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
 <div class="outline-text-4" id="text-3-13-6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(autoload-if-found '(elpaca-version
@@ -13715,9 +13716,11 @@ This user property stores the creation date of the entry"</span>)
 </span>(<span style="color: #a020f0;">dolist</span> (file (mapcar
                (<span style="color: #a020f0;">lambda</span> (arg)
                  (concat my-sync-dir <span style="color: #8b2252;">"/org/"</span> arg))
-               '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"next.org"</span> <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span>
-                 <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span>  <span style="color: #8b2252;">"academic.org"</span> <span style="color: #8b2252;">"tr/work.org"</span>
-                 <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"itr.org"</span> <span style="color: #8b2252;">"db/books.org"</span> <span style="color: #8b2252;">"db/list.org"</span>)))
+               '(<span style="color: #8b2252;">"org-ical.org"</span> <span style="color: #8b2252;">"org2ja.org"</span> <span style="color: #8b2252;">"next.org"</span>
+                 <span style="color: #8b2252;">"db/cooking.org"</span> <span style="color: #8b2252;">"minutes/wg1.org"</span> <span style="color: #8b2252;">"itr.org"</span>
+                 <span style="color: #8b2252;">"db/daily.org"</span> <span style="color: #8b2252;">"db/trigger.org"</span> <span style="color: #8b2252;">"db/list.org"</span>
+                 <span style="color: #8b2252;">"academic.org"</span> <span style="color: #8b2252;">"tr/work.org"</span> <span style="color: #8b2252;">"db/books.org"</span>)))
+
   (<span style="color: #a020f0;">when</span> (file-exists-p (expand-file-name file))
     (add-to-list 'org-agenda-files file 'append)))
 
@@ -13975,71 +13978,75 @@ This user property stores the creation date of the entry"</span>)
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#37325;&#35079;&#23455;&#34892;&#12398;&#25233;&#21046;&#29992;&#12501;&#12521;&#12464;
 </span>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-ready</span> t)
 
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq my-org-agenda-to-appt-ready nil)
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "-------------------------")
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "parent: %s"
+</span><span style="color: #b22222;">;;            </span><span style="color: #b22222;">(format-time-string "%H:%M:%S.%3N" (current-time)))
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">(setq my-org-agenda-to-appt-ready t)
+</span>
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-agenda-to-appt</span> (<span style="color: #228b22;">&amp;optional</span> force)
   <span style="color: #8b2252;">"Update `</span><span style="color: #008b8b;">appt-time-mag-list</span><span style="color: #8b2252;">'.  Use `</span><span style="color: #008b8b;">async</span><span style="color: #8b2252;">' if possible."</span>
   (<span style="color: #a020f0;">interactive</span>)
   (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">org</span>)
     (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>))
+  (<span style="color: #a020f0;">when</span> force
+    (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))
   (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">or</span> (not (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">async</span> nil t))
           (not my-org-agenda-to-appt-async))
       (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-agenda-to-appt t '((headline "TODO")))
-</span>        (org-agenda-to-appt t)
-        (appt-check))
-    (<span style="color: #a020f0;">when</span> force
-      (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))
+</span>        (<span style="color: #a020f0;">let</span> ((my-org-agenda-to-appt-ready nil))
+          (org-agenda-to-appt t)
+          (appt-check)))
     (<span style="color: #a020f0;">if</span> (not my-org-agenda-to-appt-ready)
         (message <span style="color: #8b2252;">"[appt] Locked"</span>)
       (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready nil)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "-------------------------")
-</span>      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(message "parent: %s"
-</span>      <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(format-time-string "%H:%M:%S.%3N" (current-time)))
-</span>      (message <span style="color: #8b2252;">"[async] Appointment checking..."</span>)
+      (async-start
+       `(<span style="color: #a020f0;">lambda</span> ()
+          (<span style="color: #a020f0;">setq</span> load-path ',load-path)
+          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">org</span>)
+          (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">appt</span>)
 
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">FIXME To avoid generating a zombie process for saving '</span><span style="color: #008b8b;">list.org</span><span style="color: #b22222;">'.
+</span>          (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">y-or-n-p</span> (<span style="color: #a020f0;">lambda</span> (<span style="color: #228b22;">&amp;rest</span> _) t))
+          (<span style="color: #a020f0;">defalias</span> '<span style="color: #0000ff;">yes-or-no-p</span> (<span style="color: #a020f0;">lambda</span> (<span style="color: #228b22;">&amp;rest</span> _) t))
 
-      (org-agenda-to-appt t)
-      <span style="color: #b22222;">;; </span><span style="color: #b22222;">(async-start
-</span>      <span style="color: #b22222;">;;  </span><span style="color: #b22222;">`(lambda ()
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq load-path ',load-path)
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(require 'org)
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(require 'appt)
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(setq org-agenda-files ',org-agenda-files)
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; (org-agenda-to-appt t '((headline "TODO")))
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-agenda-to-appt t)
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(appt-check) ;; remove past events
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">;; Remove tags
-</span>      <span style="color: #b22222;">;;     </span><span style="color: #b22222;">(let ((msgs appt-time-msg-list))
-</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(setq appt-time-msg-list nil)
-</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(dolist (msg msgs)
-</span>      <span style="color: #b22222;">;;         </span><span style="color: #b22222;">(add-to-list 'appt-time-msg-list
-</span>      <span style="color: #b22222;">;;                      </span><span style="color: #b22222;">(let ((match (string-match
-</span>      <span style="color: #b22222;">;;                                    </span><span style="color: #b22222;">org-tag-group-re (nth 1 msg))))
-</span>      <span style="color: #b22222;">;;                        </span><span style="color: #b22222;">(if match
-</span>      <span style="color: #b22222;">;;                            </span><span style="color: #b22222;">(list (nth 0 msg)
-</span>      <span style="color: #b22222;">;;                                  </span><span style="color: #b22222;">(org-trim (substring-no-properties
-</span>      <span style="color: #b22222;">;;                                             </span><span style="color: #b22222;">(nth 1 msg)
-</span>      <span style="color: #b22222;">;;                                             </span><span style="color: #b22222;">0 match))
-</span>      <span style="color: #b22222;">;;                                  </span><span style="color: #b22222;">(nth 2 msg))
-</span>      <span style="color: #b22222;">;;                          </span><span style="color: #b22222;">msg)
-</span>      <span style="color: #b22222;">;;                        </span><span style="color: #b22222;">) t))
-</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">;; just for sure
-</span>      <span style="color: #b22222;">;;       </span><span style="color: #b22222;">(delq nil appt-time-msg-list)))
-</span>      <span style="color: #b22222;">;;  </span><span style="color: #b22222;">(lambda (result)
-</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">;; (message "child: %s"
-</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">;;          (format-time-string "%H:%M:%S.%3N" (current-time)))
-</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq appt-time-msg-list result) ;; nil means No event
-</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">;; (my-add-prop-to-appt-time-msg-list)
-</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(unless (active-minibuffer-window)
-</span>      <span style="color: #b22222;">;;      </span><span style="color: #b22222;">(let ((cnt (length appt-time-msg-list))
-</span>      <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(message-log-max nil))
-</span>      <span style="color: #b22222;">;;        </span><span style="color: #b22222;">(if (eq cnt 0)
-</span>      <span style="color: #b22222;">;;            </span><span style="color: #b22222;">(message "[async] No event to add")
-</span>      <span style="color: #b22222;">;;          </span><span style="color: #b22222;">(message "[async] Added %d event%s for today"
-</span>      <span style="color: #b22222;">;;                   </span><span style="color: #b22222;">cnt (if (&gt; cnt 1) "s" "")))))
-</span>      <span style="color: #b22222;">;;    </span><span style="color: #b22222;">(setq my-org-agenda-to-appt-ready t)))
-</span>
-      )))
+          (<span style="color: #a020f0;">setq</span> org-agenda-files ',org-agenda-files)
+          <span style="color: #b22222;">;; </span><span style="color: #b22222;">(org-agenda-to-appt t '((headline "TODO")))
+</span>          (org-agenda-to-appt t)
+          (appt-check) <span style="color: #b22222;">;; </span><span style="color: #b22222;">remove past events
+</span>          <span style="color: #b22222;">;; </span><span style="color: #b22222;">Remove tags
+</span>          (<span style="color: #a020f0;">let</span> ((msgs appt-time-msg-list))
+            (<span style="color: #a020f0;">setq</span> appt-time-msg-list nil)
+            (<span style="color: #a020f0;">dolist</span> (msg msgs)
+              (add-to-list 'appt-time-msg-list
+                           (<span style="color: #a020f0;">let</span> ((match (string-match
+                                         org-tag-group-re (nth 1 msg))))
+                             (<span style="color: #a020f0;">if</span> match
+                                 (list (nth 0 msg)
+                                       (org-trim (substring-no-properties
+                                                  (nth 1 msg)
+                                                  0 match))
+                                       (nth 2 msg))
+                               msg)
+                             ) <span style="color: #ff0000; font-weight: bold;">t))</span>
+            <span style="color: #b22222;">;; </span><span style="color: #b22222;">just for sure
+</span>            (delq nil appt-time-msg-list)
+            appt-time-msg-list))
+       (<span style="color: #a020f0;">lambda</span> (result)
+         (message <span style="color: #8b2252;">"--- child: %s"</span>
+                  (format-time-string <span style="color: #8b2252;">"%H:%M:%S.%3N"</span> (current-time)))
+         (<span style="color: #a020f0;">setq</span> appt-time-msg-list result) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nil means No event
+</span>         <span style="color: #b22222;">;; </span><span style="color: #b22222;">(my-add-prop-to-appt-time-msg-list)
+</span>         (<span style="color: #a020f0;">unless</span> (active-minibuffer-window)
+           (<span style="color: #a020f0;">let</span> ((cnt (length appt-time-msg-list))
+                 (message-log-max nil))
+             (<span style="color: #a020f0;">if</span> (eq cnt 0)
+                 (message <span style="color: #8b2252;">"[async] No event to add"</span>)
+               (message <span style="color: #8b2252;">"[async] Added %d event%s for today"</span>
+                        cnt (<span style="color: #a020f0;">if</span> (&gt; cnt 1) <span style="color: #8b2252;">"s"</span> <span style="color: #8b2252;">""</span>)))))
+         (<span style="color: #a020f0;">setq</span> my-org-agenda-to-appt-ready t))))))
 
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">appt-display-format &#12364; 'echo &#12391;&#12418; appt-disp-window-function &#12434;&#21628;&#12406;
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">Need review
@@ -14124,7 +14131,7 @@ update it for multiple appts?"</span>)
   <span style="color: #8b2252;">"Make sure FILE exists.  If not, ask user what to do."</span>
   (<span style="color: #a020f0;">let</span> ((read-char-default-timeout 0)) <span style="color: #b22222;">;; </span><span style="color: #b22222;">not nil
 </span>    (<span style="color: #a020f0;">unless</span> (file-exists-p file)
-      (message <span style="color: #8b2252;">"Non-existent agenda file %s.    [R]emove from list or [A]bort?"</span>
+      (message <span style="color: #8b2252;">"Non-existent agenda file %s.      [R]emove from list or [A]bort?"</span>
                (abbreviate-file-name file))
       (<span style="color: #a020f0;">let</span> ((r (downcase (<span style="color: #a020f0;">or</span> (read-char-exclusive) ?r))))
         (<span style="color: #a020f0;">cond</span>
@@ -14155,7 +14162,9 @@ update it for multiple appts?"</span>)
                                 my--appt-disp-window appt-check)
                          <span style="color: #8b2252;">"appt"</span> nil t)
 
-  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-async</span> t)
+  <span style="color: #b22222;">;; </span><span style="color: #b22222;">org-agenda-to-appt &#12434;&#38750;&#21516;&#26399;&#12395;&#23455;&#34892;&#12377;&#12427;&#12363;
+</span>  (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-org-agenda-to-appt-async</span> nil)
+
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"appt"</span>
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12395;&#27531;&#12426;&#26178;&#38291;&#12434;&#34920;&#31034;&#12375;&#12394;&#12356;
 </span>    (<span style="color: #a020f0;">setq</span> appt-display-mode-line nil)
@@ -14185,7 +14194,7 @@ update it for multiple appts?"</span>)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"ivy"</span>
     (<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">counsel-appt-time-msg-list</span> nil))
-)
+  )
 </code></pre>
 </div>
 
@@ -14780,7 +14789,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org8c2e34b"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="orgabf1c92"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15775,7 +15784,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="orgc704d32" class="figure">
+<div id="orgf397c6d" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -20305,8 +20314,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-orgebf35bb" class="outline-2">
-<h2 id="orgebf35bb"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-org86a1f60" class="outline-2">
+<h2 id="org86a1f60"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20328,7 +20337,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-05-17 Sun 21:38</p>
+<p class="date">Created: 2026-05-20 Wed 12:21</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

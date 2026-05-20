@@ -237,6 +237,28 @@
 ;; compat installed version (30 2 9999) lower than min required 31 (2026-05-08)
 (elpaca 'compat)
 
+(defvar my-elpaca-kill-emacs-count 3)
+(defvar my-elpaca-kill-emacs-timer
+  (run-at-time 0 my-elpaca-kill-emacs-count #'my-elpaca-kill-emacs))
+(defun my-elpaca-kill-emacs ()
+  "partially taken from `elpaca-ui--progress-bar'."
+  (cl-loop
+   with total = 0 with finalized = 0
+   for s in '(finished blocked failed other)
+   for plen = (elpaca-alist-get s elpaca--status-counts 0)
+   do
+   (setq total (+ total plen))
+   (when (memq s '(finished failed))
+     (cl-incf finalized plen))
+   (when (and (equal total finalized)
+	      (eq (car (car elpaca--status-counts)) 'finished)
+	      (eq plen 0))
+     (cancel-timer my-elpaca-kill-emacs-timer)
+     (dotimes (count my-elpaca-kill-emacs-count)
+       (message "%s" (- my-elpaca-kill-emacs-count count))
+       (sleep-for 1))
+     (kill-emacs))))
+
 ;;; run queues
 (elpaca-process-queues)
 

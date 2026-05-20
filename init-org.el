@@ -572,9 +572,11 @@ This user property stores the creation date of the entry")
 (dolist (file (mapcar
                (lambda (arg)
                  (concat my-sync-dir "/org/" arg))
-               '("org-ical.org" "next.org" "db/cooking.org" "minutes/wg1.org"
-                 "db/daily.org" "db/trigger.org"  "academic.org" "tr/work.org"
-                 "org2ja.org" "itr.org" "db/books.org" "db/list.org")))
+               '("org-ical.org" "org2ja.org" "next.org"
+                 "db/cooking.org" "minutes/wg1.org" "itr.org"
+                 "db/daily.org" "db/trigger.org" "db/list.org"
+                 "academic.org" "tr/work.org" "db/books.org")))
+                 
   (when (file-exists-p (expand-file-name file))
     (add-to-list 'org-agenda-files file 'append)))
 
@@ -623,13 +625,13 @@ This user property stores the creation date of the entry")
   (setq org-agenda-scheduled-leaders '("[S]" "S.%2dx:\t"))
   (setq org-agenda-deadline-leaders '("[D]" "In %3d d.:\t" "%2d d. ago:\t"))
 
-  ;; org-agenda	に表示される deadline の配色
+  ;; org-agenda に表示される deadline の配色
   ;; org-deadline-warning-days =8 の時で，第一変数が {1.0, 0.75, 0.0}ならば，
   ;; In 1-2 day が紫で，In 3-8 day が白
   (setq org-agenda-deadline-faces
-	'((1.0 . org-imminent-deadline) ;; '((t :inherit org-warning))
-	  (0.75 . org-upcoming-deadline) ;; (:foreground "red")
-	  (0.0 . org-upcoming-distant-deadline))) ;; '((t :inherit org-default))
+        '((1.0 . org-imminent-deadline) ;; '((t :inherit org-warning))
+          (0.75 . org-upcoming-deadline) ;; (:foreground "red")
+          (0.0 . org-upcoming-distant-deadline))) ;; '((t :inherit org-default))
 
   (with-eval-after-load "moom"
     (defvar my-org-tags-column org-tags-column)

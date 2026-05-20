@@ -9,6 +9,9 @@
 ;;   ;; load API key
 ;;   (load "~/Dropbox/usr/local/config/private.el.gpg" nil t))
 
+(with-eval-after-load "org"
+  (setq my-org-agenda-to-appt-async t))
+
 (when 'apply-fix-code ;; nil
   (defvar fix-org-ffr-skip-command-list '(org-move-subtree-down))
   (defvar fix-org-ffr--skip-command nil)
