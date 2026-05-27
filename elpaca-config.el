@@ -82,7 +82,7 @@
 
 (progn ;; ivy
   (elpaca 'smex)
-  (elpaca 'ivy-rich)
+  (my-elpaca-github "takaxp/ivy-rich")
   (elpaca 'counsel-gtags)
   (elpaca 'counsel-projectile)
   (elpaca 'ivy-omni-org)
@@ -96,7 +96,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Media
-(elpaca 'emms) ;; savannah.gnu.org
+(my-elpaca-github "emacsmirror/emms") ;; (elpaca 'emms) ;; savannah.gnu.org
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File management
@@ -105,10 +105,10 @@
 (elpaca 'dired-du)
 (my-elpaca-github "Fuco1/dired-hacks")
 (elpaca 'dired-recent)
-(my-elpaca-github "jixiuf/ivy-dired-history")
+(my-elpaca-github "takaxp/ivy-dired-history")
 (when (eq system-type 'darwin)
   (elpaca 'osx-trash))
-(elpaca 'undo-fu)
+(my-elpaca-github "emacsmirror/undo-fu") ;; (elpaca 'undo-fu) ;; codeberg
 (elpaca 'super-save)
 (my-elpaca-github "takaxp/session")
 (elpaca 'neotree)
@@ -135,9 +135,7 @@
   (my-elpaca-github "lassik/emacs-format-all-the-code" format-all)
   (elpaca 'language-id)) ;; safety install format-all
 (elpaca 'uuid)
-(progn
-  (elpaca 'corfu-prescient)
-  (elpaca 'corfu)) ;; safety install corfu-prescient
+(elpaca 'prescient) ;; brings ivy-prescient and corfu-prescient.
 (elpaca 'kind-icon)
 (my-elpaca-github "xenodium/org-block-capf")
 (elpaca 'vterm)
@@ -198,28 +196,17 @@
 (elpaca 'manage-minor-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Under test
+;;; Under testing
 (progn
   (elpaca 'gptel))
 
-;; required at the end of this code to run all items for batch-mode
-(when noninteractive
-  (elpaca-wait))
-
-;;; ivy/counsel/swiper
-(elpaca 'counsel)
-(elpaca 'ivy-prescient)
-(elpaca 'corfu-prescient)
-
-(elpaca (counsel :host github :repo "abo-abo/swiper" :main "counsel.el"))
-;; (elpaca (ivy-prescient :host github :repo "radian-software/prescient.el")
-;; 	:main "ivy-prescient")
-;; (elpaca (corfu-prescient :host github :repo "radian-software/prescient.el")
-;; 	:main "corfu-prescient")
+;;; For safety updating
+(my-elpaca-github "emacs-helm/helm") ;; (elpaca 'helm-core)
+(my-elpaca-github "abo-abo/swiper" counsel)
 
 ;;; magit
 (progn
-  (elpaca 'magit)
+  (elpaca 'magit-section) ;;  (elpaca 'magit)
   (elpaca 'transient :inherit nil))
 
 ;;; org
@@ -229,7 +216,7 @@
 ;;; async
 (elpaca 'async) ;(my-elpaca-github "jwiegley/emacs-async" async)
 
-;; Having issues
+;;; Having issues
 ;; (elpaca 'org-extra-emphasis)
 ;; (elpaca 'emr) ;; iedit installed version lower than min require 0.97
 
@@ -237,27 +224,10 @@
 ;; compat installed version (30 2 9999) lower than min required 31 (2026-05-08)
 (elpaca 'compat)
 
-(defvar my-elpaca-kill-emacs-count 3)
+
+;;; run timer to complete the sequence automatically
 (defvar my-elpaca-kill-emacs-timer
-  (run-at-time 0 my-elpaca-kill-emacs-count #'my-elpaca-kill-emacs))
-(defun my-elpaca-kill-emacs ()
-  "partially taken from `elpaca-ui--progress-bar'."
-  (cl-loop
-   with total = 0 with finalized = 0
-   for s in '(finished blocked failed other)
-   for plen = (elpaca-alist-get s elpaca--status-counts 0)
-   do
-   (setq total (+ total plen))
-   (when (memq s '(finished failed))
-     (cl-incf finalized plen))
-   (when (and (equal total finalized)
-	      (eq (car (car elpaca--status-counts)) 'finished)
-	      (eq plen 0))
-     (cancel-timer my-elpaca-kill-emacs-timer)
-     (dotimes (count my-elpaca-kill-emacs-count)
-       (message "%s" (- my-elpaca-kill-emacs-count count))
-       (sleep-for 1))
-     (kill-emacs))))
+  (run-at-time 0 my-elpaca-kill-emacs-count #'my-elpaca-kill-emacs1))
 
 ;;; run queues
 (elpaca-process-queues)

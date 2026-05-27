@@ -15,38 +15,80 @@
 (when (display-graphic-p)
   (set-frame-width nil 155)
   (set-frame-position nil 0 0)
-  (raise-frame))
+  (select-frame-set-input-focus (selected-frame))) ;; (raise-frame)
 
-;;(add-to-list 'elpaca-recipe-functions
-;;             (lambda (recipe)
-;;               (list :build '(:not elpaca--byte-compile elpaca-activate))))
-
-(setq elpaca-busy-interval 300)
+;; (setq elpaca-busy-interval 300)
 (setq elpaca-queue-limit 16)
-;; [250 packages]
-;; 100 1:58
-;; 64  1:13
-;; 32  1:12, 1:05
-;; 28  1:01
-;; 24  0:59, 1:00
-;; 20  0:59
-;; 16  1:07, 1:05
-;; 12  1:18
-;; 8   1:57
 
-;; kill-emacs when the process is completed. see elpaca-config.el
-;; (add-hook 'elpaca-post-queue-hook #'my-elpaca-post-process)
+;; |     |      v0.12 | v0.2 |
+;; |     |        250 |  174 |
+;; |-----+------------+------|
+;; | 100 |       1:58 | 1:03 |
+;; |  64 |       1:13 | 1:00 |
+;; |  32 | 1:12, 1:05 | 0:57 |
+;; |  28 |       1:01 | 1:05 |
+;; |  24 | 0:59, 1:00 | 0:57 |
+;; |  20 |       0:59 | 0:52 |
+;; |  16 | 1:07, 1:05 | 0:52 |
+;; |  12 |       1:18 | 0:52 |
+;; |   8 |       1:57 | 1:12 |
+
 (defun my-elpaca-post-process ()
   (interactive)
   ;; (message "elpaca--waiting: %s" elpaca--waiting)
   ;; (message "elpaca--queues: %s" (length elpaca--queues))
   (when (fboundp 'my-elpaca-save-load-path)
     (message "--- saving load-path")
-    (my-elpaca-save-load-path))
-  ;; If you kill emacs here, do not use ":wait t" anywhere
-  ;; (kill-emacs)
-  )
+    (my-elpaca-save-load-path)))
 (add-hook 'kill-emacs-hook #'my-elpaca-post-process)
+
+(defvar my-elpaca-kill-emacs-count 4) ;; Number. If nil, skip `kill-emacs'.
+(defun my-elpaca-kill-emacs1 ()
+  "partially taken from `elpaca-ui--progress-bar'."
+  (when my-elpaca-kill-emacs-count
+    (cl-loop
+     with total = 0 with finalized = 0
+     for s in '(finished blocked failed other)
+     for plen = (elpaca-alist-get s elpaca--status-counts 0)
+     do
+     (setq total (+ total plen))
+     (when (memq s '(finished failed))
+       (cl-incf finalized plen))
+     ;; (message "total:%s finalized:%s plen:%s counts:%s" total finalized plen elpaca--status-counts)
+     (when (and (equal total finalized)
+		(eq (car (car elpaca--status-counts)) 'finished)
+		(eq plen 0))
+       (cancel-timer my-elpaca-kill-emacs-timer)
+       (dotimes (count my-elpaca-kill-emacs-count)
+	 (message "%s" (- my-elpaca-kill-emacs-count count))
+	 (sleep-for 1))
+       (kill-emacs)))))
+
+(defun my-elpaca-kill-emacs ()
+  "For v0.2 or later. partially taken from `elpaca-ui--progress-bar'."
+  (when my-elpaca-kill-emacs-count
+    (cl-loop
+     with total = 0 with finalized = 0
+     for s in (sort (mapcar #'car elpaca--status-counts))
+     for plen = (elpaca-alist-get s elpaca--status-counts 0)
+     do
+     (setq total (+ total plen))
+     (when (memq s '(finished failed))
+       (cl-incf finalized plen))
+     ;; (message "total:%s finalized:%s plen:%s counts:%s" total finalized plen elpaca--status-counts)
+     (when (and (eq (car (car elpaca--status-counts)) 'finished)
+		(equal total finalized))
+       (cancel-timer my-elpaca-kill-emacs-timer)
+       (dotimes (count my-elpaca-kill-emacs-count)
+	 (message "%s" (- my-elpaca-kill-emacs-count count))
+	 (sleep-for 1))
+       (kill-emacs)))))
+
+(defun my-elpaca-post-queue () (message "--- done (queue)"))
+(defun my-elpaca-after-init ()
+  (message "--- %s done (elpaca after init)" elpaca-after-init-time))
+(add-hook 'elpaca-post-queue-hook #'my-elpaca-post-queue)
+(add-hook 'elpaca-after-init-hook #'my-elpaca-after-init)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; elpaca installer

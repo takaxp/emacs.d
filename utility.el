@@ -2326,11 +2326,13 @@ will not be modified."
 ;;;###autoload
 (defun my-popup-agenda ()
   (interactive)
-  (let ((status use-dialog-box))
-    (setq use-dialog-box nil)
-    (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
-      (org-agenda-list))
-    (setq use-dialog-box status)))
+  (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+    (org-agenda-list)))
+;; (let ((status use-dialog-box))
+;;   (setq use-dialog-box nil)
+;;   (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+;;     (org-agenda-list))
+;;   (setq use-dialog-box status)))
 
 ;;;###autoload
 (defun my-popup-agenda-set-timers ()
@@ -2421,8 +2423,9 @@ will not be modified."
           (require 'appt)
 
           ;; FIXME To avoid generating a zombie process for saving 'list.org'.
-          (defalias 'y-or-n-p (lambda (&rest _) t))
-          (defalias 'yes-or-no-p (lambda (&rest _) t))
+          ;; [resolve] Run `org-id-update-id-locations' and remove duplications
+          ;; (defalias 'y-or-n-p (lambda (&rest _) t))
+          ;; (defalias 'yes-or-no-p (lambda (&rest _) t))
 
           (setq org-agenda-files ',org-agenda-files)
           ;; (org-agenda-to-appt t '((headline "TODO")))
@@ -2447,7 +2450,7 @@ will not be modified."
             (delq nil appt-time-msg-list)
             appt-time-msg-list))
        (lambda (result)
-         (message "--- child: %s"
+         (message "[async] my-org-agenda-to-appt: %s"
                   (format-time-string "%H:%M:%S.%3N" (current-time)))
          (setq appt-time-msg-list result) ;; nil means No event
          ;; (my-add-prop-to-appt-time-msg-list)
