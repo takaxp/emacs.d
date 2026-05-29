@@ -43,9 +43,9 @@
 (elpaca 'csv-mode)
 (elpaca 'es-mode)
 (elpaca 'markdown-mode)
-(my-elpaca-github "emacsmirror/ascii") ;; (elpaca 'ascii)
 (elpaca 'web-mode)
-(elpaca 'po-mode)
+(my-elpaca-github "emacsmirror/ascii") ;; (elpaca 'ascii)
+(my-elpaca-github "emacsmirror/po-mode") ;; avoid using savannah.gnu.org
 (elpaca 'go-mode)
 (elpaca 'flyspell-correct)
 (elpaca 'counsel-world-clock)
@@ -68,7 +68,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Display
 (elpaca 'mlscroll)
-(elpaca 'delight)
+(my-elpaca-github "emacsmirror/delight") ;; avoid using savannah.gnu.org
 (elpaca 'git-gutter-fringe)
 (elpaca 'japanese-holidays)
 (elpaca 'highlight-symbol)
@@ -81,6 +81,8 @@
 (elpaca 'keypression)
 
 (progn ;; ivy
+  (elpaca 'ivy-prescient)
+  (elpaca 'corfu-prescient)
   (elpaca 'smex)
   (my-elpaca-github "takaxp/ivy-rich")
   (elpaca 'counsel-gtags)
@@ -96,7 +98,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Media
-(my-elpaca-github "emacsmirror/emms") ;; (elpaca 'emms) ;; savannah.gnu.org
+(my-elpaca-github "emacsmirror/emms") ;; avoid using savannah.gnu.org
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; File management
@@ -108,7 +110,7 @@
 (my-elpaca-github "takaxp/ivy-dired-history")
 (when (eq system-type 'darwin)
   (elpaca 'osx-trash))
-(my-elpaca-github "emacsmirror/undo-fu") ;; (elpaca 'undo-fu) ;; codeberg
+(my-elpaca-github "emacsmirror/undo-fu") ;; avoid using codeberg
 (elpaca 'super-save)
 (my-elpaca-github "takaxp/session")
 (elpaca 'neotree)
@@ -135,7 +137,6 @@
   (my-elpaca-github "lassik/emacs-format-all-the-code" format-all)
   (elpaca 'language-id)) ;; safety install format-all
 (elpaca 'uuid)
-(elpaca 'prescient) ;; brings ivy-prescient and corfu-prescient.
 (elpaca 'kind-icon)
 (my-elpaca-github "xenodium/org-block-capf")
 (elpaca 'vterm)
@@ -154,14 +155,12 @@
 (elpaca (org-tree-slide
 	 :host github :repo "takaxp/org-tree-slide" :branch "develop"))
 (elpaca 'htmlize)
-
 (elpaca 'ox-hugo)
 (elpaca 'ox-qmd)
 (elpaca 'ox-gfm)
 (elpaca 'ox-reveal)
 (elpaca 'ox-json)
 (elpaca 'org-mac-link)
-
 (elpaca 'orglink)
 (elpaca 'org-appear)
 (elpaca 'org-recent-headings)
@@ -169,7 +168,6 @@
 (elpaca 'toc-org)
 (elpaca (org-screenshot :host github :repo "dfeich/org-screenshot"
 			:main "org-attach-screenshot.el"))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Frame/Window
@@ -185,6 +183,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; async
+(elpaca 'async) ;; (my-elpaca-github "jwiegley/emacs-async" async)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utility
@@ -201,20 +200,16 @@
   (elpaca 'gptel))
 
 ;;; For safety updating
-(my-elpaca-github "emacs-helm/helm") ;; (elpaca 'helm-core)
-(my-elpaca-github "abo-abo/swiper" counsel)
+(elpaca 'counsel) ;; (my-elpaca-github "abo-abo/swiper" counsel)
 
 ;;; magit
 (progn
-  (elpaca 'magit-section) ;;  (elpaca 'magit)
+  (elpaca 'magit)
   (elpaca 'transient :inherit nil))
 
 ;;; org
 (elpaca 'org-contrib)
 (elpaca 'org)
-
-;;; async
-(elpaca 'async) ;(my-elpaca-github "jwiegley/emacs-async" async)
 
 ;;; Having issues
 ;; (elpaca 'org-extra-emphasis)
@@ -224,10 +219,9 @@
 ;; compat installed version (30 2 9999) lower than min required 31 (2026-05-08)
 (elpaca 'compat)
 
-
 ;;; run timer to complete the sequence automatically
 (defvar my-elpaca-kill-emacs-timer
-  (run-at-time 0 my-elpaca-kill-emacs-count #'my-elpaca-kill-emacs1))
+  (run-at-time 0 my-elpaca-kill-emacs-count #'my-elpaca-kill-emacs))
 
 ;;; run queues
 (elpaca-process-queues)

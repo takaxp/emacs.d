@@ -28,8 +28,8 @@
 ;; Note: `load-path' and `exec-path' are both configured in early-init.el
 
 (defvar my-disabled-packages nil) ;; '(("web-mode" . nil)("org" . nil))
-(setq my-disabled-packages '(("aggressive-indent-mode" . t)
-			     ("flyspell" . t)))
+;; (setq my-disabled-packages '(("aggressive-indent-mode" . t)
+;; 			     ("flyspell" . t)))
 (defvar my-ad-require-p nil
   "If non-nil, override `require' and `load' to show loading times.")
 (defvar my-profiler-p nil

@@ -15,7 +15,7 @@
 (when (display-graphic-p)
   (set-frame-width nil 155)
   (set-frame-position nil 0 0)
-  (select-frame-set-input-focus (selected-frame))) ;; (raise-frame)
+  (select-frame-set-input-focus (selected-frame)))
 
 ;; (setq elpaca-busy-interval 300)
 (setq elpaca-queue-limit 16)
@@ -35,8 +35,6 @@
 
 (defun my-elpaca-post-process ()
   (interactive)
-  ;; (message "elpaca--waiting: %s" elpaca--waiting)
-  ;; (message "elpaca--queues: %s" (length elpaca--queues))
   (when (fboundp 'my-elpaca-save-load-path)
     (message "--- saving load-path")
     (my-elpaca-save-load-path)))
@@ -87,11 +85,11 @@
 (defun my-elpaca-post-queue () (message "--- done (queue)"))
 (defun my-elpaca-after-init ()
   (message "--- %s done (elpaca after init)" elpaca-after-init-time))
-(add-hook 'elpaca-post-queue-hook #'my-elpaca-post-queue)
-(add-hook 'elpaca-after-init-hook #'my-elpaca-after-init)
+;; (add-hook 'elpaca-post-queue-hook #'my-elpaca-post-queue)
+;; (add-hook 'elpaca-after-init-hook #'my-elpaca-after-init)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; elpaca installer
+;; the elpaca installer --- https://github.com/progfolio/elpaca#installer
 (defvar elpaca-installer-version 0.12)
 ;; `elpaca-directory' is defined in my early-init.el
 ;; (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
