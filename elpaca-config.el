@@ -82,7 +82,6 @@
 
 (progn ;; ivy
   (elpaca 'ivy-prescient)
-  (elpaca 'corfu-prescient)
   (elpaca 'smex)
   (my-elpaca-github "takaxp/ivy-rich")
   (elpaca 'counsel-gtags)
@@ -137,8 +136,13 @@
   (my-elpaca-github "lassik/emacs-format-all-the-code" format-all)
   (elpaca 'language-id)) ;; safety install format-all
 (elpaca 'uuid)
-(elpaca 'kind-icon)
-(my-elpaca-github "xenodium/org-block-capf")
+(progn ;; corfu
+  (elpaca 'kind-icon)
+  (my-elpaca-github "xenodium/org-block-capf")
+  (elpaca 'cape)
+  (elpaca 'corfu-terminal)
+  (elpaca 'corfu-prescient)
+  (elpaca 'corfu))
 (elpaca 'vterm)
 ;; (elpaca 'slime)
 

@@ -40,7 +40,7 @@
     (my-elpaca-save-load-path)))
 (add-hook 'kill-emacs-hook #'my-elpaca-post-process)
 
-(defvar my-elpaca-kill-emacs-count 4) ;; Number. If nil, skip `kill-emacs'.
+(defvar my-elpaca-kill-emacs-count 3) ;; Number. If nil, skip `kill-emacs'.
 (defun my-elpaca-kill-emacs1 ()
   "partially taken from `elpaca-ui--progress-bar'."
   (when my-elpaca-kill-emacs-count
