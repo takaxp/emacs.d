@@ -140,7 +140,6 @@
   (elpaca 'kind-icon)
   (my-elpaca-github "xenodium/org-block-capf")
   (elpaca 'cape)
-  (elpaca 'corfu-terminal)
   (elpaca 'corfu-prescient)
   (elpaca 'corfu))
 (elpaca 'vterm)

@@ -9,7 +9,7 @@
 ;;   ;; load API key
 ;;   (load "~/Dropbox/usr/local/config/private.el.gpg" nil t))
 
-(when 'apply-fix-code ;; nil
+(when nil ;; 'apply-fix-code ;; nil
   (defvar fix-org-ffr-skip-command-list '(org-move-subtree-down))
   (defvar fix-org-ffr--skip-command nil)
   (defun fix-org-move-subtree-down (&optional _arg)
