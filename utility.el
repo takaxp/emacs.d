@@ -2423,7 +2423,7 @@ will not be modified."
           (require 'appt)
 
           ;; FIXME To avoid generating a zombie process for saving 'list.org'.
-          ;; [resolve] Run `org-id-update-id-locations' and remove duplications
+          ;; [HOWTOFIX] Run `org-id-update-id-locations' and remove duplications
           ;; (defalias 'y-or-n-p (lambda (&rest _) t))
           ;; (defalias 'yes-or-no-p (lambda (&rest _) t))
 
