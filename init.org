@@ -184,7 +184,7 @@ Then load the following at startup
 ;; To run native compiling during an emacs session
 ;; see M-x my-get-libgccjit-library-path
 (let ((lpath (getenv "LIBRARY_PATH"))
-      (gccjit "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
+      (gccjit "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/16"))
   (if (stringp lpath)
       (unless (string-match gccjit lpath)
         (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))
@@ -2311,7 +2311,8 @@ emacs -nw --eval="(setq my-boot-mode 'min)" -l ~/.emacs
 (defun my-private-conf-activate ()
   (cancel-timer my-private-conf-timer)
   ;; (require 'epa)
-  (when (and (file-exists-p "${HOME}/.local/config/private.el.gpg")
+  (when (and (file-exists-p (expand-file-name
+                             "~/.local/config/private.el.gpg"))
              (eq system-type 'darwin)
              (not (featurep 'private)))
     (unless (ignore-errors (require 'private "private.el.gpg" t))
@@ -2380,7 +2381,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 :CUSTOM_ID: org083f6170
 :END:
 #+begin_src emacs-lisp :tangle late-init.el
-(autoload 'mail "${HOME}/.local/config/my-mail.el.gpg" nil t)
+(autoload 'mail (expand-file-name "~/.local/config/my-mail.el.gpg") nil t)
 #+end_src
 ** GPGファイルを一定時間後にロックする
 :PROPERTIES:
@@ -3891,6 +3892,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．[[https://github
 (defvar my-auto-view-dirs nil)
 (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
 (add-to-list 'my-auto-view-dirs "~/devel/git/org-mode/lisp/")
+(add-to-list 'my-auto-view-dirs "~/.emacs.d/elpaca")
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
@@ -5323,9 +5325,9 @@ Call this function at updating `mode-line-mode'."
 (defun my-mode-line-vc-mode-nerd-icons ()
   (if (string-match "^ Git:" vc-mode) ;; nf-oct-git_branch
       (replace-regexp-in-string
-       "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+       "^ Git:" (propertize "  " 'face 'mode-line-vc-modified-face) vc-mode)
     (replace-regexp-in-string
-     "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+     "^ Git-" (propertize "  " 'face 'mode-line-vc-normal-face) vc-mode)))
 
 ;;;###autoload
 (defun my-mode-line-vc-mode-icons-in-terminal ()
@@ -5598,6 +5600,7 @@ see https://www.reddit.com/r/emacs/comments/3u0d0u/how_do_i_make_the_vertical_wi
 ** カーソル行の行数をモードラインに表示する
    :PROPERTIES:
    :CUSTOM_ID: org8d729190
+   :ID:       C465E2C7-6ACB-4344-85D3-4E4C4EAC5BA6
    :END:
 
 #+begin_src emacs-lisp :tangle no
@@ -5706,10 +5709,13 @@ Emacs Version 26.1 からネイティブ実装に切り替わった =display-lin
 #+begin_src emacs-lisp :tangle late-init.el
 (setq line-number-display-limit-width 100000)
 
+;; フレームサイズ変更時に表示が再帰的に増えるのを防ぐ(2026-07-22)
+(setq mode-line-percent-position nil)
+
 ;; モードラインの行数表示の前にアイコンを追加
 (with-eval-after-load "nerd-icons"
   (setq mode-line-position-line-format
-        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l"))) ;; 
+        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") " %3l"))) ;; 
 
 ;; (with-eval-after-load "icons-in-terminal"
 ;;   (setq mode-line-position-line-format
@@ -9632,6 +9638,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 - プロジェクト内に限定して検索をかける時に重宝する．
 - カレントバッファがプロジェクト内のファイルの場合は，タイトルバーにプロジェクト名を出すように設定しています．
 
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my-projectile-activate ()
@@ -9654,8 +9661,18 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   "Extensions to skip calling `visit-tags-table'."
   nil)
 
+;; for running counsel-projectile-ag
+(unless (fboundp 'projectile-ignored-files-rel)
+  (defun projectile-ignored-files-rel ()
+    nil))
+
+;; for running counsel-projectile-ag
+(unless (fboundp 'projectile-ignored-directories-rel)
+  (defun projectile-ignored-directories-rel ()
+    nil))
+
 ;;;###autoload
-(defun my-counsel-projectile-ag ()
+(defun my-projectile-ag ()
   "Use `counsel-projectile-ag' in a projectile project except when `dired'.
 Otherwise, use `counsel-ag'."
   (interactive)
@@ -9663,7 +9680,9 @@ Otherwise, use `counsel-ag'."
                (not (projectile-project-p)))
           (eq major-mode 'dired-mode))
       (counsel-ag)
-    (counsel-projectile-ag)))
+    ;; (call-interactively 'projectile-ag)
+    (counsel-projectile-ag)
+    ))
 #+end_src
 
 #+begin_src emacs-lisp :tangle late-init.el
@@ -9710,7 +9729,7 @@ Otherwise, use `counsel-ag'."
       (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
       (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
       (keymap-set projectile-mode-map "C-c p" 'projectile-command-map)
-      (keymap-set projectile-mode-map "C-M-f" 'my-counsel-projectile-ag)
+      (keymap-set projectile-mode-map "C-M-f" 'my-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (unless noninteractive
@@ -9944,7 +9963,7 @@ trim_trailing_whitespace = true
 
 ターミナルで使用するには =corfu-terminal-mode= が必要になります．
 
-#+begin_src emacs-lisp :tangle late-init.el
+#+begin_src emacs-lisp :tangle no
 (unless (display-graphic-p)
   (when (autoload-if-found '(corfu-terminal-mode) "corfu-terminal" nil t)
     (defvar corfu-terminal-mode nil) ;; To suppress showing a warning
@@ -9968,6 +9987,18 @@ macOS の場合は brew で libvterm をインストールすれば， =vterm= �
 #+begin_src emacs-lisp :tangle late-init.el
 (autoload-if-found '(vterm) "vterm"  nil t)
 #+end_src
+** TODO [ghostel.el] Ghostty を使う
+:PROPERTIES:
+:CREATED:  [2026-07-20 Mon 09:10]
+:ID:       3F0F9685-4FA5-42AF-837D-F5662F150BFC
+:END:
+
+- https://github.com/dakra/ghostel
+
+#+begin_src emacs-lisp :tangle late-init.el
+(autoload-if-found '(ghostel) "ghostel"  nil t)
+#+end_src
+
 ** DONE [auto-complete.el] 自動補完機能                            :obsolete:
    CLOSED: [2019-04-09 Tue 00:51]
    :PROPERTIES:
@@ -10017,7 +10048,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     ;; 辞書
     (add-to-list 'ac-dictionary-directories "~/.emacs.d/ac-dict")
     ;; history
-    (setq ac-comphist-file "${HOME}/.local/config/ac-comphist.dat")
+    (setq ac-comphist-file (expand-filename "~/.local/config/ac-comphist.dat"))
     ;; n文字以上で補完表示する（"<s <tab>" の場合 yasnippet が呼ばれる）
     (setq ac-auto-start 4)
     ;; n秒後にメニューを表示
@@ -10232,7 +10263,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ;; org-tempo を org-modules で読み込む前に TAB 押下で展開する場合の対処
 (advice-add 'org-cycle :before #'my--org-modules-activate)
 
-;; ホームポジション的な Orgファイルを一発で開きます．
+;; ホームポジション的な Orgファイルを一発で開く．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 #+end_src
 
@@ -10464,7 +10495,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
 (font-lock-add-keywords
  'org-mode
- `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+ `(("^[ \t]*\\(?:[-+*]\\|\\(?:[0-9]+\\|[a-zA-Z]\\)[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
     1 'org-headline-done prepend))
  'append)
 
@@ -11644,7 +11675,7 @@ org バッファのソースブロックにカーソルがある時には， =el
 
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-org-reset-state-subturee ()
+(defun my-org-reset-state-subtree ()
     (interactive)
     (if (org-before-first-heading-p)
 	(my-org-reset-state-buffer)
@@ -11723,6 +11754,25 @@ will not be modified."
 
 ;;;###autoload
 (defun get-current-date-tags () (format-time-string "%Y%m%d"))
+
+;;;###autoload
+(defun my-set-key-property ()
+  (my-org-set-created-property)
+  (org-id-get-create t)
+  (org-set-property "CRYPTKEY" my-pgp-outgoing-key))
+
+;;;###autoload
+(defun my-org-capture-hide-drawers ()
+  (when org-capture-last-stored-marker
+    (with-current-buffer
+        (marker-buffer org-capture-last-stored-marker)
+      (org-cycle-hide-drawers 'all))))
+
+;;;###autoload
+(defun my-org-run-encrypt ()
+  (when (let ((key (org-entry-get nil "CRYPTKEY")))
+          (string= key my-pgp-outgoing-key))
+    (my-org-encrypt-entry-copy-pgp-message)))
 #+end_src
 
 #+begin_src emacs-lisp :tangle init-org.el
@@ -11737,6 +11787,8 @@ This user property stores the creation date of the entry")
                          "org-capture" nil t)
 
   (with-eval-after-load "org-capture"
+    (add-hook 'org-capture-after-finalize-hook #'my-org-capture-hide-drawers)
+    (add-hook 'org-capture-before-finalize-hook #'my-org-run-encrypt)
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     ;; 2010-06-13 の形式では，タグとして認識されない
@@ -11804,6 +11856,10 @@ This user property stores the creation date of the entry")
                           " に書き込む")
              entry (file+headline ,org-capture-english-file "GRAMMER")
              "** %? :%(get-current-date-tags):\n\n%U")
+            ("p" "PGP Outgoing ツリーを作る" entry
+             (file+headline ,org-default-notes-file "INBOX")
+             "** TODO outgoing note\n%?"
+             :hook my-set-key-property)
             ))))
 #+end_src
 
@@ -11847,8 +11903,12 @@ This user property stores the creation date of the entry")
 ;;;###autoload
 (defun my-popup-agenda ()
   (interactive)
-  (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
-    (org-agenda-list)))
+  (let ((use-dialog-box nil))
+    (when (with-timeout (10 nil)
+            (yes-or-no-p "Popup agenda now?"))
+      (org-agenda-list))))
+;; (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+;;   (org-agenda-list)))
 ;; (let ((status use-dialog-box))
 ;;   (setq use-dialog-box nil)
 ;;   (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
@@ -15344,7 +15404,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
         '(("TODO" . "red1")
           ("DONE" . "ForestGreen")
           ("HOLD" . "#d0bf8f")
-          ("NEXT" . "#dca3a3")
+          ("NEXT" . "coral")
           ("THEM" . "#dc8cc3")
           ("PROG" . "#7cb8bb")
           ("OKAY" . "#7cb8bb")
@@ -17049,13 +17109,25 @@ http://d.hatena.ne.jp/rubikitch/20111120/elispbook
    :END:
 PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで =org-decrypt-entry= するための空ツリーを書き込みます．
 
+#+begin_src emacs-lisp :tangle init.el
+(defvar my-pgp-incoming-key nil)
+#+end_src
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-insert-empty-pgp-tree ()
-  (interactive)
-  (insert "** TODO hoge\n")
-  (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
-  (forward-line -2))
+(defun my-insert-incoming-pgp-tree (&optional key)
+    (interactive)
+    (insert
+     (with-temp-buffer
+       (org-mode)
+       (insert "** TODO incoming note\n")
+       (org-set-property "CRYPTKEY" (or key my-pgp-incoming-key))
+       (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
+       (buffer-string)))
+    (save-excursion
+      (org-back-to-heading t)
+      (org-cycle-hide-drawers 'all))
+    (forward-line -2))
 #+end_src
 ** orgバッファでPGPを使った自分宛ての暗号化データ生成する
    :PROPERTIES:
@@ -17064,16 +17136,50 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
    :END:
 下記の関数で生成したツリーの本体をメールで送信すれば，秘密鍵のある端末で復号できます．
 
+#+begin_src emacs-lisp :tangle init.el
+(defvar my-pgp-outgoing-key nil)
+#+end_src
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
-(defun my-insert-enc2me-pgp-tree ()
-  (interactive)
-  (insert "** TODO share with me\n")
-  (insert "   :PROPERTIES:\n")
-  (insert "   :CRYPTKEY: takaxp@ieee.org\n")
-  (insert "   :END:\n")
-  (insert "\n")
-  (forward-line -1))
+(defun my-insert-outgoing-pgp-tree (&optional key)
+    (interactive)
+    (insert
+     (with-temp-buffer
+       (org-mode)
+       (insert "** TODO outgoing note\n")
+       (org-set-property "CRYPTKEY" (or key my-pgp-outgoing-key))
+       (insert "\n")
+       (buffer-string)))
+    (save-excursion
+      (org-back-to-heading t)
+      (org-cycle-hide-drawers 'all))
+    (forward-line -1))
+
+;;;###autoload
+(defun my-copy-pgp-body ()
+    (interactive)
+    (save-excursion
+      (org-back-to-heading t)
+      (let (beg end)
+        (when (re-search-forward "^-----BEGIN PGP MESSAGE-----$" nil t)
+          (forward-line 1)
+          (setq beg (point))
+          (when (re-search-forward "^-----END PGP MESSAGE-----$" nil t)
+            (setq end (match-beginning 0))))
+
+        (if (and beg end)
+            (progn
+              (kill-new
+               (buffer-substring-no-properties beg end))
+              (message "PGP block copied"))
+          (user-error "PGP block not found")))))
+
+;;;###autoload
+(defun my-org-encrypt-entry-copy-pgp-message ()
+    (interactive)
+    (org-encrypt-entry)
+    (my-copy-pgp-body))
 #+end_src
 ** 議事録ひな形を書き入れる
    :PROPERTIES:

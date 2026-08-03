@@ -226,7 +226,7 @@ This function returns a timer object which you can use in
   ;; Suppress message when saving encrypted file (hoge.org.gpg)
   (advice-add 'epa-file-write-region :around #'my--suppress-message))
 
-(autoload 'mail "${HOME}/.local/config/my-mail.el.gpg" nil t)
+(autoload 'mail (expand-file-name "~/.local/config/my-mail.el.gpg") nil t)
 
 (when (memq window-system '(ns nil))
 
@@ -470,6 +470,7 @@ This function returns a timer object which you can use in
 (defvar my-auto-view-dirs nil)
 (add-to-list 'my-auto-view-dirs "~/devel/emacs-head/emacs/")
 (add-to-list 'my-auto-view-dirs "~/devel/git/org-mode/lisp/")
+(add-to-list 'my-auto-view-dirs "~/.emacs.d/elpaca")
 (when (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs "c:/msys64/mingw64"))
 
@@ -895,10 +896,13 @@ This function returns a timer object which you can use in
 
 (setq line-number-display-limit-width 100000)
 
+;; フレームサイズ変更時に表示が再帰的に増えるのを防ぐ(2026-07-22)
+(setq mode-line-percent-position nil)
+
 ;; モードラインの行数表示の前にアイコンを追加
 (with-eval-after-load "nerd-icons"
   (setq mode-line-position-line-format
-        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") "%3l"))) ;; 
+        `(,(nerd-icons-faicon "nf-fa-pencil_square_o") " %3l"))) ;; 
 
 ;; (with-eval-after-load "icons-in-terminal"
 ;;   (setq mode-line-position-line-format
@@ -1671,7 +1675,7 @@ This function returns a timer object which you can use in
       (setq counsel-projectile-sort-files t) ;; 当該プロジェクト内リストをソート
       (setq counsel-projectile-sort-projects t) ;; プロジェクトリストをソート
       (keymap-set projectile-mode-map "C-c p" 'projectile-command-map)
-      (keymap-set projectile-mode-map "C-M-f" 'my-counsel-projectile-ag)
+      (keymap-set projectile-mode-map "C-M-f" 'my-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (unless noninteractive
@@ -1740,13 +1744,9 @@ This function returns a timer object which you can use in
                          "cape" nil t)
   (add-hook 'org-mode-hook #'my-load-cape-modules-for-org -2))
 
-(unless (display-graphic-p)
-  (when (autoload-if-found '(corfu-terminal-mode) "corfu-terminal" nil t)
-    (defvar corfu-terminal-mode nil) ;; To suppress showing a warning
-    (add-hook 'emacs-lisp-mode-hook #'corfu-terminal-mode)
-    (add-hook 'org-mode-hook #'corfu-terminal-mode)))
-
 (autoload-if-found '(vterm) "vterm"  nil t)
+
+(autoload-if-found '(ghostel) "ghostel"  nil t)
 
 ;; `org-agenda-prepare-buffers' は重い．agenda 実行時の最初に走るが，
 ;; 事前に走らせておくほうがいい．以下の例では，

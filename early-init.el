@@ -23,7 +23,7 @@
 ;; To run native compiling during an emacs session
 ;; see M-x my-get-libgccjit-library-path
 (let ((lpath (getenv "LIBRARY_PATH"))
-      (gccjit "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"))
+      (gccjit "/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/16"))
   (if (stringp lpath)
       (unless (string-match gccjit lpath)
         (setenv "LIBRARY_PATH" (string-join (list gccjit lpath) ":")))

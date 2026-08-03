@@ -255,7 +255,8 @@ see `native-compile-prune-cache'."
 (defun my-private-conf-activate ()
   (cancel-timer my-private-conf-timer)
   ;; (require 'epa)
-  (when (and (file-exists-p "${HOME}/.local/config/private.el.gpg")
+  (when (and (file-exists-p (expand-file-name
+                             "~/.local/config/private.el.gpg"))
              (eq system-type 'darwin)
              (not (featurep 'private)))
     (unless (ignore-errors (require 'private "private.el.gpg" t))
@@ -802,9 +803,9 @@ Call this function at updating `mode-line-mode'."
 (defun my-mode-line-vc-mode-nerd-icons ()
   (if (string-match "^ Git:" vc-mode) ;; nf-oct-git_branch
       (replace-regexp-in-string
-       "^ Git:" (propertize " " 'face 'mode-line-vc-modified-face) vc-mode)
+       "^ Git:" (propertize "  " 'face 'mode-line-vc-modified-face) vc-mode)
     (replace-regexp-in-string
-     "^ Git-" (propertize " " 'face 'mode-line-vc-normal-face) vc-mode)))
+     "^ Git-" (propertize "  " 'face 'mode-line-vc-normal-face) vc-mode)))
 
 ;;;###autoload
 (defun my-mode-line-vc-mode-icons-in-terminal ()
@@ -1539,8 +1540,18 @@ see https://github.com/bbatsov/super-save/pull/20/files."
   "Extensions to skip calling `visit-tags-table'."
   nil)
 
+;; for running counsel-projectile-ag
+(unless (fboundp 'projectile-ignored-files-rel)
+  (defun projectile-ignored-files-rel ()
+    nil))
+
+;; for running counsel-projectile-ag
+(unless (fboundp 'projectile-ignored-directories-rel)
+  (defun projectile-ignored-directories-rel ()
+    nil))
+
 ;;;###autoload
-(defun my-counsel-projectile-ag ()
+(defun my-projectile-ag ()
   "Use `counsel-projectile-ag' in a projectile project except when `dired'.
 Otherwise, use `counsel-ag'."
   (interactive)
@@ -1548,7 +1559,9 @@ Otherwise, use `counsel-ag'."
                (not (projectile-project-p)))
           (eq major-mode 'dired-mode))
       (counsel-ag)
-    (counsel-projectile-ag)))
+    ;; (call-interactively 'projectile-ag)
+    (counsel-projectile-ag)
+    ))
 
 ;;;###autoload
 (defun my--magit-mode-bury-buffer (&optional _bury)
@@ -2225,7 +2238,7 @@ Otherwise, use `counsel-ag'."
     (org-move-to-column col)))
 
 ;;;###autoload
-(defun my-org-reset-state-subturee ()
+(defun my-org-reset-state-subtree ()
     (interactive)
     (if (org-before-first-heading-p)
 	(my-org-reset-state-buffer)
@@ -2294,6 +2307,25 @@ will not be modified."
 (defun get-current-date-tags () (format-time-string "%Y%m%d"))
 
 ;;;###autoload
+(defun my-set-key-property ()
+  (my-org-set-created-property)
+  (org-id-get-create t)
+  (org-set-property "CRYPTKEY" my-pgp-outgoing-key))
+
+;;;###autoload
+(defun my-org-capture-hide-drawers ()
+  (when org-capture-last-stored-marker
+    (with-current-buffer
+        (marker-buffer org-capture-last-stored-marker)
+      (org-cycle-hide-drawers 'all))))
+
+;;;###autoload
+(defun my-org-run-encrypt ()
+  (when (let ((key (org-entry-get nil "CRYPTKEY")))
+          (string= key my-pgp-outgoing-key))
+    (my-org-encrypt-entry-copy-pgp-message)))
+
+;;;###autoload
 (defun my-org-agenda-prepare-buffers ()
   (unless (featurep 'org-agenda)
     (when (require 'org-agenda nil t)
@@ -2326,8 +2358,12 @@ will not be modified."
 ;;;###autoload
 (defun my-popup-agenda ()
   (interactive)
-  (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
-    (org-agenda-list)))
+  (let ((use-dialog-box nil))
+    (when (with-timeout (10 nil)
+            (yes-or-no-p "Popup agenda now?"))
+      (org-agenda-list))))
+;; (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+;;   (org-agenda-list)))
 ;; (let ((status use-dialog-box))
 ;;   (setq use-dialog-box nil)
 ;;   (when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
@@ -3333,7 +3369,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         '(("TODO" . "red1")
           ("DONE" . "ForestGreen")
           ("HOLD" . "#d0bf8f")
-          ("NEXT" . "#dca3a3")
+          ("NEXT" . "coral")
           ("THEM" . "#dc8cc3")
           ("PROG" . "#7cb8bb")
           ("OKAY" . "#7cb8bb")
@@ -3925,21 +3961,59 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
         (org-end-of-line)))))
 
 ;;;###autoload
-(defun my-insert-empty-pgp-tree ()
-  (interactive)
-  (insert "** TODO hoge\n")
-  (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
-  (forward-line -2))
+(defun my-insert-incoming-pgp-tree (&optional key)
+    (interactive)
+    (insert
+     (with-temp-buffer
+       (org-mode)
+       (insert "** TODO incoming note\n")
+       (org-set-property "CRYPTKEY" (or key my-pgp-incoming-key))
+       (insert "-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n")
+       (buffer-string)))
+    (save-excursion
+      (org-back-to-heading t)
+      (org-cycle-hide-drawers 'all))
+    (forward-line -2))
 
 ;;;###autoload
-(defun my-insert-enc2me-pgp-tree ()
-  (interactive)
-  (insert "** TODO share with me\n")
-  (insert "   :PROPERTIES:\n")
-  (insert "   :CRYPTKEY: takaxp@ieee.org\n")
-  (insert "   :END:\n")
-  (insert "\n")
-  (forward-line -1))
+(defun my-insert-outgoing-pgp-tree (&optional key)
+    (interactive)
+    (insert
+     (with-temp-buffer
+       (org-mode)
+       (insert "** TODO outgoing note\n")
+       (org-set-property "CRYPTKEY" (or key my-pgp-outgoing-key))
+       (insert "\n")
+       (buffer-string)))
+    (save-excursion
+      (org-back-to-heading t)
+      (org-cycle-hide-drawers 'all))
+    (forward-line -1))
+
+;;;###autoload
+(defun my-copy-pgp-body ()
+    (interactive)
+    (save-excursion
+      (org-back-to-heading t)
+      (let (beg end)
+        (when (re-search-forward "^-----BEGIN PGP MESSAGE-----$" nil t)
+          (forward-line 1)
+          (setq beg (point))
+          (when (re-search-forward "^-----END PGP MESSAGE-----$" nil t)
+            (setq end (match-beginning 0))))
+
+        (if (and beg end)
+            (progn
+              (kill-new
+               (buffer-substring-no-properties beg end))
+              (message "PGP block copied"))
+          (user-error "PGP block not found")))))
+
+;;;###autoload
+(defun my-org-encrypt-entry-copy-pgp-message ()
+    (interactive)
+    (org-encrypt-entry)
+    (my-copy-pgp-body))
 
 ;;;###autoload
 (defun insert-minutes-template ()

@@ -128,6 +128,7 @@
 (elpaca 'ggtags)
 (elpaca '0xc)
 (elpaca 'package-lint)
+(elpaca 'ag) ;; projectile-ag requires ag.el and ag command.
 (elpaca 'projectile)
 (elpaca 'relint)
 (elpaca 'editorconfig)
@@ -140,9 +141,11 @@
   (elpaca 'kind-icon)
   (my-elpaca-github "xenodium/org-block-capf")
   (elpaca 'cape)
+  ;; (elpaca 'corfu-terminal) ;; is not needed on Emacs 31
   (elpaca 'corfu-prescient)
   (elpaca 'corfu))
 (elpaca 'vterm)
+(elpaca 'ghostel)
 ;; (elpaca 'slime)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

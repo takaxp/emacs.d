@@ -403,7 +403,7 @@
 ;; org-tempo を org-modules で読み込む前に TAB 押下で展開する場合の対処
 (advice-add 'org-cycle :before #'my--org-modules-activate)
 
-;; ホームポジション的な Orgファイルを一発で開きます．
+;; ホームポジション的な Orgファイルを一発で開く．
 (keymap-global-set "C-M-o" #'my-open-default-org-file)
 
 (defalias 'run-timer 'my-countdown-timer)
@@ -537,6 +537,10 @@
             "/System/Applications" "/System/Applications/Utilities"
             "/System/Library/CoreServices/Applications"
             "/Applications/Microsoft Remote Desktop.localized"))))
+
+(defvar my-pgp-incoming-key nil)
+
+(defvar my-pgp-outgoing-key nil)
 
 (keymap-global-set "C-c 0" 'insert-formatted-current-date)
 (keymap-global-set "C-c 9" 'insert-formatted-current-time)

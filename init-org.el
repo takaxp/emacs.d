@@ -142,7 +142,7 @@
 ;; https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html
 (font-lock-add-keywords
  'org-mode
- `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+ `(("^[ \t]*\\(?:[-+*]\\|\\(?:[0-9]+\\|[a-zA-Z]\\)[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
     1 'org-headline-done prepend))
  'append)
 
@@ -498,6 +498,8 @@ This user property stores the creation date of the entry")
                          "org-capture" nil t)
 
   (with-eval-after-load "org-capture"
+    (add-hook 'org-capture-after-finalize-hook #'my-org-capture-hide-drawers)
+    (add-hook 'org-capture-before-finalize-hook #'my-org-run-encrypt)
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     ;; 2010-06-13 の形式では，タグとして認識されない
@@ -565,6 +567,10 @@ This user property stores the creation date of the entry")
                           " に書き込む")
              entry (file+headline ,org-capture-english-file "GRAMMER")
              "** %? :%(get-current-date-tags):\n\n%U")
+            ("p" "PGP Outgoing ツリーを作る" entry
+             (file+headline ,org-default-notes-file "INBOX")
+             "** TODO outgoing note\n%?"
+             :hook my-set-key-property)
             ))))
 
 ;; アジェンダ作成対象（指定しないとagendaが生成されない）

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2026-06-15 Mon 21:50 -->
+<!-- 2026-08-03 Mon 23:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Configurations for GNU Emacs</title>
@@ -283,7 +283,7 @@
 <li><a href="#orgec66ea31">3.13.3. <span class="todo TODO">TODO</span> load-path を一箇所にして起動を高速化</a></li>
 <li><a href="#orgda4ef167">3.13.4. <span class="done DONE">DONE</span> [paradox.el] パッケージ選択画面の改善</a></li>
 <li><a href="#org6c5717fc">3.13.5. <span class="done DONE">DONE</span> [el-get.el] パッケージ管理（GUI，CUI）</a></li>
-<li><a href="#org20ffb4f">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
+<li><a href="#orgdb8fdc0">3.13.6. [elpaca.el] 続・パッケージ管理（GUI，CUI）</a></li>
 </ul>
 </li>
 <li><a href="#org03555a6a">3.14. インデント</a></li>
@@ -548,9 +548,10 @@
 <li><a href="#org9547f772">9.22. <span class="todo TODO">TODO</span> [semantic-refactor.el] リファクタリングツール</a></li>
 <li><a href="#orgefd79180">9.23. <span class="todo TODO">TODO</span> [corfu.el] 続々・自動補完機能</a></li>
 <li><a href="#orgdd272f8c">9.24. <span class="todo TODO">TODO</span> [vterm.el] vterm を使う</a></li>
-<li><a href="#org09687b9c">9.25. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
-<li><a href="#orgea32afad">9.26. <span class="done DONE">DONE</span> [company.el] 続・自動補完機能</a></li>
-<li><a href="#orgcde881ad">9.27. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#org0a8f661">9.25. <span class="todo TODO">TODO</span> [ghostel.el] Ghostty を使う</a></li>
+<li><a href="#org09687b9c">9.26. <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
+<li><a href="#orgea32afad">9.27. <span class="done DONE">DONE</span> [company.el] 続・自動補完機能</a></li>
+<li><a href="#orgcde881ad">9.28. <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></a></li>
 </ul>
 </li>
 <li><a href="#org47616d05">10. Org Mode</a>
@@ -765,7 +766,7 @@
 <li><a href="#orgafde656e">14.67. キーバインド</a></li>
 </ul>
 </li>
-<li><a href="#orgf1c016e">15. 有用なデフォルト関数</a></li>
+<li><a href="#org3a01b87">15. 有用なデフォルト関数</a></li>
 <li><a href="#org362fb2dc">16. おわりに</a></li>
 </ul>
 </div>
@@ -1042,7 +1043,7 @@ Then load the following at startup<br />
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">To run native compiling during an emacs session
 </span><span style="color: #b22222;">;; </span><span style="color: #b22222;">see M-x my-get-libgccjit-library-path
 </span>(<span style="color: #a020f0;">let</span> ((lpath (getenv <span style="color: #8b2252;">"LIBRARY_PATH"</span>))
-      (gccjit <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/15"</span>))
+      (gccjit <span style="color: #8b2252;">"/opt/homebrew/opt/gcc/lib/gcc/current/gcc/aarch64-apple-darwin25/16"</span>))
   (<span style="color: #a020f0;">if</span> (stringp lpath)
       (<span style="color: #a020f0;">unless</span> (string-match gccjit lpath)
         (setenv <span style="color: #8b2252;">"LIBRARY_PATH"</span> (string-join (list gccjit lpath) <span style="color: #8b2252;">":"</span>)))
@@ -2991,8 +2992,8 @@ $<span style="color: #a0522d;">COMMAND</span> $<span style="color: #a0522d;">LOA
 </div>
 </div>
 </div>
-<div id="outline-container-org20ffb4f" class="outline-4">
-<h4 id="org20ffb4f"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
+<div id="outline-container-orgdb8fdc0" class="outline-4">
+<h4 id="orgdb8fdc0"><span class="section-number-4">3.13.6.</span> [elpaca.el] 続・パッケージ管理（GUI，CUI）</h4>
 <div class="outline-text-4" id="text-3-13-6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(autoload-if-found '(elpaca-version
@@ -3285,7 +3286,8 @@ CLIからは，次のように呼び出します．<br />
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-private-conf-activate</span> ()
   (cancel-timer my-private-conf-timer)
   <span style="color: #b22222;">;; </span><span style="color: #b22222;">(require 'epa)
-</span>  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p <span style="color: #8b2252;">"${HOME}/.local/config/private.el.gpg"</span>)
+</span>  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">and</span> (file-exists-p (expand-file-name
+                             <span style="color: #8b2252;">"~/.local/config/private.el.gpg"</span>))
              (eq system-type 'darwin)
              (not (<span style="color: #a020f0;">featurep</span> '<span style="color: #008b8b;">private</span>)))
     (<span style="color: #a020f0;">unless</span> (<span style="color: #a020f0;">ignore-errors</span> (<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">private</span> <span style="color: #8b2252;">"private.el.gpg"</span> t))
@@ -3364,7 +3366,7 @@ GPGで暗号化されたファイルを編集すると，保存時に暗号化�
 <h3 id="org083f6170"><span class="section-number-3">3.25.</span> メール設定の読み込み</h3>
 <div class="outline-text-3" id="text-org083f6170">
 <div class="org-src-container">
-<pre class="src src-emacs-lisp"><code>(autoload 'mail <span style="color: #8b2252;">"${HOME}/.local/config/my-mail.el.gpg"</span> nil t)
+<pre class="src src-emacs-lisp"><code>(autoload 'mail (expand-file-name <span style="color: #8b2252;">"~/.local/config/my-mail.el.gpg"</span>) nil t)
 </code></pre>
 </div>
 </div>
@@ -5041,6 +5043,7 @@ Org-mode の日本語翻訳済みinfoを読むための設定．<a href="https:/
 </span>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-auto-view-dirs</span> nil)
 (add-to-list 'my-auto-view-dirs <span style="color: #8b2252;">"~/devel/emacs-head/emacs/"</span>)
 (add-to-list 'my-auto-view-dirs <span style="color: #8b2252;">"~/devel/git/org-mode/lisp/"</span>)
+(add-to-list 'my-auto-view-dirs <span style="color: #8b2252;">"~/.emacs.d/elpaca"</span>)
 (<span style="color: #a020f0;">when</span> (eq window-system 'w32)
   (add-to-list 'my-auto-view-dirs <span style="color: #8b2252;">"c:/msys64/mingw64"</span>))
 
@@ -6585,9 +6588,9 @@ Call this function at updating `</span><span style="color: #008b8b;">mode-line-m
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-vc-mode-nerd-icons</span> ()
   (<span style="color: #a020f0;">if</span> (string-match <span style="color: #8b2252;">"^ Git:"</span> vc-mode) <span style="color: #b22222;">;; </span><span style="color: #b22222;">nf-oct-git_branch
 </span>      (replace-regexp-in-string
-       <span style="color: #8b2252;">"^ Git:"</span> (propertize <span style="color: #8b2252;">" &#62488;"</span> 'face 'mode-line-vc-modified-face) vc-mode)
+       <span style="color: #8b2252;">"^ Git:"</span> (propertize <span style="color: #8b2252;">" &#62488; "</span> 'face 'mode-line-vc-modified-face) vc-mode)
     (replace-regexp-in-string
-     <span style="color: #8b2252;">"^ Git-"</span> (propertize <span style="color: #8b2252;">" &#62488;"</span> 'face 'mode-line-vc-normal-face) vc-mode)))
+     <span style="color: #8b2252;">"^ Git-"</span> (propertize <span style="color: #8b2252;">" &#62488; "</span> 'face 'mode-line-vc-normal-face) vc-mode)))
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-mode-line-vc-mode-icons-in-terminal</span> ()
@@ -7108,10 +7111,13 @@ Emacs Version 26.1 からネイティブ実装に切り替わった <code class=
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">setq</span> line-number-display-limit-width 100000)
 
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12501;&#12524;&#12540;&#12512;&#12469;&#12452;&#12474;&#22793;&#26356;&#26178;&#12395;&#34920;&#31034;&#12364;&#20877;&#24112;&#30340;&#12395;&#22679;&#12360;&#12427;&#12398;&#12434;&#38450;&#12368;(2026-07-22)
+</span>(<span style="color: #a020f0;">setq</span> mode-line-percent-position nil)
+
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12514;&#12540;&#12489;&#12521;&#12452;&#12531;&#12398;&#34892;&#25968;&#34920;&#31034;&#12398;&#21069;&#12395;&#12450;&#12452;&#12467;&#12531;&#12434;&#36861;&#21152;
 </span>(<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"nerd-icons"</span>
   (<span style="color: #a020f0;">setq</span> mode-line-position-line-format
-        `(,(nerd-icons-faicon <span style="color: #8b2252;">"nf-fa-pencil_square_o"</span>) <span style="color: #8b2252;">"%3l"</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61508;
+        `(,(nerd-icons-faicon <span style="color: #8b2252;">"nf-fa-pencil_square_o"</span>) <span style="color: #8b2252;">" %3l"</span>))) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#61508;
 </span>
 <span style="color: #b22222;">;; </span><span style="color: #b22222;">(with-eval-after-load "icons-in-terminal"
 </span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq mode-line-position-line-format
@@ -11315,6 +11321,7 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
 <li>カレントバッファがプロジェクト内のファイルの場合は，タイトルバーにプロジェクト名を出すように設定しています．<br /></li>
 </ul>
 
+
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-projectile-activate</span> ()
@@ -11337,8 +11344,18 @@ MELPAへの登録を目指す emacslisp パッケージの実装で，所定の�
   <span style="color: #8b2252;">"Extensions to skip calling `</span><span style="color: #008b8b;">visit-tags-table</span><span style="color: #8b2252;">'."</span>
   nil)
 
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">for running counsel-projectile-ag
+</span>(<span style="color: #a020f0;">unless</span> (fboundp 'projectile-ignored-files-rel)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">projectile-ignored-files-rel</span> ()
+    nil))
+
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">for running counsel-projectile-ag
+</span>(<span style="color: #a020f0;">unless</span> (fboundp 'projectile-ignored-directories-rel)
+  (<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">projectile-ignored-directories-rel</span> ()
+    nil))
+
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-counsel-projectile-ag</span> ()
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-projectile-ag</span> ()
   <span style="color: #8b2252;">"Use `</span><span style="color: #008b8b;">counsel-projectile-ag</span><span style="color: #8b2252;">' in a projectile project except when `</span><span style="color: #008b8b;">dired</span><span style="color: #8b2252;">'.
 Otherwise, use `</span><span style="color: #008b8b;">counsel-ag</span><span style="color: #8b2252;">'."</span>
   (<span style="color: #a020f0;">interactive</span>)
@@ -11346,7 +11363,9 @@ Otherwise, use `</span><span style="color: #008b8b;">counsel-ag</span><span styl
                (not (projectile-project-p)))
           (eq major-mode 'dired-mode))
       (counsel-ag)
-    (counsel-projectile-ag)))
+    <span style="color: #b22222;">;; </span><span style="color: #b22222;">(call-interactively 'projectile-ag)
+</span>    (counsel-projectile-ag)
+    ))
 </code></pre>
 </div>
 
@@ -11394,7 +11413,7 @@ Otherwise, use `</span><span style="color: #008b8b;">counsel-ag</span><span styl
       (<span style="color: #a020f0;">setq</span> counsel-projectile-sort-files t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#24403;&#35442;&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#20869;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;
 </span>      (<span style="color: #a020f0;">setq</span> counsel-projectile-sort-projects t) <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12503;&#12525;&#12472;&#12455;&#12463;&#12488;&#12522;&#12473;&#12488;&#12434;&#12477;&#12540;&#12488;
 </span>      (keymap-set projectile-mode-map <span style="color: #8b2252;">"C-c p"</span> 'projectile-command-map)
-      (keymap-set projectile-mode-map <span style="color: #8b2252;">"C-M-f"</span> 'my-counsel-projectile-ag)
+      (keymap-set projectile-mode-map <span style="color: #8b2252;">"C-M-f"</span> 'my-projectile-ag)
       (counsel-projectile-mode 1)))
 
   (<span style="color: #a020f0;">unless</span> noninteractive
@@ -11686,8 +11705,21 @@ macOS の場合は brew で libvterm をインストールすれば， <code cla
 </div>
 </div>
 </div>
+<div id="outline-container-org0a8f661" class="outline-3">
+<h3 id="org0a8f661"><span class="section-number-3">9.25.</span> <span class="todo TODO">TODO</span> [ghostel.el] Ghostty を使う</h3>
+<div class="outline-text-3" id="text-9-25">
+<ul class="org-ul">
+<li><a href="https://github.com/dakra/ghostel">https://github.com/dakra/ghostel</a><br /></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(autoload-if-found '(ghostel) <span style="color: #8b2252;">"ghostel"</span>  nil t)
+</code></pre>
+</div>
+</div>
+</div>
 <div id="outline-container-org09687b9c" class="outline-3">
-<h3 id="org09687b9c"><span class="section-number-3">9.25.</span> <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="org09687b9c"><span class="section-number-3">9.26.</span> <span class="done DONE">DONE</span> [auto-complete.el] 自動補完機能&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-org09687b9c">
 <p>
 <a href="http://cx4a.org/software/auto-complete/manual.ja.html">http://cx4a.org/software/auto-complete/manual.ja.html</a><br />
@@ -11741,7 +11773,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">&#36766;&#26360;
 </span>    (add-to-list 'ac-dictionary-directories <span style="color: #8b2252;">"~/.emacs.d/ac-dict"</span>)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">history
-</span>    (<span style="color: #a020f0;">setq</span> ac-comphist-file <span style="color: #8b2252;">"${HOME}/.local/config/ac-comphist.dat"</span>)
+</span>    (<span style="color: #a020f0;">setq</span> ac-comphist-file (expand-filename <span style="color: #8b2252;">"~/.local/config/ac-comphist.dat"</span>))
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#25991;&#23383;&#20197;&#19978;&#12391;&#35036;&#23436;&#34920;&#31034;&#12377;&#12427;&#65288;"&lt;s &lt;tab&gt;" &#12398;&#22580;&#21512; yasnippet &#12364;&#21628;&#12400;&#12428;&#12427;&#65289;
 </span>    (<span style="color: #a020f0;">setq</span> ac-auto-start 4)
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">n&#31186;&#24460;&#12395;&#12513;&#12491;&#12517;&#12540;&#12434;&#34920;&#31034;
@@ -11790,7 +11822,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 </div>
 <div id="outline-container-orgea32afad" class="outline-3">
-<h3 id="orgea32afad"><span class="section-number-3">9.26.</span> <span class="done DONE">DONE</span> [company.el] 続・自動補完機能</h3>
+<h3 id="orgea32afad"><span class="section-number-3">9.27.</span> <span class="done DONE">DONE</span> [company.el] 続・自動補完機能</h3>
 <div class="outline-text-3" id="text-orgea32afad">
 <p>
 <code class="org-verbatim">auto-complete.el</code> がメンテナンスモードに入ったので <code class="org-verbatim">company</code> に移行しました．<br />
@@ -11858,7 +11890,7 @@ auto-complete が正しく効いているかは，バッファ内で適当にパ
 </div>
 </div>
 <div id="outline-container-orgcde881ad" class="outline-3">
-<h3 id="orgcde881ad"><span class="section-number-3">9.27.</span> <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></h3>
+<h3 id="orgcde881ad"><span class="section-number-3">9.28.</span> <span class="done DONE">DONE</span> [hideshowvis.el] 関数の表示／非表示&nbsp;&nbsp;&nbsp<span class="tag"><span class="obsolete">obsolete</span></span></h3>
 <div class="outline-text-3" id="text-orgcde881ad">
 <ul class="org-ul">
 <li><a href="http://www.emacswiki.org/emacs/hideshowvis.el">http://www.emacswiki.org/emacs/hideshowvis.el</a><br /></li>
@@ -11968,7 +12000,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;; </span><span style="color: #b22222;">org-tempo &#12434; org-modules &#12391;&#35501;&#12415;&#36796;&#12416;&#21069;&#12395; TAB &#25276;&#19979;&#12391;&#23637;&#38283;&#12377;&#12427;&#22580;&#21512;&#12398;&#23550;&#20966;
 </span>(advice-add 'org-cycle <span style="color: #483d8b;">:before</span> #'my--org-modules-activate)
 
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12365;&#12414;&#12377;&#65294;
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">&#12507;&#12540;&#12512;&#12509;&#12472;&#12471;&#12519;&#12531;&#30340;&#12394; Org&#12501;&#12449;&#12452;&#12523;&#12434;&#19968;&#30330;&#12391;&#38283;&#12367;&#65294;
 </span>(keymap-global-set <span style="color: #8b2252;">"C-M-o"</span> #'my-open-default-org-file)
 </code></pre>
 </div>
@@ -12203,7 +12235,7 @@ Org Mode は巨大なパッケージなので，設定項目が必然的に増�
 </span><span style="color: #b22222;">;; </span><span style="color: #3a5fcd; text-decoration: underline;"><a href="https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html">https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.htm</a><a href="https://fuco1.github.io/2017-05-25-Fontify-done-checkbox-items-in-org-mode.html">l</a></span><span style="color: #b22222;">
 </span>(font-lock-add-keywords
  'org-mode
- `((<span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">[-+*]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[0-9]+[).]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">\\[@</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">start:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?[0-9]+\\][ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?\\[</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">X</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">/\\2</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">\\][</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\n]*\n</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
+ `((<span style="color: #8b2252;">"^[ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">[-+*]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #8b2252;">[a-zA-Z]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[).]</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">[ \t]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">\\[@</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">start:</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?[0-9]+\\][ \t]*</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">?\\[</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(?:</span><span style="color: #8b2252;">X</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">|</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">(</span><span style="color: #8b2252;">[0-9]+</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">/\\2</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">\\][</span><span style="color: #8b2252;">^</span><span style="color: #8b2252;">\n]*\n</span><span style="color: #66CC99;">\\</span><span style="color: #9966CC;">)</span><span style="color: #8b2252;">"</span>
     1 'org-headline-done prepend))
  'append)
 
@@ -13452,7 +13484,7 @@ org バッファのソースブロックにカーソルがある時には， <co
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-reset-state-subturee</span> ()
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-reset-state-subtree</span> ()
     (<span style="color: #a020f0;">interactive</span>)
     (<span style="color: #a020f0;">if</span> (org-before-first-heading-p)
         (my-org-reset-state-buffer)
@@ -13532,6 +13564,25 @@ will not be modified."</span>
 
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">get-current-date-tags</span> () (format-time-string <span style="color: #8b2252;">"%Y%m%d"</span>))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-set-key-property</span> ()
+  (my-org-set-created-property)
+  (org-id-get-create t)
+  (org-set-property <span style="color: #8b2252;">"CRYPTKEY"</span> my-pgp-outgoing-key))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-capture-hide-drawers</span> ()
+  (<span style="color: #a020f0;">when</span> org-capture-last-stored-marker
+    (<span style="color: #a020f0;">with-current-buffer</span>
+        (marker-buffer org-capture-last-stored-marker)
+      (org-cycle-hide-drawers 'all))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-run-encrypt</span> ()
+  (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">let</span> ((key (org-entry-get nil <span style="color: #8b2252;">"CRYPTKEY"</span>)))
+          (string= key my-pgp-outgoing-key))
+    (my-org-encrypt-entry-copy-pgp-message)))
 </code></pre>
 </div>
 
@@ -13547,6 +13598,8 @@ This user property stores the creation date of the entry"</span>)
                          <span style="color: #8b2252;">"org-capture"</span> nil t)
 
   (<span style="color: #a020f0;">with-eval-after-load</span> <span style="color: #8b2252;">"org-capture"</span>
+    (add-hook 'org-capture-after-finalize-hook #'my-org-capture-hide-drawers)
+    (add-hook 'org-capture-before-finalize-hook #'my-org-run-encrypt)
     (add-hook 'org-capture-before-finalize-hook #'my-org-set-created-property)
 
     <span style="color: #b22222;">;; </span><span style="color: #b22222;">2010-06-13 &#12398;&#24418;&#24335;&#12391;&#12399;&#65292;&#12479;&#12464;&#12392;&#12375;&#12390;&#35469;&#35672;&#12373;&#12428;&#12394;&#12356;
@@ -13614,6 +13667,10 @@ This user property stores the creation date of the entry"</span>)
                           <span style="color: #8b2252;">" &#12395;&#26360;&#12365;&#36796;&#12416;"</span>)
              entry (file+headline ,org-capture-english-file <span style="color: #8b2252;">"GRAMMER"</span>)
              <span style="color: #8b2252;">"** %? :%(get-current-date-tags):\n\n%U"</span>)
+            (<span style="color: #8b2252;">"p"</span> <span style="color: #8b2252;">"PGP Outgoing &#12484;&#12522;&#12540;&#12434;&#20316;&#12427;"</span> entry
+             (file+headline ,org-default-notes-file <span style="color: #8b2252;">"INBOX"</span>)
+             <span style="color: #8b2252;">"** TODO outgoing note\n%?"</span>
+             <span style="color: #483d8b;">:hook</span> my-set-key-property)
             ))))
 </code></pre>
 </div>
@@ -13656,9 +13713,13 @@ This user property stores the creation date of the entry"</span>)
 <span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
 </span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-popup-agenda</span> ()
   (<span style="color: #a020f0;">interactive</span>)
-  (<span style="color: #a020f0;">when</span> (y-or-n-p-with-timeout <span style="color: #8b2252;">"Popup agenda now?"</span> 10 nil)
-    (org-agenda-list)))
-<span style="color: #b22222;">;; </span><span style="color: #b22222;">(let ((status use-dialog-box))
+  (<span style="color: #a020f0;">let</span> ((use-dialog-box nil))
+    (<span style="color: #a020f0;">when</span> (<span style="color: #a020f0;">with-timeout</span> (10 nil)
+            (yes-or-no-p <span style="color: #8b2252;">"Popup agenda now?"</span>))
+      (org-agenda-list))))
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
+</span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(org-agenda-list)))
+</span><span style="color: #b22222;">;; </span><span style="color: #b22222;">(let ((status use-dialog-box))
 </span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(setq use-dialog-box nil)
 </span><span style="color: #b22222;">;;   </span><span style="color: #b22222;">(when (y-or-n-p-with-timeout "Popup agenda now?" 10 nil)
 </span><span style="color: #b22222;">;;     </span><span style="color: #b22222;">(org-agenda-list))
@@ -14792,7 +14853,7 @@ org-mode の表のようにフェイスを統一しています． <code class="
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-org" id="org452e319"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
+<pre class="src src-org" id="org9b1e2b4"><code><span style="color: #b22222;"># -*- mode: org; -*-</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/</a>&gt;</span>
 <span style="color: #b22222;">#+html_head: &lt;link rel="stylesheet" type="text/css" href="<a href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css&quot;/">https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/</a>&gt;</span>
 
@@ -15787,7 +15848,7 @@ Papers3.app は，各文献に <code class="org-verbatim">papers3://</code> で�
 </ul>
 
 
-<div id="orga72250a" class="figure">
+<div id="org911b470" class="figure">
 <p><img src="data/4B/8A23F1-81EE-445B-8982-54B5FAB13645/screenshot-20180315-164532.png" alt="screenshot-20180315-164532.png" /><br />
 </p>
 </div>
@@ -17364,7 +17425,7 @@ Built-in の <a href="http://www.emacswiki.org/emacs/DiffMode">diff-mode.el</a> 
         '((<span style="color: #8b2252;">"TODO"</span> . <span style="color: #8b2252;">"red1"</span>)
           (<span style="color: #8b2252;">"DONE"</span> . <span style="color: #8b2252;">"ForestGreen"</span>)
           (<span style="color: #8b2252;">"HOLD"</span> . <span style="color: #8b2252;">"#d0bf8f"</span>)
-          (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"#dca3a3"</span>)
+          (<span style="color: #8b2252;">"NEXT"</span> . <span style="color: #8b2252;">"coral"</span>)
           (<span style="color: #8b2252;">"THEM"</span> . <span style="color: #8b2252;">"#dc8cc3"</span>)
           (<span style="color: #8b2252;">"PROG"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
           (<span style="color: #8b2252;">"OKAY"</span> . <span style="color: #8b2252;">"#7cb8bb"</span>)
@@ -19160,12 +19221,25 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pgp-incoming-key</span> nil)
+</code></pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-insert-empty-pgp-tree</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (insert <span style="color: #8b2252;">"** TODO hoge\n"</span>)
-  (insert <span style="color: #8b2252;">"-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n"</span>)
-  (forward-line -2))
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-insert-incoming-pgp-tree</span> (<span style="color: #228b22;">&amp;optional</span> key)
+    (<span style="color: #a020f0;">interactive</span>)
+    (insert
+     (<span style="color: #a020f0;">with-temp-buffer</span>
+       (org-mode)
+       (insert <span style="color: #8b2252;">"** TODO incoming note\n"</span>)
+       (org-set-property <span style="color: #8b2252;">"CRYPTKEY"</span> (<span style="color: #a020f0;">or</span> key my-pgp-incoming-key))
+       (insert <span style="color: #8b2252;">"-----BEGIN PGP MESSAGE-----\n\n-----END PGP MESSAGE-----\n"</span>)
+       (buffer-string)))
+    (<span style="color: #a020f0;">save-excursion</span>
+      (org-back-to-heading t)
+      (org-cycle-hide-drawers 'all))
+    (forward-line -2))
 </code></pre>
 </div>
 </div>
@@ -19178,15 +19252,50 @@ PGP MESSAGEで囲われる部分にBASE64化されたコードを書き込んで
 </p>
 
 <div class="org-src-container">
+<pre class="src src-emacs-lisp"><code>(<span style="color: #a020f0;">defvar</span> <span style="color: #a0522d;">my-pgp-outgoing-key</span> nil)
+</code></pre>
+</div>
+
+<div class="org-src-container">
 <pre class="src src-emacs-lisp"><code><span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
-</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-insert-enc2me-pgp-tree</span> ()
-  (<span style="color: #a020f0;">interactive</span>)
-  (insert <span style="color: #8b2252;">"** TODO share with me\n"</span>)
-  (insert <span style="color: #8b2252;">"   :PROPERTIES:\n"</span>)
-  (insert <span style="color: #8b2252;">"   :CRYPTKEY: takaxp@ieee.org\n"</span>)
-  (insert <span style="color: #8b2252;">"   :END:\n"</span>)
-  (insert <span style="color: #8b2252;">"\n"</span>)
-  (forward-line -1))
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-insert-outgoing-pgp-tree</span> (<span style="color: #228b22;">&amp;optional</span> key)
+    (<span style="color: #a020f0;">interactive</span>)
+    (insert
+     (<span style="color: #a020f0;">with-temp-buffer</span>
+       (org-mode)
+       (insert <span style="color: #8b2252;">"** TODO outgoing note\n"</span>)
+       (org-set-property <span style="color: #8b2252;">"CRYPTKEY"</span> (<span style="color: #a020f0;">or</span> key my-pgp-outgoing-key))
+       (insert <span style="color: #8b2252;">"\n"</span>)
+       (buffer-string)))
+    (<span style="color: #a020f0;">save-excursion</span>
+      (org-back-to-heading t)
+      (org-cycle-hide-drawers 'all))
+    (forward-line -1))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-copy-pgp-body</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (<span style="color: #a020f0;">save-excursion</span>
+      (org-back-to-heading t)
+      (<span style="color: #a020f0;">let</span> (beg end)
+        (<span style="color: #a020f0;">when</span> (re-search-forward <span style="color: #8b2252;">"^-----BEGIN PGP MESSAGE-----$"</span> nil t)
+          (forward-line 1)
+          (<span style="color: #a020f0;">setq</span> beg (point))
+          (<span style="color: #a020f0;">when</span> (re-search-forward <span style="color: #8b2252;">"^-----END PGP MESSAGE-----$"</span> nil t)
+            (<span style="color: #a020f0;">setq</span> end (match-beginning 0))))
+
+        (<span style="color: #a020f0;">if</span> (<span style="color: #a020f0;">and</span> beg end)
+            (<span style="color: #a020f0;">progn</span>
+              (kill-new
+               (buffer-substring-no-properties beg end))
+              (message <span style="color: #8b2252;">"PGP block copied"</span>))
+          (<span style="color: #ff0000; font-weight: bold;">user-error</span> <span style="color: #8b2252;">"PGP block not found"</span>)))))
+
+<span style="color: #b22222;">;;;</span><span style="color: #b22222;">###</span><span style="color: #ff0000; font-weight: bold;">autoload</span><span style="color: #b22222;">
+</span>(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-org-encrypt-entry-copy-pgp-message</span> ()
+    (<span style="color: #a020f0;">interactive</span>)
+    (org-encrypt-entry)
+    (my-copy-pgp-body))
 </code></pre>
 </div>
 </div>
@@ -20317,8 +20426,8 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 </div>
 </div>
-<div id="outline-container-orgf1c016e" class="outline-2">
-<h2 id="orgf1c016e"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
+<div id="outline-container-org3a01b87" class="outline-2">
+<h2 id="org3a01b87"><span class="section-number-2">15.</span> 有用なデフォルト関数</h2>
 <div class="outline-text-2" id="text-15">
 <ol class="org-ol">
 <li>M-x find-alternate-file (C-x C-v ENT)<br />
@@ -20340,7 +20449,7 @@ iBuffer で list-buffers をオーバーライド（C-x C-b で表示）<br />
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Takaaki Ishikawa</p>
-<p class="date">Created: 2026-06-15 Mon 21:50</p>
+<p class="date">Created: 2026-08-03 Mon 23:55</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
