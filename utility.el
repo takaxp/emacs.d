@@ -3467,7 +3467,7 @@ See https://writequit.org/articles/emacs-org-mode-generate-ids.html"
 
 ;;;###autoload
 (defun my-theme (&optional type)
-  (interactive "MType (light or dark): ")
+  (interactive "sType (light or dark): ")
   (if (display-graphic-p)
       (let ((theme (cond ((member type '("light" "l")) 'light)
                          ((member type '("dark" "d")) 'dark)

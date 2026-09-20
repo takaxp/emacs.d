@@ -15537,7 +15537,7 @@ Built-in の [[http://www.emacswiki.org/emacs/DiffMode][diff-mode.el]] をカス
 
 ;;;###autoload
 (defun my-theme (&optional type)
-  (interactive "MType (light or dark): ")
+  (interactive "sType (light or dark): ")
   (if (display-graphic-p)
       (let ((theme (cond ((member type '("light" "l")) 'light)
                          ((member type '("dark" "d")) 'dark)
@@ -17625,10 +17625,10 @@ org-buffer を評価して Emacs の設定ファイルを生成／読み込み�
   (goto-char begin))
 #+end_src
 ** " - "と" - [ ] "をサイクルさせる
-   :PROPERTIES:
-   :CUSTOM_ID: orgc99664d5
-   :ID:       EC3D1597-3AC9-4FA6-907E-9DD59C54518E
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: orgc99664d5
+:ID:       EC3D1597-3AC9-4FA6-907E-9DD59C54518E
+:END:
 
  - 空行を含むブリッツ行でないときは，ブリッツ化する．
  - ブリッツ行の場合は，チェックボックス付きに変更する．
