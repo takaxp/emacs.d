@@ -35,6 +35,10 @@
 
 (setq gc-cons-threshold (* 16 1024 1024)) ;; [MB]
 
+;; Emacs 31.1 から出る lexical-binding に関する警告を止める．
+(when (require 'warnings nil t)
+  (add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie)))
+
 (defvar my-sync-dir (expand-file-name "~/Dropbox"))
 (defvar my-package-dir nil)
 (defvar my-use-elpaca emacs-version) ;; nil

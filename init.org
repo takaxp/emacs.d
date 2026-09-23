@@ -452,6 +452,12 @@ see also [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Startup-Sum
 
 特定のパッケージの deprecated メッセージを抑制します． =my-exclude-deprecated-packages= にパッケージを列挙します．以下は =cl= と =tls= の出力だけ抑制して他のパッケージの場合は表示します．
 
+#+begin_src emacs-lisp :tangle early-init.el
+;; Emacs 31.1 から出る lexical-binding に関する警告を止める．
+(when (require 'warnings nil t)
+  (add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie)))
+#+end_src
+
 #+begin_src emacs-lisp :tangle utility.el
 ;;;###autoload
 (defun my--do-after-load-evaluation (abs-file)
@@ -8355,6 +8361,12 @@ With a prefix ARG always prompt for command to use."
   "Reveal the current buffer in Finder."
   (interactive)
   (shell-command-to-string "open ."))
+
+;;;###autoload
+(defun my-copy-directory-path ()
+  (interactive)
+  (kill-new (dired-current-directory))
+  (message "Copied: %s" (dired-current-directory)))
 #+end_src
 
 +明示的に ~dired~ を呼ばなくても， ~ibuffer~ が ~dired~ を読み込むことがわかったので， ~dired~ に関係する以下の設定は， ~init-dired.el~ に分離しました．下記の設定は，最初に =M-x dired= を実行したタイミングで読み込みます．+

@@ -4,10 +4,6 @@
 ;;                                                             TODO/DONE/FIXME
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Emacs 31.1 から出る警告を止める．
-(when (require 'warnings nil t)
-  (add-to-list 'warning-suppress-log-types '(files missing-lexbind-cookie)))
-
 ;;; testing on gptel.el
 ;; (when (require 'gptel nil t)
 ;;   ;; load API key

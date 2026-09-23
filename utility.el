@@ -1410,6 +1410,12 @@ With a prefix ARG always prompt for command to use."
   (shell-command-to-string "open ."))
 
 ;;;###autoload
+(defun my-copy-directory-path ()
+  (interactive)
+  (kill-new (dired-current-directory))
+  (message "Copied: %s" (dired-current-directory)))
+
+;;;###autoload
 (defun my-super-save-predicates-p ()
   "Return nil, if the buffer should not be saved."
   (not
